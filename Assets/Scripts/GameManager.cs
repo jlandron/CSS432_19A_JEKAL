@@ -1,16 +1,21 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
-
+    [SerializeField]
     private int _currentScene;
+    private bool isPaused = false;
+    public GameObject pauseMenu = null;
+
+    public bool IsPaused { get => isPaused; set => isPaused = value; }
 
     private void Start( ) {
         _currentScene = SceneManager.GetActiveScene( ).buildIndex;
     }
 
-    
-    private void FixedUpdate( ) {
+
+    private void Update( ) {
         _currentScene = SceneManager.GetActiveScene( ).buildIndex;
         switch( _currentScene ) {
             case 0: //_preload scene
@@ -23,7 +28,11 @@ public class GameManager : MonoBehaviour {
             case 2: // login scene
             break;
 
-            case 3: // Game scene
+            case 3: // Create Account scene
+            break;
+
+            case 4: // Game scene
+            HandleGame( );
             break;
 
             default:
@@ -31,4 +40,28 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    private void HandleGame( ) {
+        if(pauseMenu == null ) {
+            pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
+            pauseMenu.SetActive( false );
+        }
+        if( Input.GetKeyDown( KeyCode.Escape ) ) {
+            if( IsPaused ) {
+                Resume( );
+            } else {
+                ShowPauseMenu( );
+            }
+        }
+    }
+
+    private void ShowPauseMenu( ) {
+        IsPaused = true;
+        pauseMenu.SetActive( true );
+    }
+
+    private void Resume( ) {
+        IsPaused = false;
+        pauseMenu.SetActive( false );
+    }
+    
 }

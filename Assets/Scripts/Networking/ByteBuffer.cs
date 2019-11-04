@@ -175,7 +175,6 @@ namespace GameClient {
                     if( value.Length > 0 ) {
                         _readPos += length;
                     }
-                    _readPos += 4; //float is 4 bytes
                 }
                 return value;
             
@@ -187,7 +186,7 @@ namespace GameClient {
         private bool disposedValue = false;
         protected virtual void Dispose(bool disposing ) {
             if( !disposing ) {
-                if( disposing ) {
+                if( !disposedValue ) {
                     _buffer.Clear( );
                     _readPos = 0;
                 }

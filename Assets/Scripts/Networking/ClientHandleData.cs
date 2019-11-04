@@ -11,6 +11,7 @@ namespace GameClient {
         public static void InitPackets( ) {
             packets.Add( ( int )ServerPacketType.ServerWelcomeMessage , DataReciever.HandleWelcomeMessage );
             packets.Add( ( int )ServerPacketType.ServerChatBroadcast, DataReciever.HandleChatMessage );
+            packets.Add( ( int )ServerPacketType.ServerInstatiatePlayerData, DataReciever.HandleInstatiatePlayer );
         }
         public static void HandleData(byte[] data ) {
             byte[] buffer = ( byte[] )data.Clone( );

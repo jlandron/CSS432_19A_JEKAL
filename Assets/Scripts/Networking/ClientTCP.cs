@@ -8,16 +8,17 @@ namespace GameClient {
         private static NetworkStream _myStream;
         private static byte[] _recieveBuffer;
 
-        private static string serverIP = "127.0.0.1";
+        private static string _serverIP;
+        private static int _serverPort;
 
-        private static int serverPort = 51092;
-
-        public static void InitNetworking( ) {
+        public static void InitNetworking(string serverIP, int serverPort ) {
             _clientSocket = new TcpClient( );
             _clientSocket.ReceiveBufferSize = BUFFER_SIZE;
             _clientSocket.SendBufferSize = BUFFER_SIZE;
             _recieveBuffer = new byte[ BUFFER_SIZE * 2 ];
-            _ = _clientSocket.BeginConnect( serverIP, serverPort, new System.AsyncCallback( ClientConnectCallback ), _clientSocket );
+            _serverIP = serverIP;
+            _serverPort = serverPort;
+            _clientSocket.BeginConnect( serverIP, serverPort, new System.AsyncCallback( ClientConnectCallback ), _clientSocket );
         }
 
         private static void ClientConnectCallback( IAsyncResult ar ) {
@@ -29,12 +30,11 @@ namespace GameClient {
                 _myStream = _clientSocket.GetStream( );
                 _myStream.BeginRead( _recieveBuffer, 0, BUFFER_SIZE * 2, RecieveCallback, null );
             }
-
         }
 
         private static void RecieveCallback( IAsyncResult ar ) {
             try {
-                int length = -_myStream.EndRead( ar );
+                int length = _myStream.EndRead( ar );
                 if( length <= 0 ) {
                     return;
                 }

@@ -73,6 +73,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   serverIP: 127.0.0.1
   serverPort: 51092
-  playerPrefab: {fileID: 6202845134884782547, guid: 1b5aa62088567924ab68c8556e321dbd,
+  playerPrefab: {fileID: 1324539822312374523, guid: 198aad17cd0ebc94f927f7459b1fa542,
     type: 3}
   startingPositions: []

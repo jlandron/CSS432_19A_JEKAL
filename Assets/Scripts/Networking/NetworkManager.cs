@@ -13,35 +13,20 @@ public class NetworkManager : MonoBehaviour {
     private GameObject playerPrefab;
     [SerializeField]
     private GameObject[] startingPositions;
-    private GameObject Player;
-    private bool havePlayer = false;
-
 
     private void Start( ) {
+        playerPrefab = Resources.Load( "prefabs/ExtPlayer" ) as GameObject;
         playerList = new Dictionary<int, GameObject>( );
         UnityThread.initUnityThread( );
         ClientHandleData.InitPackets( );
         ClientTCP.InitNetworking(serverIP, serverPort );
     }
-    private void FixedUpdate( ) {
-        if( !havePlayer ) {
-            Player = GameObject.FindGameObjectWithTag( "Player" );
-            if( Player != null ) {
-                havePlayer = true;
-            }
-        } else {
-            //send my player data to server
-            DataSender.SendTransformMessage( Player.transform.position.x,
-                Player.transform.position.y, Player.transform.position.z,
-                Player.transform.rotation.x, Player.transform.rotation.y,
-                Player.transform.rotation.z );
-            Debug.Log( "SendTransformData Called" );
-        }
-    }
+    
     private void OnApplicationQuit( ) {
         ClientTCP.Disconnect( );
     }
 
+    //TODO: add team locations and instantiations
     internal void InstatiatePlayer( int index ) {
         //add spawning locations for teams, more game information needed
         GameObject player = Instantiate( playerPrefab );
@@ -50,13 +35,16 @@ public class NetworkManager : MonoBehaviour {
         playerList.Add( index, player );
     }
 
-    internal void UpdatePlayerLocation( byte[] data ) {
+    public void UpdatePlayerLocation( byte[] data ) {
         ByteBuffer buffer = new ByteBuffer( );
         int packetID = buffer.ReadInt( );
+        //read position and rotation
         Vector3 position = new Vector3( buffer.ReadFloat( ), buffer.ReadFloat( ), buffer.ReadFloat( ) );
-        Vector3 rotation = new Vector3( buffer.ReadFloat( ), buffer.ReadFloat( ), buffer.ReadFloat( ) );
-
-
+        Quaternion rotation = new Quaternion ( buffer.ReadFloat( ), buffer.ReadFloat( ), buffer.ReadFloat( ), buffer.ReadFloat() );
+        //read player connectionID that was appended to packet
+        int index = buffer.ReadInt( );
+        //update the player
+        playerList[ index ].GetComponent<PlayerUpdater>( ).UpdatePlayerTransform(position, rotation );
         buffer.Dispose( );
     }
 }

@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour {
     public bool IsPaused { get => isPaused; set => isPaused = value; }
 
     private void Start( ) {
+        Screen.SetResolution( 1600, 900, false );
         _currentScene = SceneManager.GetActiveScene( ).buildIndex;
     }
 

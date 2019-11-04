@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4423804218858519097}
   - component: {fileID: 4423804218858519094}
   - component: {fileID: 4715162495731654904}
+  - component: {fileID: 2065246878}
   m_Layer: 0
   m_Name: __app
   m_TagString: Untagged
@@ -44,6 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aafdf9e46e31928478f577dd32653daf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _currentScene: 0
+  pauseMenu: {fileID: 0}
 --- !u!114 &4715162495731654904
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -54,5 +57,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9db517d5ee000984fad8f534202bb92a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2065246878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4423804218858519095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fc61904758544c41af1c1f7649aaae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

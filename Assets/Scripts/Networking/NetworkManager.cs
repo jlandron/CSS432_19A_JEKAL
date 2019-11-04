@@ -1,6 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using GameClient;
 
 public class NetworkManager : MonoBehaviour {
+    private void Start( ) {
+        UnityThread.initUnityThread( );
+        ClientHandleData.InitPackets( );
+        ClientTCP.InitNetworking( );
+    }
+
+    private void OnApplicationQuit( ) {
+        ClientTCP.Disconnect( );
+    }
 }

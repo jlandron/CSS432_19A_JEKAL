@@ -1,9 +1,10 @@
-﻿
+﻿using System.Threading.Tasks;
+
 namespace Jekal.Servers
 {
     class GameServer : IServer
     {
-        public void StartServer()
+        public Task<int> StartServer()
         {
             throw new System.NotImplementedException();
         }

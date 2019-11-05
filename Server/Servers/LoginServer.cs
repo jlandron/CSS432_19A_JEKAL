@@ -1,15 +1,14 @@
 ﻿using Jekal.Objects;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Jekal.Servers
 {
-    class LoginServer
+    class LoginServer : IServer
     {
         bool stopServer = false;
 
-        public async Task<int> TestMethod()
+        public async Task<int> StartServer()
         {
             Console.WriteLine("Starting Login Server...");
             return await StartListening();

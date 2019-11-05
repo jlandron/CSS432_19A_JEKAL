@@ -24,8 +24,8 @@ namespace Jekal
 
         public void StartGame()
         {
-            _ = loginServer.TestMethod();
-            _ = chatServer.TestMethod();
+            _ = loginServer.StartServer();
+            _ = chatServer.StartServer();
         }
 
         public void StopGame()

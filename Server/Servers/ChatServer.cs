@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace Jekal.Servers
 {
-    class ChatServer
-    {
+    class ChatServer : IServer
+    { 
         bool stopServer = false;
 
         public void StopServer()
@@ -15,7 +15,7 @@ namespace Jekal.Servers
             return;
         }
 
-        public async Task<int> TestMethod()
+        public async Task<int> StartServer()
         {
             Console.WriteLine("Starting Chat Server...");
             return await StartListening();

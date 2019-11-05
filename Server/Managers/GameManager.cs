@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Jekal.Managers
 {
-    class GameManager
+    public class GameManager
     {
         private List<Game> Games;
     }

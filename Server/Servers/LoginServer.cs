@@ -1,12 +1,20 @@
-﻿using Jekal.Objects;
+﻿using Jekal;
 using System;
 using System.Threading.Tasks;
 
 namespace Jekal.Servers
 {
-    class LoginServer : IServer
+    public class LoginServer : IServer
     {
         bool stopServer = false;
+        readonly JekalGame _game;
+        readonly int nPort = 0;
+
+        public LoginServer(JekalGame game)
+        {
+            _game = game;
+            nPort = Convert.ToInt32(_game.Settings["loginServerPort"]);
+        }
 
         public async Task<int> StartServer()
         {
@@ -29,6 +37,16 @@ namespace Jekal.Servers
         {
             Console.WriteLine("Stopping Login Server...");
             stopServer = true;
+        }
+
+        private void OnSocketConnect()
+        {
+            object playerLock = new object();
+
+            lock (playerLock)
+            {
+                _game.Players.AddPlayer(new Objects.Player());
+            }
         }
     }
 }

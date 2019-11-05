@@ -1,12 +1,10 @@
 ﻿using Jekal.Servers;
 using Jekal.Managers;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Specialized;
 
 namespace Jekal
 {
-    class JekalGame
+    public class JekalGame
     {
         public GameManager Games { get; set; }
         public PlayerManager Players { get; set; }
@@ -14,10 +12,17 @@ namespace Jekal
         private LoginServer loginServer;
         private ChatServer chatServer;
 
+        public NameValueCollection Settings { get; }
+
+        public JekalGame(NameValueCollection settings)
+        {
+            Settings = settings;
+        }
+
         public void Initialize()
         {
-            loginServer = new LoginServer();
-            chatServer = new ChatServer();
+            loginServer = new LoginServer(this);
+            chatServer = new ChatServer(this);
             Games = new GameManager();
             Players = new PlayerManager();
         }

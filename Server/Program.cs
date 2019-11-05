@@ -28,7 +28,9 @@ namespace Jekal
 
         static void Main(string[] args)
         {
-            var game = new JekalGame();
+            // Load configuration
+            var settings = ConfigurationManager.AppSettings;
+            var game = new JekalGame(settings);
             game.Initialize();
 
             Console.WriteLine("Starting up Jekal game servers...");

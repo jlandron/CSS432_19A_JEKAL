@@ -2,7 +2,7 @@
 
 namespace Jekal.Servers
 {
-    class GameServer : IServer
+    internal class GameServer : IServer
     {
         public Task<int> StartServer()
         {

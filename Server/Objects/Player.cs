@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net.Sockets;
 
 namespace Jekal.Objects
 {
-    class Player
+    public class Player
     {
+        Guid playerId;
+        string name;
+        int score;
+        Socket chatSocket;
+        Socket gameSocket;
     }
 }

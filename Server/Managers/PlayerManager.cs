@@ -1,10 +1,25 @@
 ﻿using Jekal.Objects;
 using System.Collections.Generic;
+using System.Net.Sockets;
 
 namespace Jekal.Managers
 {
-    class PlayerManager
+    public class PlayerManager
     {
         private List<Player> Players;
+
+        public PlayerManager()
+        {
+            Players = new List<Player>();
+        }
+        public void AddPlayer(Player player)
+        {
+            Players.Add(player);
+        }
+
+        public static Player CreatePlayer(Socket clientSocket)
+        {
+            return new Player();
+        }
     }
 }

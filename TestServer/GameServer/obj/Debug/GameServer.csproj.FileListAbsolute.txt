@@ -4,3 +4,9 @@ C:\Users\joshl\source\repos\GameServer\GameServer\bin\Debug\GameServer.pdb
 C:\Users\joshl\source\repos\GameServer\GameServer\obj\Debug\GameServer.csprojAssemblyReference.cache
 C:\Users\joshl\source\repos\GameServer\GameServer\obj\Debug\GameServer.exe
 C:\Users\joshl\source\repos\GameServer\GameServer\obj\Debug\GameServer.pdb
+D:\Unity\MyProjects\Networking_Game_Project\TestServer\GameServer\bin\Debug\GameServer.exe.config
+D:\Unity\MyProjects\Networking_Game_Project\TestServer\GameServer\bin\Debug\GameServer.exe
+D:\Unity\MyProjects\Networking_Game_Project\TestServer\GameServer\bin\Debug\GameServer.pdb
+D:\Unity\MyProjects\Networking_Game_Project\TestServer\GameServer\obj\Debug\GameServer.csprojAssemblyReference.cache
+D:\Unity\MyProjects\Networking_Game_Project\TestServer\GameServer\obj\Debug\GameServer.exe
+D:\Unity\MyProjects\Networking_Game_Project\TestServer\GameServer\obj\Debug\GameServer.pdb

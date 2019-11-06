@@ -71,7 +71,7 @@ namespace GameClient {
                 }
                 byte value = _readBuffer[ _readPos ];
                 if( Peek & _buffer.Count > _readPos ) {
-                    _readPos += 1;
+                    _readPos += sizeof(byte);
                 }
                 return value;
             } else {
@@ -99,7 +99,7 @@ namespace GameClient {
                 }
                 short value = BitConverter.ToInt16( _readBuffer,_readPos );
                 if( Peek & _buffer.Count > _readPos ) {
-                    _readPos += 2; //short is 2 bytes
+                    _readPos += sizeof(short); //short is 2 bytes
                 }
                 return value;
             } else {
@@ -113,7 +113,7 @@ namespace GameClient {
                 }
                 int value = BitConverter.ToInt32( _readBuffer, _readPos );
                 if( Peek & _buffer.Count > _readPos ) {
-                    _readPos += 4; //int is 4 bytes
+                    _readPos += sizeof(int); //int is 4 bytes
                 }
                 return value;
             } else {
@@ -127,7 +127,7 @@ namespace GameClient {
                 }
                 long value = BitConverter.ToInt64( _readBuffer, _readPos );
                 if( Peek & _buffer.Count > _readPos ) {
-                    _readPos += 8; //long is 8 bytes
+                    _readPos += sizeof(long); //long is 8 bytes
                 }
                 return value;
             } else {
@@ -141,11 +141,11 @@ namespace GameClient {
                 }
                 float value = BitConverter.ToSingle( _readBuffer, _readPos );
                 if( Peek & _buffer.Count > _readPos ) {
-                    _readPos += 4; //float is 4 bytes
+                    _readPos += sizeof(float); //float is 4 bytes
                 }
                 return value;
             } else {
-                throw new Exception( "You are not trying to read an int" );
+                throw new Exception( "You are not trying to read an float" );
             }
         }
         public bool ReadBool( bool Peek = true ) {
@@ -155,7 +155,7 @@ namespace GameClient {
                 }
                 bool value = BitConverter.ToBoolean( _readBuffer, _readPos );
                 if( Peek & _buffer.Count > _readPos ) {
-                    _readPos += 1; //bool is 1 bytes
+                    _readPos += sizeof(bool); //bool is 1 bytes
                 }
                 return value;
             } else {
@@ -192,7 +192,6 @@ namespace GameClient {
                 }
                 disposedValue = true;
             }
-            
         }
         public void Dispose( ) {
             Dispose( true );

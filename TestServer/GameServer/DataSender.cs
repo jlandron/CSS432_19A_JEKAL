@@ -14,6 +14,7 @@ namespace GameServer {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( ( int )ServerPacketsType.ServerWelcomeMessage );
             buffer.Write( "Welcome to Jekel Server!" );
+            buffer.Write( connectionID );
             ClientManager.SendData( connectionID, buffer.ToArray( ) );
             buffer.Dispose( );
         }

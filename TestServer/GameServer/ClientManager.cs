@@ -32,7 +32,7 @@ namespace GameServer {
 
         public static void SendData( int connectionID, byte[] data ) {
             ByteBuffer byteBuffer = new ByteBuffer( );
-            //make sure to get full packet length
+            //write length
             byteBuffer.Write( ( data.GetUpperBound( 0 ) - data.GetLowerBound( 0 ) ) + 1 );
             //write data to buffer
             byteBuffer.Write( data );

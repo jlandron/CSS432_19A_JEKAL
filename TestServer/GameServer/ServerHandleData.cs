@@ -15,20 +15,19 @@ namespace GameServer {
         }
 
         public static void HandleData(int connectionID, byte[] data ) {
-            byte[] buffer = ( byte[] )data.Clone( );
             int pLength = 0;
             //if buffer is not made, make one
             if(ClientManager.clients[connectionID].buffer == null ) {
                 ClientManager.clients[connectionID].buffer = new ByteBuffer( );
             }
             //write passed in data to client connection
-            ClientManager.clients[connectionID].buffer.Write( buffer );
+            ClientManager.clients[connectionID].buffer.Write( data );
             //check if empty package
             if(ClientManager.clients[connectionID].buffer.Count() == 0 ) {
                 ClientManager.clients[connectionID].buffer.Clear( );
                 return;
             }
-            //make sure packet has at least an identifier
+            //make sure packet has at least a length
             if(ClientManager.clients[connectionID].buffer.Length() >= identifierLength ) {
                 pLength = ClientManager.clients[connectionID].buffer.ReadInt( false );
                 //make sure packet exists

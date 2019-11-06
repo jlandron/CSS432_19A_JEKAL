@@ -48,6 +48,7 @@ namespace GameClient {
                 return;
             }
         }
+
         public static void SendData( byte[] data ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( ( data.GetUpperBound( 0 ) - data.GetLowerBound( 0 ) ) + 1 );

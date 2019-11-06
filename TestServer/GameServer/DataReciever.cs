@@ -23,7 +23,6 @@ namespace GameServer {
         public static void HandleTransformMessage( int connectionID, byte[] data ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( data );
-            buffer.Write( connectionID );
             DataSender.BroadcastUpdateTransform( connectionID , buffer.ToArray());
             buffer.Dispose( );
         }

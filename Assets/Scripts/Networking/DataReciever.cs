@@ -9,15 +9,18 @@ namespace GameClient {
         ServerTransformUpdate = 4,
     }
     public static class DataReciever {
+
         public static void HandleWelcomeMessage( byte[] data ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( data );
             int packetID = buffer.ReadInt( );
             string msg = buffer.ReadString( );
+            GameObject.FindGameObjectWithTag( "Player" ).GetComponent<NetworkPlayer>( ).playerID = buffer.ReadInt( );
             buffer.Dispose( );
             //TODO: push message to chat window
             Debug.Log( msg );
         }
+
         //implement pushing chat to data sender
         public static void HandleChatMessage(byte[] data ) {
             ByteBuffer buffer = new ByteBuffer( );
@@ -27,16 +30,21 @@ namespace GameClient {
             buffer.Dispose( );
             //TODO: push message to chat window
         }
+
         public static void HandleInstatiatePlayer(byte[] data ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( data );
             int packetID = buffer.ReadInt( );
             int index = buffer.ReadInt( );
             buffer.Dispose( );
-            GameObject.FindObjectOfType<NetworkManager>( ).InstatiatePlayer( index );
+            NetworkManager.Instance.InstatiatePlayer( index );
         }
+
         public static void HandlePlayerTranformMessage(byte[] data ) {
-            GameObject.FindObjectOfType<NetworkManager>( ).UpdatePlayerLocation( data );
+            ByteBuffer buffer = new ByteBuffer( );
+            buffer.Write( data );
+            NetworkManager.Instance.UpdatePlayerLocation( buffer.ToArray( ) ) ;
+            buffer.Dispose( );
         }
     }
 }

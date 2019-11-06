@@ -15,13 +15,12 @@ namespace GameClient {
             packets.Add( ( int )ServerPacketType.ServerTransformUpdate, DataReciever.HandlePlayerTranformMessage );
         }
         public static void HandleData(byte[] data ) {
-            byte[] buffer = ( byte[] )data.Clone( );
             int pLength = 0;
             if(playerBuffer == null ) {
                 playerBuffer = new ByteBuffer( );
             }
 
-            playerBuffer.Write( buffer );
+            playerBuffer.Write( data );
             if(playerBuffer.Count() == 0 ) {
                 playerBuffer.Clear( );
                 return;
@@ -58,7 +57,8 @@ namespace GameClient {
         private static void HandleDataPackets(byte[] data ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( data );
-            int packetID = buffer.ReadInt( );
+            //check packet type
+            int packetID = buffer.ReadInt();
             buffer.Dispose( );
             if( packets.TryGetValue( packetID, out Packet packet )){
                 packet.Invoke( data );

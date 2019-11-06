@@ -145,7 +145,7 @@ namespace GameServer {
                 }
                 return value;
             } else {
-                throw new Exception( "You are not trying to read an int" );
+                throw new Exception( "You are not trying to read an float" );
             }
         }
         public bool ReadBool( bool Peek = true ) {

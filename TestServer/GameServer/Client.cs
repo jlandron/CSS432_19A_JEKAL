@@ -31,9 +31,8 @@ namespace GameServer {
                 }
                 byte[] newBytes = new byte[ length ];
                 Array.Copy( _recieveBuffer, newBytes, length );
-                //handle data here, each packet has an identifier that is checked in this class
-                
                 //infinite loop
+                ServerHandleData.HandleData( connectionID, newBytes );
                 stream.BeginRead( _recieveBuffer, 0, BUFFER_SIZE, new AsyncCallback( OnRecieveData ), null );
             } catch( Exception ) {
                 CloseConnection( );

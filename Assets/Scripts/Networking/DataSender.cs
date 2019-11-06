@@ -8,7 +8,9 @@ namespace GameClient {
         ClientChatMessage = 1,
         ClientTransformMessage = 4,
     }
+
     public static class DataSender {
+
         public static void SendChatMessage( ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( ( int )ClientPacketType.ClientChatMessage );
@@ -16,6 +18,7 @@ namespace GameClient {
             ClientTCP.SendData( buffer.ToArray( ) );
             buffer.Dispose( );
         }
+
         public static void SendTransformMessage( byte[] data ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( (int)ClientPacketType.ClientTransformMessage );

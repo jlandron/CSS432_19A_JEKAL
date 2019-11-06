@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour {
     public bool IsPaused { get => isPaused; set => isPaused = value; }
 
     private void Start( ) {
-        Screen.SetResolution( 1600, 900, false );
+        Screen.SetResolution( 1920, 1080, false );
         _currentScene = SceneManager.GetActiveScene( ).buildIndex;
     }
 
@@ -20,25 +20,32 @@ public class GameManager : MonoBehaviour {
         _currentScene = SceneManager.GetActiveScene( ).buildIndex;
         switch( _currentScene ) {
             case 0: //_preload scene
-            SceneManager.LoadScene( 1 );
+            //SceneManager.LoadScene( 1 );
+            break;
+      
+            case 1: // login scene
+            HandleLogin( );
             break;
 
-            case 1: // main menu scene
+            case 2: // Create Account scene
+            HandleCreateAccount( );
             break;
 
-            case 2: // login scene
-            break;
-
-            case 3: // Create Account scene
-            break;
-
-            case 4: // Game scene
+            case 3: // Game scene
             HandleGame( );
             break;
 
             default:
             break;
         }
+    }
+
+    private void HandleLogin( ) {
+        //Set flags in NetworkManager
+    }
+
+    private void HandleCreateAccount( ) {
+        //Set flags in NetworkManager
     }
 
     private void HandleGame( ) {

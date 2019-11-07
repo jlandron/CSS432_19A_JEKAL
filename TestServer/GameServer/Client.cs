@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+//using Common.Protocols;
 
 namespace GameServer {
     public class Client {

@@ -1,9 +1,8 @@
-﻿
-namespace Jekal.Objects
+﻿namespace Common.Protocols
 {
-    public class Common
+    public class LoginProtocol
     {
-        enum LoginProtocol
+        public enum Messages
         {
             LOGIN = 1,
             AUTH,

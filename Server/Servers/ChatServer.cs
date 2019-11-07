@@ -1,5 +1,6 @@
 ﻿using Jekal.Objects;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Jekal.Servers
@@ -23,7 +24,7 @@ namespace Jekal.Servers
             return;
         }
 
-        public async Task<int> StartServer()
+        public async Task<int> StartServer(CancellationToken token)
         {
             Console.WriteLine("Starting Chat Server...");
             return await StartListening();

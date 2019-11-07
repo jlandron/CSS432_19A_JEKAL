@@ -54,7 +54,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Objects\ScoreBoard.cs" />
-    <Compile Include="Common\Protocols.cs" />
     <Compile Include="Servers\ChatServer.cs" />
     <Compile Include="Servers\GameServer.cs" />
     <Compile Include="Servers\IServer.cs" />
@@ -71,6 +70,11 @@
   <ItemGroup>
     <Content Include=".gitignore" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{4c6b0a33-3e8e-495b-b4e6-394da2cc9c81}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

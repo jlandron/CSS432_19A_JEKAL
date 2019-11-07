@@ -1,6 +1,8 @@
 ﻿using Jekal.Servers;
 using Jekal.Managers;
 using System.Collections.Specialized;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Jekal
 {
@@ -11,6 +13,7 @@ namespace Jekal
 
         private LoginServer loginServer;
         private ChatServer chatServer;
+        private CancellationTokenSource source;
 
         public NameValueCollection Settings { get; }
 
@@ -21,6 +24,7 @@ namespace Jekal
 
         public void Initialize()
         {
+            source = new CancellationTokenSource();
             loginServer = new LoginServer(this);
             chatServer = new ChatServer(this);
             Games = new GameManager();
@@ -29,13 +33,17 @@ namespace Jekal
 
         public void StartGame()
         {
-            _ = loginServer.StartServer();
-            _ = chatServer.StartServer();
+            var token = source.Token;
+            var loginTask = loginServer.StartServer(token);
+            var chatTask = chatServer.StartServer(token);
+
+            Task.WaitAll(loginTask, chatTask);
         }
 
         public void StopGame()
         {
-            loginServer.StopServer();
+            source.Cancel();
+            //loginServer.StopServer();
             chatServer.StopServer();
         }
     }

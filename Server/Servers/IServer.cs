@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Jekal.Servers
 {
     interface IServer
     {
-        Task<int> StartServer();
+        Task<int> StartServer(CancellationToken token);
         void StopServer();
     }
 }

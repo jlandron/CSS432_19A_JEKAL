@@ -1,5 +1,9 @@
 ﻿using Jekal;
 using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Jekal.Servers
@@ -9,33 +13,76 @@ namespace Jekal.Servers
         bool stopServer = false;
         readonly JekalGame _game;
         readonly int nPort = 0;
+        List<Task> connections;
 
         public LoginServer(JekalGame game)
         {
             _game = game;
             nPort = Convert.ToInt32(_game.Settings["loginServerPort"]);
+            connections = new List<Task>();
         }
 
-        public async Task<int> StartServer()
+        public async Task<int> StartServer(CancellationToken token)
         {
-            Console.WriteLine("Starting Login Server...");
-            return await StartListening();
+            var serverName = Dns.GetHostName();
+            var hostEntry = Dns.GetHostEntry(serverName);
+            var ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
+
+            Console.WriteLine($"LOGINSERVER: Starting on {ipAddress}:{nPort}");
+            var loginListener = new TcpListener(ipAddress, nPort);
+            token.Register(loginListener.Stop);
+
+            loginListener.Start();
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    var playerConnection = await loginListener.AcceptTcpClientAsync();
+                    var playerTask = HandlePlayer(playerConnection);
+                    connections.Add(playerTask);
+                }
+                catch (ObjectDisposedException) when (token.IsCancellationRequested)
+                {
+                    Console.WriteLine("LOGINSERVER: Stopping Server...");
+                    Task.WaitAll(connections.ToArray());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"LOGINSERVER: Error handling client connetion: {ex.Message}");
+                }
+            }
+
+            Console.WriteLine("LOGINSERVER: Stopped Server...");
+            return 0;
+        }
+
+        private Task HandlePlayer(TcpClient playerConnection)
+        {
+            playerConnection.Close();
+            return Task.FromResult(0);
         }
 
         private async Task<int> StartListening()
         {
+            var serverName = Dns.GetHostName();
+            var hostEntry = Dns.GetHostEntry(serverName);
+            var ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
+
+            Console.WriteLine($"LOGINSERVER: Starting on {ipAddress}:{nPort}");
+            var loginListener = new TcpListener(ipAddress, nPort);
+
             while (!stopServer)
             {
-                Console.WriteLine("LoginServer...");
                 await Task.Delay(1000);
             }
 
+            loginListener.Stop();
             return 0;
         }
 
         public void StopServer()
         {
-            Console.WriteLine("Stopping Login Server...");
+            Console.WriteLine("LOGINSERVER: Stopping Server...");
             stopServer = true;
         }
 

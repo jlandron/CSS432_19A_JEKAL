@@ -58,42 +58,21 @@ namespace Jekal.Servers
 
         private Task HandlePlayer(TcpClient playerConnection)
         {
+            // TODO: Parse message (ensure it's a LOGIN)
+            // TODO: "Auth" player (check for duplicate names)
+            // TODO: Create Player object
+            // TODO: Add to player manager
+            // TODO: Get Game
+            // TODO: Add Player to it
+            // TODO: Respond with AUTH
             playerConnection.Close();
             return Task.FromResult(0);
-        }
-
-        private async Task<int> StartListening()
-        {
-            var serverName = Dns.GetHostName();
-            var hostEntry = Dns.GetHostEntry(serverName);
-            var ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
-
-            Console.WriteLine($"LOGINSERVER: Starting on {ipAddress}:{nPort}");
-            var loginListener = new TcpListener(ipAddress, nPort);
-
-            while (!stopServer)
-            {
-                await Task.Delay(1000);
-            }
-
-            loginListener.Stop();
-            return 0;
         }
 
         public void StopServer()
         {
             Console.WriteLine("LOGINSERVER: Stopping Server...");
             stopServer = true;
-        }
-
-        private void OnSocketConnect()
-        {
-            object playerLock = new object();
-
-            lock (playerLock)
-            {
-                _game.Players.AddPlayer(new Objects.Player());
-            }
         }
     }
 }

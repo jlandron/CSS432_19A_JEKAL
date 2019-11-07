@@ -42,6 +42,7 @@ namespace GameServer {
 
         private void CloseConnection( ) {
             Console.WriteLine("Connection from '{0}' has been terminated.", socket.Client.RemoteEndPoint.ToString( ) );
+            ClientManager.clients.Remove(connectionID);
             socket.Close( );
         }
     }

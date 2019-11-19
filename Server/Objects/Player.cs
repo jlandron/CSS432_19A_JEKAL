@@ -5,8 +5,7 @@ namespace Jekal.Objects
 {
     public class Player
     {
-        Guid playerId;
-        string name;
+        public string Name { get; set; }
         int score;
         Socket chatSocket;
         Socket gameSocket;

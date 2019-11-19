@@ -17,6 +17,11 @@ namespace Jekal.Managers
             Players.Add(player);
         }
 
+        public bool PlayerExists(string playerName)
+        {
+            return false;
+        }
+
         public static Player CreatePlayer(Socket clientSocket)
         {
             return new Player();

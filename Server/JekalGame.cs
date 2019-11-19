@@ -11,6 +11,14 @@ namespace Jekal
         public GameManager Games { get; set; }
         public PlayerManager Players { get; set; }
 
+        public ChatServer Chat
+        {
+            get
+            {
+                return chatServer;
+            }
+        }
+
         private LoginServer loginServer;
         private ChatServer chatServer;
         private CancellationTokenSource source;

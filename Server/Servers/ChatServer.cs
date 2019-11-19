@@ -5,16 +5,27 @@ using System.Threading.Tasks;
 
 namespace Jekal.Servers
 {
-    class ChatServer : IServer
+    public class ChatServer : IServer
     {
         private readonly JekalGame _game;
         bool stopServer = false;
         int nPort = 0;
+        string ipAddress = "127.0.0.1";
 
         public ChatServer(JekalGame game)
         {
             _game = game;
             nPort = Convert.ToInt32(_game.Settings["chatServerPort"]);
+        }
+
+        public int GetPort()
+        {
+            return nPort;
+        }
+
+        public string GetIP()
+        {
+            return ipAddress;
         }
 
         public void StopServer()

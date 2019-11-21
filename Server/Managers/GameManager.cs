@@ -1,5 +1,8 @@
 ﻿using Jekal.Objects;
+using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Jekal.Managers
 {
@@ -7,17 +10,26 @@ namespace Jekal.Managers
     {
         private List<Game> Games;
         private Game _game;
-        private int currentPort = 4444;
-        private string serverIp = "127.0.0.1";
+        private readonly JekalGame _jekal;
+        private int _currentPort;
+        private IPAddress _serverIp;
 
+        public GameManager(JekalGame game)
+        {
+            _jekal = game;
+            _currentPort = Convert.ToInt32(_jekal.Settings["gameServerPort"]);
+            var serverName = Dns.GetHostName();
+            var hostEntry = Dns.GetHostEntry(serverName);
+            _serverIp = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
+        }
         public int GetGamePort()
         {
-            return currentPort;
+            return _currentPort;
         }
 
         public string GetGameIPAddress()
         {
-            return serverIp;
+            return _serverIp.ToString();
         }
 
         public Game GetWaitingGame()

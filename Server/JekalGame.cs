@@ -37,7 +37,7 @@ namespace Jekal
             source = new CancellationTokenSource();
             loginServer = new LoginServer(this);
             chatServer = new ChatServer(this);
-            Games = new GameManager();
+            Games = new GameManager(this);
             Players = new PlayerManager();
             Sessions = new SessionManager();
         }
@@ -54,7 +54,6 @@ namespace Jekal
         public void StopGame()
         {
             source.Cancel();
-            //loginServer.StopServer();
             chatServer.StopServer();
         }
     }

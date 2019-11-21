@@ -1,20 +1,55 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace GameClient {
-    public static class ClientHandleData{
-
-        public static ByteBuffer playerBuffer;
+    public enum ClientTypes
+    {
+        LOGIN = 1,
+        CHAT,
+        GAME,
+    }
+    public  class ClientHandleData{
+        
+        public ByteBuffer playerBuffer;
         public delegate void Packet( byte[] data );
-        public static Dictionary<int, Packet> packets = new Dictionary<int, Packet>( );
+        public Dictionary<int, Packet> packets = new Dictionary<int, Packet>( );
+        private ClientTCP clientTCP;
 
-        public static void InitPackets( ) {
-            packets.Add( ( int )ServerPacketType.ServerWelcomeMessage , DataReciever.HandleWelcomeMessage );
-            packets.Add( ( int )ServerPacketType.ServerChatBroadcast, DataReciever.HandleChatMessage );
-            packets.Add( ( int )ServerPacketType.ServerInstatiatePlayerData, DataReciever.HandleInstatiatePlayer );
-            packets.Add( ( int )ServerPacketType.ServerTransformUpdate, DataReciever.HandlePlayerTranformMessage );
+        public ClientHandleData(ClientTCP clientTCP)
+        {
+            this.clientTCP = clientTCP;
         }
-        public static void HandleData(byte[] data ) {
+
+        public void InitPackets(ClientTypes clientType) {
+            //TODO: switch message types!!
+            switch (clientType)
+            {
+                case ClientTypes.LOGIN:
+                    packets.Add((int)ServerPacketType.ServerWelcomeMessage, clientTCP.dataReciever.HandleWelcomeMessage);
+                    packets.Add((int)ServerPacketType.ServerChatBroadcast, clientTCP.dataReciever.HandleChatMessage);
+                    packets.Add((int)ServerPacketType.ServerInstatiatePlayerData, clientTCP.dataReciever.HandleInstatiatePlayer);
+                    packets.Add((int)ServerPacketType.ServerTransformUpdate, clientTCP.dataReciever.HandlePlayerTranformMessage);
+                    break;
+                case ClientTypes.CHAT:
+                    packets.Add((int)ServerPacketType.ServerWelcomeMessage, clientTCP.dataReciever.HandleWelcomeMessage);
+                    packets.Add((int)ServerPacketType.ServerChatBroadcast, clientTCP.dataReciever.HandleChatMessage);
+                    packets.Add((int)ServerPacketType.ServerInstatiatePlayerData, clientTCP.dataReciever.HandleInstatiatePlayer);
+                    packets.Add((int)ServerPacketType.ServerTransformUpdate, clientTCP.dataReciever.HandlePlayerTranformMessage);
+                    break;
+                case ClientTypes.GAME:
+                    packets.Add((int)ServerPacketType.ServerWelcomeMessage, clientTCP.dataReciever.HandleWelcomeMessage);
+                    packets.Add((int)ServerPacketType.ServerChatBroadcast, clientTCP.dataReciever.HandleChatMessage);
+                    packets.Add((int)ServerPacketType.ServerInstatiatePlayerData, clientTCP.dataReciever.HandleInstatiatePlayer);
+                    packets.Add((int)ServerPacketType.ServerTransformUpdate, clientTCP.dataReciever.HandlePlayerTranformMessage);
+                    break;
+                default:
+                    Console.Error.WriteLine("Client type does nto exist");
+                    break;
+            }
+            
+        }
+        public void HandleData(byte[] data ) {
             int pLength = 0;
             if(playerBuffer == null ) {
                 playerBuffer = new ByteBuffer( );
@@ -54,7 +89,7 @@ namespace GameClient {
             }
 
         }
-        private static void HandleDataPackets(byte[] data ) {
+        private void HandleDataPackets(byte[] data ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( data );
             //check packet type

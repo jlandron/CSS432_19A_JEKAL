@@ -8,9 +8,15 @@ namespace GameClient {
         ServerInstatiatePlayerData = 3,
         ServerTransformUpdate = 4,
     }
-    public static class DataReciever {
+    public class DataReciever {
+        private ClientTCP clientTCP;
 
-        public static void HandleWelcomeMessage( byte[] data ) {
+        public DataReciever(ClientTCP clientTCP)
+        {
+            this.clientTCP = clientTCP;
+        }
+
+        public void HandleWelcomeMessage( byte[] data ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( data );
             int packetID = buffer.ReadInt( );
@@ -22,7 +28,7 @@ namespace GameClient {
         }
 
         //implement pushing chat to data sender
-        public static void HandleChatMessage(byte[] data ) {
+        public void HandleChatMessage(byte[] data ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( data );
             int packetID = buffer.ReadInt( );
@@ -31,7 +37,7 @@ namespace GameClient {
             //TODO: push message to chat window
         }
 
-        public static void HandleInstatiatePlayer(byte[] data ) {
+        public void HandleInstatiatePlayer(byte[] data ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( data );
             int packetID = buffer.ReadInt( );
@@ -40,7 +46,7 @@ namespace GameClient {
             NetworkManager.Instance.InstatiatePlayer( index );
         }
 
-        public static void HandlePlayerTranformMessage(byte[] data ) {
+        public void HandlePlayerTranformMessage(byte[] data ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( data );
             NetworkManager.Instance.UpdatePlayerLocation( buffer.ToArray( ) ) ;

@@ -28,6 +28,15 @@ namespace GameClient {
         private GameObject playerPrefab;
 
         public int PlayerID { get; private set; }
+        //login connection
+        public ClientTCP loginClientTCP;
+
+        //game connection
+        public ClientTCP gameClientTCP;
+
+        //chat connection
+        public ClientTCP chatClientTCP;
+
 
         public static NetworkManager Instance { get => _instance; private set => _instance = value; }
 
@@ -41,12 +50,17 @@ namespace GameClient {
         }
         private void Start( ) {
             UnityThread.initUnityThread( );
-            ClientHandleData.InitPackets( );
-            ClientTCP.InitNetworking( serverIP, serverPort );
+            loginClientTCP = new ClientTCP(ClientTypes.LOGIN);
+            loginClientTCP.InitNetworking( serverIP, serverPort );
+
+            gameClientTCP = new ClientTCP(ClientTypes.GAME); //create now and await AUTH from server
+            chatClientTCP = new ClientTCP(ClientTypes.CHAT);
         }
 
         private void OnApplicationQuit( ) {
-            ClientTCP.Disconnect( );
+            loginClientTCP.Disconnect( );
+            gameClientTCP.Disconnect();
+            chatClientTCP.Disconnect();
         }
 
         public void UpdatePlayerLocation( byte[] data ) {

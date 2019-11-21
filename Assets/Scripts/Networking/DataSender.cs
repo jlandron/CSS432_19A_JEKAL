@@ -9,21 +9,27 @@ namespace GameClient {
         ClientTransformMessage = 4,
     }
 
-    public static class DataSender {
+    public class DataSender {
+        private ClientTCP clientTCP;
 
-        public static void SendChatMessage( ) {
+        public DataSender(ClientTCP clientTCP)
+        {
+            this.clientTCP = clientTCP;
+        }
+
+        public  void SendChatMessage( ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( ( int )ClientPacketType.ClientChatMessage );
             buffer.Write( "Client chat message to sent from client!" );
-            ClientTCP.SendData( buffer.ToArray( ) );
+            clientTCP.SendData( buffer.ToArray( ) );
             buffer.Dispose( );
         }
 
-        public static void SendTransformMessage( byte[] data ) {
+        public  void SendTransformMessage( byte[] data ) {
             ByteBuffer buffer = new ByteBuffer( );
             buffer.Write( (int)ClientPacketType.ClientTransformMessage );
             buffer.Write( data );
-            ClientTCP.SendData( buffer.ToArray( ) );
+            clientTCP.SendData( buffer.ToArray( ) );
             buffer.Dispose( );
         }
     }

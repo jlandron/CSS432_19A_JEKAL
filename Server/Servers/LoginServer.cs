@@ -1,5 +1,4 @@
-﻿using Common.Protocols;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -24,12 +23,12 @@ namespace Jekal.Servers
 
         public async Task<int> StartServer(CancellationToken token)
         {
-            var serverName = Dns.GetHostName();
-            var hostEntry = Dns.GetHostEntry(serverName);
-            var ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
+            string serverName = Dns.GetHostName();
+            IPHostEntry hostEntry = Dns.GetHostEntry(serverName);
+            IPAddress ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
 
             Console.WriteLine($"LOGINSERVER: Starting on {ipAddress}:{nPort}");
-            var loginListener = new TcpListener(ipAddress, nPort);
+            TcpListener loginListener = new TcpListener(ipAddress, nPort);
             token.Register(loginListener.Stop);
 
             loginListener.Start();
@@ -37,8 +36,8 @@ namespace Jekal.Servers
             {
                 try
                 {
-                    var playerConnection = await loginListener.AcceptTcpClientAsync();
-                    var playerTask = HandlePlayer(playerConnection);
+                    TcpClient playerConnection = await loginListener.AcceptTcpClientAsync();
+                    Task playerTask = HandlePlayer(playerConnection);
                     connections.Add(playerTask);
                 }
                 catch (ObjectDisposedException) when (token.IsCancellationRequested)
@@ -58,7 +57,7 @@ namespace Jekal.Servers
 
         private Task HandlePlayer(TcpClient playerConnection)
         {
-            var netStream = playerConnection.GetStream();
+            NetworkStream netStream = playerConnection.GetStream();
 
             var login = new LoginMessage();
             while (netStream.CanRead)
@@ -69,7 +68,7 @@ namespace Jekal.Servers
                 do
                 {
                     int bytesRead = netStream.Read(inBuffer, 0, inBuffer.Length);
-                    var temp = new byte[bytesRead];
+                    byte[] temp = new byte[bytesRead];
                     Array.Copy(inBuffer, temp, bytesRead);
                     login.Buffer.Write(temp);
                 }

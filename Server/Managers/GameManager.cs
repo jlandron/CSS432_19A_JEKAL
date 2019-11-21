@@ -18,8 +18,8 @@ namespace Jekal.Managers
         {
             _jekal = game;
             _currentPort = Convert.ToInt32(_jekal.Settings["gameServerPort"]);
-            var serverName = Dns.GetHostName();
-            var hostEntry = Dns.GetHostEntry(serverName);
+            string serverName = Dns.GetHostName();
+            IPHostEntry hostEntry = Dns.GetHostEntry(serverName);
             _serverIp = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
         }
         public int GetGamePort()

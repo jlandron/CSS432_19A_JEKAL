@@ -18,8 +18,8 @@ namespace Jekal.Servers
         {
             _game = game;
             nPort = Convert.ToInt32(_game.Settings["chatServerPort"]);
-            var serverName = Dns.GetHostName();
-            var hostEntry = Dns.GetHostEntry(serverName);
+            string serverName = Dns.GetHostName();
+            IPHostEntry hostEntry = Dns.GetHostEntry(serverName);
             _ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
             connections = new List<Task>();
         }
@@ -42,12 +42,12 @@ namespace Jekal.Servers
 
         public async Task<int> StartServer(CancellationToken token)
         {
-            var serverName = Dns.GetHostName();
-            var hostEntry = Dns.GetHostEntry(serverName);
-            var ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
+            string serverName = Dns.GetHostName();
+            IPHostEntry hostEntry = Dns.GetHostEntry(serverName);
+            IPAddress ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
 
             Console.WriteLine($"CHATSERVER: Starting on {ipAddress}:{nPort}");
-            var chatListener = new TcpListener(ipAddress, nPort);
+            TcpListener chatListener = new TcpListener(ipAddress, nPort);
             token.Register(chatListener.Stop);
 
             chatListener.Start();
@@ -55,8 +55,8 @@ namespace Jekal.Servers
             {
                 try
                 {
-                    var playerConnection = await chatListener.AcceptTcpClientAsync();
-                    var playerTask = HandlePlayer(playerConnection);
+                    TcpClient playerConnection = await chatListener.AcceptTcpClientAsync();
+                    Task playerTask = HandlePlayer(playerConnection);
                     connections.Add(playerTask);
                 }
                 catch (ObjectDisposedException) when (token.IsCancellationRequested)

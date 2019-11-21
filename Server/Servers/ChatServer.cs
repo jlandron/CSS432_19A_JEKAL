@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -10,8 +11,8 @@ namespace Jekal.Servers
     {
         private readonly JekalGame _game;
         private readonly IPAddress _ipAddress;
-        bool stopServer = false;
         int nPort = 0;
+        List<Task> connections;
 
         public ChatServer(JekalGame game)
         {
@@ -20,6 +21,7 @@ namespace Jekal.Servers
             var serverName = Dns.GetHostName();
             var hostEntry = Dns.GetHostEntry(serverName);
             _ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
+            connections = new List<Task>();
         }
 
         public int GetPort()
@@ -35,27 +37,49 @@ namespace Jekal.Servers
 
         public void StopServer()
         {
-            Console.WriteLine("Stopping Chat Server...");
-            stopServer = true;
+            // TODO: Remove this from classes and interface
             return;
         }
 
         public async Task<int> StartServer(CancellationToken token)
         {
-            Console.WriteLine("Starting Chat Server...");
-            return await StartListening();
-        }
+            //Console.WriteLine("Starting Chat Server...");
+            //return await StartListening();
+            var serverName = Dns.GetHostName();
+            var hostEntry = Dns.GetHostEntry(serverName);
+            var ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
 
-        private async Task<int> StartListening()
-        {
-            while (!stopServer)
+            Console.WriteLine($"CHATSERVER: Starting on {ipAddress}:{nPort}");
+            var chatListener = new TcpListener(ipAddress, nPort);
+            token.Register(chatListener.Stop);
+
+            chatListener.Start();
+            while (!token.IsCancellationRequested)
             {
-                Console.WriteLine("ChatServer...");
-                await Task.Delay(1000);
+                try
+                {
+                    var playerConnection = await chatListener.AcceptTcpClientAsync();
+                    var playerTask = HandlePlayer(playerConnection);
+                    connections.Add(playerTask);
+                }
+                catch (ObjectDisposedException) when (token.IsCancellationRequested)
+                {
+                    Console.WriteLine("CHATSERVER: Stopping Server...");
+                    Task.WaitAll(connections.ToArray());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"CHATSERVER: Error handling client connetion: {ex.Message}");
+                }
             }
 
+            Console.WriteLine("CHATSERVER: Stopped Server...");
             return 0;
         }
 
+        private Task HandlePlayer(TcpClient playerConnection)
+        {
+            return Task.FromResult(0);
+        }
     }
 }

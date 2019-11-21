@@ -111,7 +111,8 @@ namespace Jekal.Servers
 
         public void StopServer()
         {
-            Console.WriteLine("LOGINSERVER: Stopping Server...");
+            // TODO: Remove this from class and interface
+            return;
         }
 
         private bool Authentication(string playerName)

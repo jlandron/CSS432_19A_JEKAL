@@ -54,7 +54,6 @@ namespace Jekal
         public void StopGame()
         {
             source.Cancel();
-            chatServer.StopServer();
         }
     }
 }

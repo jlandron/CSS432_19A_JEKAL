@@ -8,7 +8,7 @@ namespace Jekal.Managers
 {
     public class GameManager
     {
-        private List<Game> Games;
+        private List<Game> games;
         private Game _game;
         private readonly JekalGame _jekal;
         private int _currentPort;
@@ -21,6 +21,8 @@ namespace Jekal.Managers
             string serverName = Dns.GetHostName();
             IPHostEntry hostEntry = Dns.GetHostEntry(serverName);
             _serverIp = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
+            games = new List<Game>();
+            games.Add(new Game(_jekal));
         }
         public int GetGamePort()
         {

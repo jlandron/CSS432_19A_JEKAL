@@ -37,7 +37,7 @@ namespace Jekal.Servers.GameServerClasses
 
         public void BroadcastUpdateTransform(int connectionID, byte[] data)
         {
-            foreach (KeyValuePair<int, GameClient> item in GameClientManager.clients)
+            foreach (KeyValuePair<int, GameClient> item in _gameServer.clientManager.clients)
             {
                 if (item.Key != connectionID)
                 {

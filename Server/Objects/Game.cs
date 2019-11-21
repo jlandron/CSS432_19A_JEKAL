@@ -8,7 +8,12 @@ namespace Jekal.Objects
         private ScoreBoard scoreBoard;
         private GameServer gameServer;
         private List<Player> players;
+        private JekalGame _jekal;
 
-        
+        public Game(JekalGame jekalGame)
+        {
+            _jekal = jekalGame;
+            gameServer = new GameServer(_jekal);
+        }
     }
 }

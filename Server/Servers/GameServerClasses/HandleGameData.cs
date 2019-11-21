@@ -30,45 +30,45 @@ namespace Jekal.Servers.GameServerClasses
         {
             int pLength = 0;
             //if buffer is not made, make one
-            if (GameClientManager.clients[connectionID].buffer == null)
+            if (_gameServer.clientManager.clients[connectionID].buffer == null)
             {
-                GameClientManager.clients[connectionID].buffer = new ByteBuffer();
+                _gameServer.clientManager.clients[connectionID].buffer = new ByteBuffer();
             }
             //write passed in data to client connection
-            GameClientManager.clients[connectionID].buffer.Write(data);
+            _gameServer.clientManager.clients[connectionID].buffer.Write(data);
             //check if empty package
-            if (GameClientManager.clients[connectionID].buffer.Count() == 0)
+            if (_gameServer.clientManager.clients[connectionID].buffer.Count() == 0)
             {
-                GameClientManager.clients[connectionID].buffer.Clear();
+                _gameServer.clientManager.clients[connectionID].buffer.Clear();
                 return;
             }
             //make sure packet has at least a length
-            if (GameClientManager.clients[connectionID].buffer.Length() >= identifierLength)
+            if (_gameServer.clientManager.clients[connectionID].buffer.Length() >= identifierLength)
             {
-                pLength = GameClientManager.clients[connectionID].buffer.ReadInt(false);
+                pLength = _gameServer.clientManager.clients[connectionID].buffer.ReadInt(false);
                 //make sure packet exists
                 if (pLength <= 0)
                 {
-                    GameClientManager.clients[connectionID].buffer.Clear();
+                    _gameServer.clientManager.clients[connectionID].buffer.Clear();
                     return;
                 }
             }
             //now read byte[] data in packet
-            while (pLength > 0 & pLength <= GameClientManager.clients[connectionID].buffer.Length() - identifierLength)
+            while (pLength > 0 & pLength <= _gameServer.clientManager.clients[connectionID].buffer.Length() - identifierLength)
             {
-                if (pLength <= GameClientManager.clients[connectionID].buffer.Length() - identifierLength)
+                if (pLength <= _gameServer.clientManager.clients[connectionID].buffer.Length() - identifierLength)
                 {
-                    GameClientManager.clients[connectionID].buffer.ReadInt();
-                    data = GameClientManager.clients[connectionID].buffer.ReadBytes(pLength);
+                    _gameServer.clientManager.clients[connectionID].buffer.ReadInt();
+                    data = _gameServer.clientManager.clients[connectionID].buffer.ReadBytes(pLength);
                     HandleDataPackets(connectionID, data);
                 }
                 pLength = 0;
-                if (GameClientManager.clients[connectionID].buffer.Length() >= identifierLength)
+                if (_gameServer.clientManager.clients[connectionID].buffer.Length() >= identifierLength)
                 {
-                    pLength = GameClientManager.clients[connectionID].buffer.ReadInt(false);
+                    pLength = _gameServer.clientManager.clients[connectionID].buffer.ReadInt(false);
                     if (pLength <= 0)
                     {
-                        GameClientManager.clients[connectionID].buffer.Clear();
+                        _gameServer.clientManager.clients[connectionID].buffer.Clear();
                         return;
                     }
                 }
@@ -76,7 +76,7 @@ namespace Jekal.Servers.GameServerClasses
             //clear buffer because it is empty
             if (pLength <= 1)
             {
-                GameClientManager.clients[connectionID].buffer.Clear();
+                _gameServer.clientManager.clients[connectionID].buffer.Clear();
             }
 
         }

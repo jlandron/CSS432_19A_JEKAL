@@ -60,7 +60,7 @@ namespace Jekal.Servers.GameServerClasses
         private void CloseConnection()
         {
             Console.WriteLine("Connection from '{0}' has been terminated.", socket.Client.RemoteEndPoint.ToString());
-            GameClientManager.clients.Remove(connectionID);
+            _gameServer.clientManager.clients.Remove(connectionID);
             socket.Close();
         }
     }

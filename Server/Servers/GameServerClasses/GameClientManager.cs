@@ -7,7 +7,8 @@ namespace Jekal.Servers.GameServerClasses
 {
     class GameClientManager
     {
-        public static Dictionary<int, GameClient> clients = new Dictionary<int, GameClient>();
+        //
+        public Dictionary<int, GameClient> clients = new Dictionary<int, GameClient>();
 
         private GameServer _gameServer;
 

@@ -31,7 +31,6 @@ namespace Jekal.Servers
 
         public string GetIP()
         {
-            
             return _ipAddress.ToString();
         }
 
@@ -43,8 +42,6 @@ namespace Jekal.Servers
 
         public async Task<int> StartServer(CancellationToken token)
         {
-            //Console.WriteLine("Starting Chat Server...");
-            //return await StartListening();
             var serverName = Dns.GetHostName();
             var hostEntry = Dns.GetHostEntry(serverName);
             var ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
@@ -79,6 +76,7 @@ namespace Jekal.Servers
 
         private Task HandlePlayer(TcpClient playerConnection)
         {
+            // TODO: Handle the incoming chat connection here
             return Task.FromResult(0);
         }
     }

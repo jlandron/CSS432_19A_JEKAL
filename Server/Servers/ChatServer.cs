@@ -1,5 +1,6 @@
-﻿using Jekal.Objects;
-using System;
+﻿using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,14 +9,17 @@ namespace Jekal.Servers
     public class ChatServer : IServer
     {
         private readonly JekalGame _game;
+        private readonly IPAddress _ipAddress;
         bool stopServer = false;
         int nPort = 0;
-        string ipAddress = "127.0.0.1";
 
         public ChatServer(JekalGame game)
         {
             _game = game;
             nPort = Convert.ToInt32(_game.Settings["chatServerPort"]);
+            var serverName = Dns.GetHostName();
+            var hostEntry = Dns.GetHostEntry(serverName);
+            _ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
         }
 
         public int GetPort()
@@ -25,7 +29,8 @@ namespace Jekal.Servers
 
         public string GetIP()
         {
-            return ipAddress;
+            
+            return _ipAddress.ToString();
         }
 
         public void StopServer()

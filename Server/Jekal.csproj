@@ -48,6 +48,7 @@
     <Compile Include="JekalGame.cs" />
     <Compile Include="Managers\GameManager.cs" />
     <Compile Include="Managers\PlayerManager.cs" />
+    <Compile Include="Managers\SessionManager.cs" />
     <Compile Include="Objects\Game.cs" />
     <Compile Include="Objects\NetworkMessage.cs" />
     <Compile Include="Objects\Player.cs" />
@@ -62,11 +63,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="packages\Microsoft.DependencyValidation.Analyzers.0.10.0\analyzers\dotnet\cs\Microsoft.DependencyValidation.Analyzers.resources.dll" />
-    <Analyzer Include="packages\Microsoft.DependencyValidation.Analyzers.0.10.0\analyzers\dotnet\Microsoft.DependencyValidation.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />

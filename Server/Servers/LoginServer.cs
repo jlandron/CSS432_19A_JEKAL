@@ -1,11 +1,8 @@
 ﻿using Common.Protocols;
-using Jekal.Objects;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,7 +10,7 @@ namespace Jekal.Servers
 {
     public class LoginServer : IServer
     {
-        bool stopServer = false;
+        int BUFFER_SIZE = 4096;
         readonly JekalGame _game;
         readonly int nPort = 0;
         List<Task> connections;
@@ -61,16 +58,25 @@ namespace Jekal.Servers
 
         private Task HandlePlayer(TcpClient playerConnection)
         {
-            string msg;
-
             var netStream = playerConnection.GetStream();
-            var reader = new StreamReader(netStream);
-            msg = reader.ReadToEnd();
 
             var login = new LoginMessage();
-            var valid = login.Parse(msg);
+            while (netStream.CanRead)
+            {
+                byte[] inBuffer;
+                inBuffer = new byte[BUFFER_SIZE];
 
-            if (!valid)
+                do
+                {
+                    int bytesRead = netStream.Read(inBuffer, 0, inBuffer.Length);
+                    var temp = new byte[bytesRead];
+                    Array.Copy(inBuffer, temp, bytesRead);
+                    login.Buffer.Write(temp);
+                }
+                while (netStream.DataAvailable);
+            }
+
+            if (!login.Parse())
             {
                 Console.WriteLine("LOGINSERVER: Invalid login message received. Closing connection.");
             }
@@ -78,38 +84,27 @@ namespace Jekal.Servers
             {
                 var playerName = login.GetPlayerName();
 
-                // TODO: "Auth" player (check for duplicate names)
                 if (!Authentication(playerName))
                 {
-                    login.MessageType = LoginMessage.Messages.REJECT;
-                    login.Body = "User name in use.";
+                    login.Buffer.Write((int)LoginMessage.Messages.REJECT);
+                    login.Buffer.Write("User name in use.");
                 }
                 else
                 {
-                    login.MessageType = LoginMessage.Messages.AUTH;
-                    var body = new StringBuilder();
-                    body.Append($"{_game.Chat.GetIP()}:{_game.Chat.GetPort()}\r\n");
-                    body.Append($"{_game.Games.GetGameIPAddress()}:{_game.Games.GetGamePort()}\r\n");
-                    login.Body = body.ToString();
-
-                    // TODO: Create Player object
-                    var player = new Player();
-                    player.Name = playerName;
-                    _game.Players.AddPlayer(player);
-
-                    // TODO: Get Game
-                    // TODO: Add Player to it
+                    // Player Validated, create an auth message and a session
+                    login.Buffer.Write((int)LoginMessage.Messages.AUTH);
+                    login.Buffer.Write(_game.Chat.GetIP());
+                    login.Buffer.Write(_game.Chat.GetPort());
+                    login.Buffer.Write(_game.Games.GetGameIPAddress());
+                    login.Buffer.Write(_game.Games.GetGamePort());
+                    login.Buffer.Write(_game.Sessions.CreateSession(playerName));
                 }
 
-
-                // TODO: Respond with AUTH
-                var sw = new StreamWriter(netStream);
-                //netStream.Write(login.GetByteArray());
-                sw.Write(login);
-
+                netStream.Write(login.Buffer.ToArray(), 0, login.Buffer.Count());
             }
 
             // Close connection
+            netStream.Close();
             playerConnection.Close();
             return Task.FromResult(0);
         }
@@ -117,14 +112,13 @@ namespace Jekal.Servers
         public void StopServer()
         {
             Console.WriteLine("LOGINSERVER: Stopping Server...");
-            stopServer = true;
         }
 
         private bool Authentication(string playerName)
         {
             // This is where real security would go.
             // We are just checking for unique user names.
-            if (_game.Players.PlayerExists(playerName))
+            if (_game.Sessions.PlayerExists(playerName))
             {
                 return false;
             }

@@ -11,6 +11,8 @@ namespace Jekal
         public GameManager Games { get; set; }
         public PlayerManager Players { get; set; }
 
+        public SessionManager Sessions { get; set; }
+
         public ChatServer Chat
         {
             get
@@ -37,6 +39,7 @@ namespace Jekal
             chatServer = new ChatServer(this);
             Games = new GameManager();
             Players = new PlayerManager();
+            Sessions = new SessionManager();
         }
 
         public void StartGame()

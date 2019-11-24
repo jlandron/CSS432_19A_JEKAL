@@ -93,7 +93,7 @@ namespace Jekal.Servers
                 }
                 else
                 {
-                    int sessionID = _game.Sessions.CreateSession(playerName);
+                    int sessionID = _game.Players.CreateSession(playerName).SessionID;
                     Console.WriteLine($"LOGINSERVER: AUTH {playerName}; SESSION: {sessionID}");
                     // Player Validated, create an auth message and a session
                     login.Buffer.Write((int)LoginMessage.Messages.AUTH);
@@ -123,7 +123,7 @@ namespace Jekal.Servers
         {
             // This is where real security would go.
             // We are just checking for unique user names.
-            if (_game.Sessions.PlayerExists(playerName))
+            if (_game.Players.PlayerExists(playerName))
             {
                 return false;
             }

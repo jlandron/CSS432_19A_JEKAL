@@ -48,7 +48,6 @@
     <Compile Include="JekalGame.cs" />
     <Compile Include="Managers\GameManager.cs" />
     <Compile Include="Managers\PlayerManager.cs" />
-    <Compile Include="Managers\SessionManager.cs" />
     <Compile Include="Objects\ByteBuffer.cs" />
     <Compile Include="Objects\Game.cs" />
     <Compile Include="Objects\NetworkMessage.cs" />

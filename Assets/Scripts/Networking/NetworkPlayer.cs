@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Protocols;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -87,7 +88,7 @@ namespace GameClient {
             //time information
             buffer.Write( _timeTolerp );
 
-            DataSender.SendTransformMessage( buffer.ToArray( ) );
+            NetworkManager.Instance.gameClientTCP.dataSender.SendTransformMessage( buffer.ToArray( ) );
 
             buffer.Dispose( );
         }

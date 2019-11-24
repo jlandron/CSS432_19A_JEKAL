@@ -8,7 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{D0F3B3DB-8521-9C3E-5E82-04203D2576A2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -73,7 +74,6 @@
     <Compile Include="Assets\SampleScenes\Scripts\SlowMoButton.cs" />
     <Compile Include="Assets\Scripts\DDOL.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
-    <Compile Include="Assets\Scripts\Networking\ByteBuffer.cs" />
     <Compile Include="Assets\Scripts\Networking\ClientHandleData.cs" />
     <Compile Include="Assets\Scripts\Networking\ClientTCP.cs" />
     <Compile Include="Assets\Scripts\Networking\DataReciever.cs" />
@@ -81,6 +81,9 @@
     <Compile Include="Assets\Scripts\Networking\External\UnityThread.cs" />
     <Compile Include="Assets\Scripts\Networking\NetworkManager.cs" />
     <Compile Include="Assets\Scripts\Networking\NetworkPlayer.cs" />
+    <Compile Include="Assets\Scripts\Networking\Protocols\ByteBuffer.cs" />
+    <Compile Include="Assets\Scripts\Networking\Protocols\ChatMessage.cs" />
+    <Compile Include="Assets\Scripts\Networking\Protocols\LoginMessage.cs" />
     <Compile Include="Assets\Scripts\UI\ButtonHandler.cs" />
     <Compile Include="Assets\Scripts\UI\PauseMenu.cs" />
     <Compile Include="Assets\Scripts\UI\TextInputHandler.cs" />
@@ -672,6 +675,7 @@
       <Name>Assembly-CSharp-firstpass</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

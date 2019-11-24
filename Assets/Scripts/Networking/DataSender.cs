@@ -1,15 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Common.Protocols;
 
-
-namespace GameClient {
+namespace GameClient
+{
     //!!!make sure to sync enum with Server code!!!
-    public enum ClientPacketType {
-        ClientChatMessage = 1,
-        ClientTransformMessage = 4,
-    }
 
-    public class DataSender {
+    public class DataSender
+    {
         private ClientTCP clientTCP;
 
         public DataSender(ClientTCP clientTCP)
@@ -17,20 +13,22 @@ namespace GameClient {
             this.clientTCP = clientTCP;
         }
 
-        public  void SendChatMessage( ) {
-            ByteBuffer buffer = new ByteBuffer( );
-            buffer.Write( ( int )ClientPacketType.ClientChatMessage );
-            buffer.Write( "Client chat message to sent from client!" );
-            clientTCP.SendData( buffer.ToArray( ) );
-            buffer.Dispose( );
+        public void SendChatMessage()
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write((int)ChatPacketType.MSG);
+            buffer.Write("Client chat message to sent from client!");
+            clientTCP.SendData(buffer.ToArray());
+            buffer.Dispose();
         }
 
-        public  void SendTransformMessage( byte[] data ) {
-            ByteBuffer buffer = new ByteBuffer( );
-            buffer.Write( (int)ClientPacketType.ClientTransformMessage );
-            buffer.Write( data );
-            clientTCP.SendData( buffer.ToArray( ) );
-            buffer.Dispose( );
+        public void SendTransformMessage(byte[] data)
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write((int)GamePacketType.UPDATE);
+            buffer.Write(data);
+            clientTCP.SendData(buffer.ToArray());
+            buffer.Dispose();
         }
     }
 }

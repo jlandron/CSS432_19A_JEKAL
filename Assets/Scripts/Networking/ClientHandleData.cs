@@ -29,7 +29,7 @@ namespace GameClient {
             {
                 case ClientTypes.LOGIN:
                     packets.Add((int)LoginMessage.Messages.AUTH, clientTCP.dataReciever.HandleAuthMessage);
-                    packets.Add((int)LoginMessage.Messages.DOWN, clientTCP.dataReciever.HandleDownMessage);
+                    packets.Add((int)LoginMessage.Messages.DOWN, clientTCP.dataReciever.HandleRejectMessage);
                     packets.Add((int)LoginMessage.Messages.REJECT, clientTCP.dataReciever.HandleRejectMessage);
                     break;
                 case ClientTypes.CHAT:
@@ -37,7 +37,7 @@ namespace GameClient {
                     packets.Add((int)ChatMessage.Messages.LEAVE, clientTCP.dataReciever.HandleLeaveMessage);
                     packets.Add((int)ChatMessage.Messages.MSG, clientTCP.dataReciever.HandleChatMessage);
                     packets.Add((int)ChatMessage.Messages.PMSG, clientTCP.dataReciever.HandleChatMessage);
-                    packets.Add((int)ChatMessage.Messages.REJECT, clientTCP.dataReciever.HandleRejectMessage);
+                    packets.Add((int)ChatMessage.Messages.REJECT, clientTCP.dataReciever.HandleChatRejectMessage);
                     packets.Add((int)ChatMessage.Messages.SYSTEM, clientTCP.dataReciever.HandleChatMessage);
                     packets.Add((int)ChatMessage.Messages.TMSG, clientTCP.dataReciever.HandleChatMessage);
                     break;

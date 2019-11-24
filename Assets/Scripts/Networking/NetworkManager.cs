@@ -7,23 +7,21 @@ namespace GameClient
 {
     public class NetworkManager : MonoBehaviour
     {
-        private static NetworkManager _instance;
 
         //TODO : make these settable in game menu
         [SerializeField]
-        private string loginServerIP;
+        private string LoginServerIP;
         [SerializeField]
-        private int loginServerPort = 51092;
+        private int LoginServerPort;
 
         [SerializeField]
-        private string chatServerIP;
+        public string ChatServerIP { get ; set; }
         [SerializeField]
-        private int chatServerPort;
-
+        public int ChatServerPort { get; set ; }
         [SerializeField]
-        private string gameServerIP;
+        public string GameServerIP { get; set ; }
         [SerializeField]
-        private int gameServerPort;
+        public int GameServerPort { get; set; }
 
         [SerializeField]
         private GameObject[] startingPositions;
@@ -38,6 +36,7 @@ namespace GameClient
         public int PlayerID { get; private set; }
         //login connection
         public ClientTCP loginClientTCP;
+        internal bool loginSuccess = false;
 
         //game connection
         public ClientTCP gameClientTCP;
@@ -46,7 +45,7 @@ namespace GameClient
         public ClientTCP chatClientTCP;
 
 
-        public static NetworkManager Instance { get => _instance; private set => _instance = value; }
+        public static NetworkManager Instance { get; private set; }
 
         private void Awake()
         {
@@ -61,12 +60,15 @@ namespace GameClient
         private void Start()
         {
             UnityThread.initUnityThread();
-
-            loginClientTCP = new ClientTCP(ClientTypes.LOGIN);
-            gameClientTCP = new ClientTCP(ClientTypes.GAME); //create now and await AUTH from server
-            chatClientTCP = new ClientTCP(ClientTypes.CHAT);
         }
-
+        private void Update()
+        {
+            //handle player login
+            if (loginSuccess)
+            {
+                loginSuccess = false;
+            }
+        }
         private void OnApplicationQuit()
         {
             loginClientTCP.Disconnect();
@@ -74,7 +76,24 @@ namespace GameClient
             chatClientTCP.Disconnect();
         }
 
-        public void UpdatePlayerLocation(byte[] data)
+        public void StartLoginClient(string playerName)
+        {
+            loginClientTCP = new ClientTCP(ClientTypes.LOGIN);
+            loginClientTCP.InitNetworking(LoginServerIP, LoginServerPort);
+            loginClientTCP.dataSender.RequestLogin(playerName);
+        }
+        public void StartChatClient()
+        {
+            gameClientTCP = new ClientTCP(ClientTypes.GAME);
+            chatClientTCP.InitNetworking(ChatServerIP, ChatServerPort);
+        }
+        
+        public void StartGameClient()
+        {
+            chatClientTCP = new ClientTCP(ClientTypes.CHAT);
+            gameClientTCP.InitNetworking(GameServerIP, GameServerPort);
+        }
+        internal void UpdatePlayerLocation(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
@@ -86,7 +105,7 @@ namespace GameClient
         }
 
         //TODO: add team locations and instantiations
-        public void InstatiatePlayer(int _playerID)
+        internal void InstatiatePlayer(int _playerID)
         {
             //add spawning locations for teams, more game information needed
             GameObject player = Instantiate(playerPrefab);
@@ -96,7 +115,7 @@ namespace GameClient
             AddPlayerToConnectedPlayers(_playerID, player);
         }
 
-        public void AddPlayerToConnectedPlayers(int _playerID, GameObject _playerObject)
+        internal void AddPlayerToConnectedPlayers(int _playerID, GameObject _playerObject)
         {
             if (!ConnectedPlayers.ContainsKey(_playerID))
             {
@@ -105,7 +124,7 @@ namespace GameClient
             }
         }
 
-        public void RemovePlayerFromConnectedPlayers(int _playerID)
+        internal void RemovePlayerFromConnectedPlayers(int _playerID)
         {
             if (ConnectedPlayers.ContainsKey(_playerID))
             {
@@ -114,17 +133,17 @@ namespace GameClient
             }
         }
 
-        public GameObject[] GetConnectedPlayers()
+        internal GameObject[] GetConnectedPlayers()
         {
             return ConnectedPlayers.Values.ToArray();
         }
 
-        public void SetLocalPlayerID(int _playerID)
+        internal void SetLocalPlayerID(int _playerID)
         {
             PlayerID = _playerID;
         }
 
-        public GameObject GetPlayerFromConnectedPlayers(int _playerID)
+        internal GameObject GetPlayerFromConnectedPlayers(int _playerID)
         {
             if (ConnectedPlayers.ContainsKey(_playerID))
             {

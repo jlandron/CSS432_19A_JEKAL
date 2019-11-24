@@ -82,6 +82,7 @@ namespace GameClient
             _myStream.BeginWrite(buffer.ToArray(), 0, buffer.ToArray().Length, null, null);
             buffer.Dispose();
         }
+
         public void Disconnect()
         {
             _clientSocket.Close();

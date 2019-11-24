@@ -16,7 +16,7 @@ namespace GameClient
         public void SendChatMessage()
         {
             ByteBuffer buffer = new ByteBuffer();
-            buffer.Write((int)ChatPacketType.MSG);
+            buffer.Write((int)ChatMessage.Messages.MSG);
             buffer.Write("Client chat message to sent from client!");
             clientTCP.SendData(buffer.ToArray());
             buffer.Dispose();
@@ -25,10 +25,18 @@ namespace GameClient
         public void SendTransformMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
-            buffer.Write((int)GamePacketType.UPDATE);
+            //buffer.Write((int)GameMessage.UPDATE);
             buffer.Write(data);
             clientTCP.SendData(buffer.ToArray());
             buffer.Dispose();
+        }
+        public void RequestLogin(string playerName)
+        {
+            ByteBuffer loginRequest = new ByteBuffer();
+            loginRequest.Write((int)LoginMessage.Messages.LOGIN);
+            loginRequest.Write(playerName);
+            clientTCP.SendData(loginRequest.ToArray());
+            loginRequest.Dispose();
         }
     }
 }

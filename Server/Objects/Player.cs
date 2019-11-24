@@ -8,7 +8,17 @@ namespace Jekal.Objects
         public string Name { get; set; }
         public int SessionID { get; set; }
         int score;
-        Socket chatSocket;
+        public TcpClient ChatSocket { get; set; }
+        public TcpClient GameSocket { get; set; }
+
         Socket gameSocket;
+
+        public Player()
+        {
+            ChatSocket = null;
+            GameSocket = null;
+            Name = string.Empty;
+            SessionID = -1;
+        }
     }
 }

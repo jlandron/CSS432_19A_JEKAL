@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Protocols;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -9,6 +10,7 @@ namespace Jekal.Servers
 {
     public class ChatServer : IServer
     {
+        const int BUFFER_SIZE = 4096;
         private readonly JekalGame _game;
         private readonly IPAddress _ipAddress;
         int nPort = 0;
@@ -70,14 +72,75 @@ namespace Jekal.Servers
                 }
             }
 
+            // TODO: Send chat shutdown message to all players here.
             Console.WriteLine("CHATSERVER: Stopped Server...");
             return 0;
         }
 
         private Task HandlePlayer(TcpClient playerConnection)
         {
-            // TODO: Handle the incoming chat connection here
+            Console.WriteLine("CHATSERVER: Incoming Connection");
+            NetworkStream netStream = playerConnection.GetStream();
+
+            var chatMsg = new ChatMessage();
+            byte[] inBuffer;
+            inBuffer = new byte[BUFFER_SIZE];
+
+            do
+            {
+                int bytesRead = netStream.Read(inBuffer, 0, inBuffer.Length);
+                byte[] temp = new byte[bytesRead];
+                Array.Copy(inBuffer, temp, bytesRead);
+                chatMsg.Buffer.Write(temp);
+            }
+            while (netStream.DataAvailable);
+
+            if (chatMsg.Parse() && (chatMsg.MessageType == ChatMessage.Messages.JOIN))
+            {
+                var playerName = chatMsg.Source;
+                var sessionId = chatMsg.SourceId;
+
+                // Clear for reuse
+                chatMsg.Buffer.Clear();
+
+                if (!Authentication(playerName, sessionId))
+                {
+                    Console.WriteLine($"CHATSERVER: Reject {playerName} - No Session");
+                    chatMsg.Buffer.Write((int)ChatMessage.Messages.REJECT);
+                    chatMsg.Buffer.Write("No session ID.");
+                    netStream.Write(chatMsg.Buffer.ToArray(), 0, chatMsg.Buffer.Count());
+                    netStream.Close();
+                    playerConnection.Close();
+                }
+                else
+                {
+                    Console.WriteLine($"CHATSERVER: JOIN {playerName}; SESSION: {sessionId}");
+                    var player = _game.Players.GetPlayer(playerName);
+                    player.ChatSocket = playerConnection;
+                    SendSystemMessage($"[{playerName}] has joined the chat.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("CHATSERVER: Expecting chat JOIN message. Closing connection.");
+                netStream.Close();
+                playerConnection.Close();
+            }
             return Task.FromResult(0);
+        }
+
+        private bool Authentication(string playerName, int sessionId)
+        {
+            if (_game.Players.ValidateSession(playerName, sessionId))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public void SendSystemMessage(string message)
+        {
+
         }
     }
 }

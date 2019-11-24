@@ -73,38 +73,47 @@ namespace Jekal.Servers
                 login.Buffer.Write(temp);
             }
             while (netStream.DataAvailable);
-            
-            if (!login.Parse())
-            {
-                Console.WriteLine("LOGINSERVER: Invalid login message received. Closing connection.");
-            }
-            else
-            {
-                var playerName = login.GetPlayerName();
-                
-                // Clear for reuse
-                login.Buffer.Clear();
 
-                if (!Authentication(playerName))
+            if (login.Parse() && (login.MessageType == LoginMessage.Messages.LOGIN))
+            {
+                //Console.WriteLine("LOGINSERVER: Invalid login message received. Closing connection.");
+                if (!Authentication(login.Player))
                 {
-                    Console.WriteLine($"LOGINSERVER: Reject {playerName} - Dupe");
+                    Console.WriteLine($"LOGINSERVER: REJECT {login.Player} - Dupe.");
                     login.Buffer.Write((int)LoginMessage.Messages.REJECT);
                     login.Buffer.Write("User name in use.");
                 }
                 else
                 {
-                    int sessionID = _game.Players.CreateSession(playerName).SessionID;
-                    Console.WriteLine($"LOGINSERVER: AUTH {playerName}; SESSION: {sessionID}");
-                    // Player Validated, create an auth message and a session
-                    login.Buffer.Write((int)LoginMessage.Messages.AUTH);
-                    login.Buffer.Write(_game.Chat.GetIP());
-                    login.Buffer.Write(_game.Chat.GetPort());
-                    login.Buffer.Write(_game.Games.GetGameIPAddress());
-                    login.Buffer.Write(_game.Games.GetGamePort());
-                    login.Buffer.Write(sessionID);
-                }
+                    //var playerName = login.GetPlayerName();
+                    var playerName = login.Player;
+                    // Clear for reuse
+                    login.Buffer.Clear();
 
+                    if (!Authentication(playerName))
+                    {
+                        Console.WriteLine($"LOGINSERVER: Reject {playerName} - Dupe");
+                        login.Buffer.Write((int)LoginMessage.Messages.REJECT);
+                        login.Buffer.Write("User name in use.");
+                    }
+                    else
+                    {
+                        int sessionID = _game.Players.CreateSession(playerName).SessionID;
+                        Console.WriteLine($"LOGINSERVER: AUTH {playerName}; SESSION: {sessionID}");
+                        // Player Validated, create an auth message and a session
+                        login.Buffer.Write((int)LoginMessage.Messages.AUTH);
+                        login.Buffer.Write(_game.Chat.GetIP());
+                        login.Buffer.Write(_game.Chat.GetPort());
+                        login.Buffer.Write(_game.Games.GetGameIPAddress());
+                        login.Buffer.Write(_game.Games.GetGamePort());
+                        login.Buffer.Write(sessionID);
+                    }
+                }
                 netStream.Write(login.Buffer.ToArray(), 0, login.Buffer.Count());
+            }
+            else
+            {
+                Console.WriteLine("LOGINSERVER: Invalid login message received. Closing connection.");
             }
 
             // Close connection

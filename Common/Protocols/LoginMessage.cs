@@ -2,7 +2,14 @@
 {
     public class LoginMessage
     {
-        string _player;
+        public string Player { get; set; }
+        public string ChatIP { get; set; }
+        public int ChatPort { get; set; }
+        public string GameIP { get; set; }
+        public int GamePort { get; set; }
+        public int SessionID { get; set; }
+        public string Message { get; set; }
+        public Messages MessageType { get; set; }
 
         public ByteBuffer Buffer { get; set; }
 
@@ -27,21 +34,29 @@
                 return false;
             }
 
-            // Check to make sure it's a LOGIN request
+            // Parse the type of message
             var msgType = Buffer.ReadInt();
-            if (msgType != (int)Messages.LOGIN)
+            MessageType = (Messages)msgType;
+            switch (MessageType)
             {
-                return false;
+                case Messages.LOGIN:
+                    Player = Buffer.ReadString();
+                    break;
+                case Messages.AUTH:
+                    ChatIP = Buffer.ReadString();
+                    ChatPort = Buffer.ReadInt();
+                    GameIP = Buffer.ReadString();
+                    GamePort = Buffer.ReadInt();
+                    SessionID = Buffer.ReadInt();
+                    break;
+                case Messages.REJECT:
+                case Messages.DOWN:
+                    Message = Buffer.ReadString();
+                    break;
+                default:
+                    return false;
             }
-
-            // Get Player Name
-            _player = Buffer.ReadString();
             return true;
-        }
-
-        public string GetPlayerName()
-        {
-            return _player;
         }
     }
 }

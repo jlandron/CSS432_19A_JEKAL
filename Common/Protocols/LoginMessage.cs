@@ -28,14 +28,14 @@
             }
 
             // Check to make sure it's a LOGIN request
-            var msgType = Buffer.ReadInt(false);
+            var msgType = Buffer.ReadInt();
             if (msgType != (int)Messages.LOGIN)
             {
                 return false;
             }
 
             // Get Player Name
-            _player = Buffer.ReadString(false);
+            _player = Buffer.ReadString();
             return true;
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Protocols;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -57,24 +58,22 @@ namespace Jekal.Servers
 
         private Task HandlePlayer(TcpClient playerConnection)
         {
+            Console.WriteLine("LOGINSERVER: Incoming Connection");
             NetworkStream netStream = playerConnection.GetStream();
 
             var login = new LoginMessage();
-            while (netStream.CanRead)
+            byte[] inBuffer;
+            inBuffer = new byte[BUFFER_SIZE];
+
+            do
             {
-                byte[] inBuffer;
-                inBuffer = new byte[BUFFER_SIZE];
-
-                do
-                {
-                    int bytesRead = netStream.Read(inBuffer, 0, inBuffer.Length);
-                    byte[] temp = new byte[bytesRead];
-                    Array.Copy(inBuffer, temp, bytesRead);
-                    login.Buffer.Write(temp);
-                }
-                while (netStream.DataAvailable);
+                int bytesRead = netStream.Read(inBuffer, 0, inBuffer.Length);
+                byte[] temp = new byte[bytesRead];
+                Array.Copy(inBuffer, temp, bytesRead);
+                login.Buffer.Write(temp);
             }
-
+            while (netStream.DataAvailable);
+            
             if (!login.Parse())
             {
                 Console.WriteLine("LOGINSERVER: Invalid login message received. Closing connection.");
@@ -82,21 +81,27 @@ namespace Jekal.Servers
             else
             {
                 var playerName = login.GetPlayerName();
+                
+                // Clear for reuse
+                login.Buffer.Clear();
 
                 if (!Authentication(playerName))
                 {
+                    Console.WriteLine($"LOGINSERVER: Reject {playerName} - Dupe");
                     login.Buffer.Write((int)LoginMessage.Messages.REJECT);
                     login.Buffer.Write("User name in use.");
                 }
                 else
                 {
+                    int sessionID = _game.Sessions.CreateSession(playerName);
+                    Console.WriteLine($"LOGINSERVER: AUTH {playerName}; SESSION: {sessionID}");
                     // Player Validated, create an auth message and a session
                     login.Buffer.Write((int)LoginMessage.Messages.AUTH);
                     login.Buffer.Write(_game.Chat.GetIP());
                     login.Buffer.Write(_game.Chat.GetPort());
                     login.Buffer.Write(_game.Games.GetGameIPAddress());
                     login.Buffer.Write(_game.Games.GetGamePort());
-                    login.Buffer.Write(_game.Sessions.CreateSession(playerName));
+                    login.Buffer.Write(sessionID);
                 }
 
                 netStream.Write(login.Buffer.ToArray(), 0, login.Buffer.Count());

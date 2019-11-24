@@ -29,6 +29,8 @@ namespace Jekal.Managers
                     _nextSessionId++;
                 }
             }
+
+            sessions.Add(playerName, _nextSessionId);
             return _nextSessionId++;
         }
 

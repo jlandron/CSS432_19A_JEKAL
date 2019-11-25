@@ -75,6 +75,8 @@ namespace Jekal.Servers
             while (netStream.DataAvailable);
             if (login.Parse() && (login.MessageType == LoginMessage.Messages.LOGIN))
             {
+                //moved buffer clear here before anything else might be written to it.
+                login.Buffer.Clear();
                 //Console.WriteLine("LOGINSERVER: Invalid login message received. Closing connection.");
                 if (!Authentication(login.Player))
                 {
@@ -87,7 +89,7 @@ namespace Jekal.Servers
                     //var playerName = login.GetPlayerName();
                     var playerName = login.Player;
                     // Clear for reuse
-                    login.Buffer.Clear();
+                    
 
                     if (!Authentication(playerName))
                     {

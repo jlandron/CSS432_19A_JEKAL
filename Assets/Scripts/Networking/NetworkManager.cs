@@ -1,4 +1,5 @@
 ﻿using Common.Protocols;
+using Game.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace GameClient
 {
     public class NetworkManager : MonoBehaviour
     {
-
+        [Header("Servers")]
         //TODO : make these settable in game menu
         [SerializeField]
         private string LoginServerIP;
@@ -23,40 +24,51 @@ namespace GameClient
         private string gameServerIP;
         [SerializeField]
         private int gameServerPort;
-
-        [SerializeField]
-        private GameObject[] startingPositions;
-
-        public Dictionary<int, GameObject> ConnectedPlayers { get; set; }
-
-        public int NumberConnectedPlayers { get; private set; }
-
-        [SerializeField]
-        private GameObject playerPrefab;
-
-        public int PlayerID { get; private set; }
-        public string PlayerName { get; private set; }
         //login connection
         public ClientTCP loginClientTCP;
-        
-
         //game connection
         public ClientTCP gameClientTCP;
-
         //chat connection
         public ClientTCP chatClientTCP;
 
-        internal bool loginSuccess = false;
-        
+        [Header("Player")]
+        [SerializeField]
+        private GameObject[] startingPositions;
+        [SerializeField]
+        private GameObject playerPrefab;
+
+        [Header("Internal Kill notifications")]
+        [SerializeField]
+        private bool shouldKillLogin;
+        [SerializeField]
+        private bool shouldKillChat;
+        [SerializeField]
+        private bool shouldKillGame;
+        public Dictionary<int, GameObject> ConnectedPlayers { get; set; }
+
+        public int NumberConnectedPlayers { get; private set; }
+        public int PlayerID { get; private set; }
+        public string PlayerName { get; private set; }
+
+        [SerializeField]
+        public bool loginSuccess = false;
+        [SerializeField]
         public bool loginRequestSent = false;
+
         public bool gameIsLaunched = false;
         public bool chatServerRequestSent = false;
+
+        private string errorMessageToPrint = "";
+        private GameObject Canvas;
 
         public static NetworkManager Instance { get; private set; }
         public string ChatServerIP { get => chatServerIP; set => chatServerIP = value; }
         public int ChatServerPort { get => chatServerPort; set => chatServerPort = value; }
         public string GameServerIP { get => gameServerIP; set => gameServerIP = value; }
         public int GameServerPort { get => gameServerPort; set => gameServerPort = value; }
+        public bool ShouldKillLogin { get => shouldKillLogin; set => shouldKillLogin = value; }
+        public bool ShouldKillChat { get => shouldKillChat; set => shouldKillChat = value; }
+        public bool ShouldKillGame { get => shouldKillGame; set => shouldKillGame = value; }
 
         private void Awake()
         {
@@ -68,64 +80,130 @@ namespace GameClient
             NumberConnectedPlayers = 0;
             Instance = this;
         }
-        private void Start()
-        {
-            UnityThread.initUnityThread();
-        }
         private void Update()
         {
             //handle player login
             if (loginClientTCP != null && loginClientTCP.IsConnected && !loginSuccess && !loginRequestSent)
             {
                 loginRequestSent = true;
-                Debug.Log("Sending request to server");
+                //Debug.Log("Sending request to server");
                 loginClientTCP.dataSender.RequestLogin();
-                
-            }else if(loginSuccess && !gameIsLaunched)
+            }
+            else if (loginSuccess && !gameIsLaunched)
             {
                 gameIsLaunched = true;
                 StartCoroutine(LaunchGame());
-                
             }
-            if(chatClientTCP != null && chatClientTCP.IsConnected && gameIsLaunched && !chatServerRequestSent)
+            if (chatClientTCP != null && chatClientTCP.IsConnected && gameIsLaunched && !chatServerRequestSent)
             {
                 chatServerRequestSent = true;
                 chatClientTCP.dataSender.RequestJoin();
-                
+            }
+
+            if (ShouldKillLogin)
+            {
+                KillLoginTcp();
+                ShouldKillLogin = false;
+            }
+            if (ShouldKillChat)
+            {
+                KillChatTcp();
+                ShouldKillChat = false;
+            }
+            if (ShouldKillGame)
+            {
+                KillGameTcp();
+                ShouldKillGame = false;
+            }
+
+            if (Canvas == null)
+            {
+                Canvas = GameObject.FindGameObjectWithTag("Canvas");
+                if(Canvas != null)
+                {
+                    Canvas.GetComponent<PrintMessageToTextbox>().WriteMessage(errorMessageToPrint);
+                }
             }
         }
         private IEnumerator LaunchGame()
         {
             yield return SceneManager.LoadSceneAsync("Game");
-            StartChatClient();
+            ShouldKillLogin = true;
+            //StartChatClient();
             //StartGameClient();
         }
+
         private void OnApplicationQuit()
         {
             if (loginClientTCP != null)
+            {
                 loginClientTCP.Disconnect();
-            if (gameClientTCP != null)
-                gameClientTCP.Disconnect();
-            if (chatClientTCP != null)
-                chatClientTCP.Disconnect();
-        }
+            }
 
+            if (gameClientTCP != null)
+            {
+                gameClientTCP.Disconnect();
+            }
+
+            if (chatClientTCP != null)
+            {
+                chatClientTCP.Disconnect();
+            }
+        }
+        internal void PrintErrorToCanvas(string msg)
+        {
+            errorMessageToPrint = msg;
+            Debug.Log(msg);
+        }
         public void StartLoginClient(string playerName)
         {
-            loginClientTCP = new ClientTCP(ClientTypes.LOGIN);
+            if (loginClientTCP != null)
+            {
+                KillLoginTcp();
+            }
+            loginClientTCP = gameObject.AddComponent<ClientTCP>();
+            loginClientTCP.SetType(ClientTypes.LOGIN);
             loginClientTCP.InitNetworking(LoginServerIP, LoginServerPort);
             PlayerName = playerName;
         }
+        internal void KillLoginTcp()
+        {
+            Destroy(loginClientTCP);
+            loginClientTCP = null;
+            loginSuccess = false;
+            loginRequestSent = false;
+        }
         public void StartChatClient()
         {
-            chatClientTCP = new ClientTCP(ClientTypes.CHAT);
+            if (chatClientTCP != null)
+            {
+                KillChatTcp();
+            }
+            chatClientTCP = gameObject.AddComponent<ClientTCP>();
+            chatClientTCP.SetType(ClientTypes.CHAT);
             chatClientTCP.InitNetworking(ChatServerIP, ChatServerPort);
+        }
+        internal void KillChatTcp()
+        {
+            Destroy(chatClientTCP);
+            chatClientTCP = null;
         }
 
         public void StartGameClient()
         {
-            gameClientTCP = new ClientTCP(ClientTypes.GAME);
+            if (gameClientTCP != null)
+            {
+                KillGameTcp();
+            }
+            gameClientTCP = gameObject.AddComponent<ClientTCP>();
+            gameClientTCP.SetType(ClientTypes.GAME);
             gameClientTCP.InitNetworking(GameServerIP, GameServerPort);
+        }
+        internal void KillGameTcp()
+        {
+            Destroy(gameClientTCP);
+            gameClientTCP = null;
+            gameIsLaunched = false;
         }
         internal void UpdatePlayerLocation(byte[] data)
         {

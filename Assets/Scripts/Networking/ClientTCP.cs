@@ -1,12 +1,10 @@
-﻿using Common.Protocols;
-using System;
-using System.Collections;
+﻿using System;
 using System.Net.Sockets;
 using UnityEngine;
 
 namespace GameClient
 {
-    public class ClientTCP
+    public class ClientTCP : MonoBehaviour
     {
         private const int BUFFER_SIZE = 4096;
         private TcpClient _clientSocket;
@@ -21,32 +19,39 @@ namespace GameClient
         public DataSender dataSender;
         public DataReciever dataReciever;
         public ClientHandleData clientHandleData;
-        private ClientTypes clientType;
-        public ClientTCP(ClientTypes type)
+        public ClientTypes Type { get; private set; }
+        private void Awake()
         {
             dataSender = new DataSender(this);
             dataReciever = new DataReciever(this);
             clientHandleData = new ClientHandleData(this);
-            clientHandleData.InitPackets(type);
-            clientType = type;
+        }
+        public void SetType(ClientTypes type)
+        {
+            Type = type;
+            clientHandleData.InitPackets();
         }
 
         public void InitNetworking(string serverIP, int serverPort)
         {
-            _clientSocket = new TcpClient();
-            _clientSocket.ReceiveBufferSize = BUFFER_SIZE;
-            _clientSocket.SendBufferSize = BUFFER_SIZE;
+            _clientSocket = new TcpClient
+            {
+                ReceiveBufferSize = BUFFER_SIZE,
+                SendBufferSize = BUFFER_SIZE
+            };
             _recieveBuffer = new byte[BUFFER_SIZE * 2];
             _serverIP = serverIP;
             _serverPort = serverPort;
-            _clientSocket.BeginConnect(serverIP, serverPort, new System.AsyncCallback(this.ClientConnectCallback), _clientSocket);
-            //Debug.Log("Client " + clientType + " started");
+            _clientSocket.BeginConnect(serverIP, serverPort, new System.AsyncCallback(ClientConnectCallback), _clientSocket);
+            Debug.Log("Client " + Type + " started");
         }
+
+
 
         private void ClientConnectCallback(IAsyncResult ar)
         {
             _clientSocket.EndConnect(ar);
-            
+
             if (_clientSocket.Connected == false)
             {
                 Debug.Log("Client Connection failed");
@@ -56,11 +61,9 @@ namespace GameClient
 
             _clientSocket.NoDelay = true;
             _myStream = _clientSocket.GetStream();
-            UnityThread.executeInFixedUpdate(() =>
-            {
-                MoniterConnection();
-            });
-            _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE * 2, this.RecieveCallback, null);
+            Debug.Log("Connected to server");
+            _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE * 2, RecieveCallback, null);
+            IsConnected = true;
         }
 
         private void RecieveCallback(IAsyncResult ar)
@@ -74,10 +77,7 @@ namespace GameClient
                 }
                 byte[] newBytes = new byte[length];
                 Array.Copy(_recieveBuffer, newBytes, length);
-                UnityThread.executeInFixedUpdate(() =>
-                {
-                    clientHandleData.HandleData(newBytes);
-                });
+                clientHandleData.HandleData(newBytes);
                 _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE * 2, RecieveCallback, null);
             }
             catch (Exception)
@@ -95,11 +95,13 @@ namespace GameClient
         {
             IsConnected = false;
             if (_clientSocket.Connected)
+            {
                 _clientSocket.Close();
+            }
         }
         public void MoniterConnection()
         {
-            IsConnected = this._clientSocket.Connected;
+            IsConnected = _clientSocket.Connected;
         }
     }
 }

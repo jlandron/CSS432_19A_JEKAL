@@ -1,12 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29509.3
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 16
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{D0F3B3DB-8521-9C3E-5E82-04203D2576A2}"
-	ProjectSection(ProjectDependencies) = postProject
-		{4C6B0A33-3E8E-495B-B4E6-394DA2CC9C81} = {4C6B0A33-3E8E-495B-B4E6-394DA2CC9C81}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-firstpass", "Assembly-CSharp-firstpass.csproj", "{C91F1E09-B0CC-7E65-E73B-5B611B55091E}"
 EndProject
@@ -39,8 +34,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {D1F88071-05C5-4DAF-99B0-CCE5ADD97F4D}
 	EndGlobalSection
 EndGlobal

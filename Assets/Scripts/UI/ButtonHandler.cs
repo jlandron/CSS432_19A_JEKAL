@@ -30,6 +30,8 @@ namespace GAME.UI
         public void GoToMainMenuOnPress()
         {
             SceneManager.LoadScene("MainMenu");
+            NetworkManager.Instance.ShouldKillChat = true;
+            NetworkManager.Instance.ShouldKillGame = true;
         }
         public void QuitApplication()
         {

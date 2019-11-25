@@ -1,5 +1,4 @@
-﻿using System;
-using Common.Protocols;
+﻿using Common.Protocols;
 
 namespace GameClient
 {

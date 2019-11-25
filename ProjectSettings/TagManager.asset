@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PauseMenu
   - ExtPlayer
+  - Canvas
   layers:
   - Default
   - TransparentFX

@@ -6,9 +6,11 @@ namespace Game.UI
 {
     class PrintMessageToTextbox : MonoBehaviour
     {
+        [SerializeField]
+        Text textBox = null;
         public void WriteMessage(string msg)
         {
-            GetComponent<Text>().text = msg;
+            textBox.text = msg;
         }
     }
 }

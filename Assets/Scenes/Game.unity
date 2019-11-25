@@ -319,7 +319,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 19.5, y: -0.000017933999}
+  m_AnchoredPosition: {x: 19.5, y: -0.00005722046}
   m_SizeDelta: {x: -19.5, y: 395.4}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &301586330
@@ -1337,8 +1337,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 301586332}
   m_HandleRect: {fileID: 301586331}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 0.9999857
+  m_Value: 1
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2083,6 +2083,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1324539822312374523, guid: 198aad17cd0ebc94f927f7459b1fa542,
         type: 3}
+    - target: {fileID: 2065246878, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
+      propertyPath: LoginServerIP
+      value: 169.254.173.125
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 835538435, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}

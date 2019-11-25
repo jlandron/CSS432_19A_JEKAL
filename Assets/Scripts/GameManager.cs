@@ -8,7 +8,6 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private int _currentScene;
 
-
     private void Start()
     {
         Screen.SetResolution(1920, 1080, false);
@@ -16,9 +15,4 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadSceneAsync(1);
     }
 
-
-    private void Update()
-    {
-
-    }
 }

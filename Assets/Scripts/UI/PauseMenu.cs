@@ -38,7 +38,6 @@ namespace Game.UI {
         }
         internal void ActivateObjects(bool active)
         {
-            GetComponent<Image>().enabled = active;
             foreach (var child in children)
             {
                 child.gameObject.SetActive(active);

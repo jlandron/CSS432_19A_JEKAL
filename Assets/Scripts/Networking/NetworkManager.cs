@@ -15,12 +15,10 @@ namespace GameClient
         private string LoginServerIP;
         [SerializeField]
         private int LoginServerPort;
-
         [SerializeField]
         private string chatServerIP;
         [SerializeField]
         private int chatServerPort;
-
         [SerializeField]
         private string gameServerIP;
         [SerializeField]

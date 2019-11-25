@@ -1,5 +1,5 @@
-﻿using System;
-using Common.Protocols;
+﻿using Common.Protocols;
+using System;
 using System.Net.Sockets;
 
 namespace GameClient
@@ -13,6 +13,8 @@ namespace GameClient
 
         private string _serverIP;
         private int _serverPort;
+
+        public bool IsConnected { get; set; } = false;
 
         public DataSender dataSender;
         public DataReciever dataReciever;
@@ -34,6 +36,7 @@ namespace GameClient
             _serverIP = serverIP;
             _serverPort = serverPort;
             _clientSocket.BeginConnect(serverIP, serverPort, new System.AsyncCallback(ClientConnectCallback), _clientSocket);
+            IsConnected = true;
         }
 
         private void ClientConnectCallback(IAsyncResult ar)
@@ -41,6 +44,7 @@ namespace GameClient
             _clientSocket.EndConnect(ar);
             if (_clientSocket.Connected == false)
             {
+                IsConnected = false;
                 return;
             }
             else
@@ -85,7 +89,8 @@ namespace GameClient
 
         public void Disconnect()
         {
-            _clientSocket.Close();
+            if (_clientSocket.Connected)
+                _clientSocket.Close();
         }
     }
 

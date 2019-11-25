@@ -37,34 +37,59 @@ namespace GameClient
             buffer.Dispose();
             NetworkManager.Instance.loginClientTCP.Disconnect();
         }
-        /////// Chat server messages //////
+
+        /////// Chat server messages ////////
         public void HandleWelcomeMessage(byte[] data)
         {
-
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            int packetID = buffer.ReadInt();
+            string msg = buffer.ReadString();
+            //send message to chat controller
+            buffer.Dispose();
         }
 
         public void HandleChatMessage(byte[] data)
         {
-
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            int packetID = buffer.ReadInt();
+            string msg = buffer.ReadString();
+            //send message to chat controller
+            buffer.Dispose();
         }
-
-        
 
         internal void HandleJoinMessage(byte[] data)
         {
-
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            int packetID = buffer.ReadInt();
+            string msg = buffer.ReadString();
+            //send message to chat controller
+            buffer.Dispose();
         }
 
         internal void HandleLeaveMessage(byte[] data)
         {
-
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            int packetID = buffer.ReadInt();
+            string msg = buffer.ReadString();
+            //send message to chat controller
+            buffer.Dispose();
         }
         internal void HandleChatRejectMessage(byte[] data)
         {
-
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            int packetID = buffer.ReadInt();
+            string msg = buffer.ReadString();
+            //send message to chat controller
+            buffer.Dispose();
+            NetworkManager.Instance.chatClientTCP.Disconnect();
         }
         
-
+        /////// Game server messages ///////
         public void HandleInstatiatePlayer(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();

@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Common.Protocols;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Common.Protocols;
+using UnityEngine.SceneManagement;
 
 namespace GameClient
 {
@@ -15,13 +17,14 @@ namespace GameClient
         private int LoginServerPort;
 
         [SerializeField]
-        public string ChatServerIP { get ; set; }
+        private string chatServerIP;
         [SerializeField]
-        public int ChatServerPort { get; set ; }
+        private int chatServerPort;
+
         [SerializeField]
-        public string GameServerIP { get; set ; }
+        private string gameServerIP;
         [SerializeField]
-        public int GameServerPort { get; set; }
+        private int gameServerPort;
 
         [SerializeField]
         private GameObject[] startingPositions;
@@ -46,6 +49,10 @@ namespace GameClient
 
 
         public static NetworkManager Instance { get; private set; }
+        public string ChatServerIP { get => chatServerIP; set => chatServerIP = value; }
+        public int ChatServerPort { get => chatServerPort; set => chatServerPort = value; }
+        public string GameServerIP { get => gameServerIP; set => gameServerIP = value; }
+        public int GameServerPort { get => gameServerPort; set => gameServerPort = value; }
 
         private void Awake()
         {
@@ -67,27 +74,44 @@ namespace GameClient
             if (loginSuccess)
             {
                 loginSuccess = false;
+                StartCoroutine(LaunchGame());
             }
+        }
+        private IEnumerator LaunchGame()
+        {
+            yield return SceneManager.LoadSceneAsync("Game");
+            StartChatClient();
+            StartGameClient();
         }
         private void OnApplicationQuit()
         {
-            loginClientTCP.Disconnect();
-            gameClientTCP.Disconnect();
-            chatClientTCP.Disconnect();
+            if (loginClientTCP != null)
+                loginClientTCP.Disconnect();
+            if (gameClientTCP != null)
+                gameClientTCP.Disconnect();
+            if (chatClientTCP != null)
+                chatClientTCP.Disconnect();
         }
 
         public void StartLoginClient(string playerName)
         {
             loginClientTCP = new ClientTCP(ClientTypes.LOGIN);
             loginClientTCP.InitNetworking(LoginServerIP, LoginServerPort);
-            loginClientTCP.dataSender.RequestLogin(playerName);
+            if (loginClientTCP.IsConnected)
+            {
+                loginClientTCP.dataSender.RequestLogin(playerName);
+            }
+            else
+            {
+                SceneManager.LoadScene("Game");
+            }
         }
         public void StartChatClient()
         {
             gameClientTCP = new ClientTCP(ClientTypes.GAME);
             chatClientTCP.InitNetworking(ChatServerIP, ChatServerPort);
         }
-        
+
         public void StartGameClient()
         {
             chatClientTCP = new ClientTCP(ClientTypes.CHAT);

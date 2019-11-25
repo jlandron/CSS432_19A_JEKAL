@@ -17,11 +17,9 @@ namespace GAME.UI
             string userName = GetComponent<TextInputHandler>()._textToHandle;
             Debug.Log("Logging on as: " + userName);
             NetworkManager.Instance.StartLoginClient(userName);
-
         }
         public void GoToGameOnPress()
         {
-            //handle login prior to loading scene
             SceneManager.LoadScene("Game");
         }
         public void GoToLoginOnPress()

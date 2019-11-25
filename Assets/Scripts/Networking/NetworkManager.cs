@@ -35,9 +35,10 @@ namespace GameClient
         private GameObject playerPrefab;
 
         public int PlayerID { get; private set; }
+        public string PlayerName { get; private set; }
         //login connection
         public ClientTCP loginClientTCP;
-        internal bool loginSuccess = false;
+        
 
         //game connection
         public ClientTCP gameClientTCP;
@@ -45,6 +46,11 @@ namespace GameClient
         //chat connection
         public ClientTCP chatClientTCP;
 
+        internal bool loginSuccess = false;
+        
+        public bool loginRequestSent = false;
+        public bool gameIsLaunched = false;
+        public bool chatServerRequestSent = false;
 
         public static NetworkManager Instance { get; private set; }
         public string ChatServerIP { get => chatServerIP; set => chatServerIP = value; }
@@ -69,17 +75,30 @@ namespace GameClient
         private void Update()
         {
             //handle player login
-            if (loginSuccess)
+            if (loginClientTCP != null && loginClientTCP.IsConnected && !loginSuccess && !loginRequestSent)
             {
-                loginSuccess = false;
+                loginRequestSent = true;
+                Debug.Log("Sending request to server");
+                loginClientTCP.dataSender.RequestLogin();
+                
+            }else if(loginSuccess && !gameIsLaunched)
+            {
+                gameIsLaunched = true;
                 StartCoroutine(LaunchGame());
+                
+            }
+            if(chatClientTCP != null && chatClientTCP.IsConnected && gameIsLaunched && !chatServerRequestSent)
+            {
+                chatServerRequestSent = true;
+                chatClientTCP.dataSender.RequestJoin();
+                
             }
         }
         private IEnumerator LaunchGame()
         {
             yield return SceneManager.LoadSceneAsync("Game");
             StartChatClient();
-            StartGameClient();
+            //StartGameClient();
         }
         private void OnApplicationQuit()
         {
@@ -95,24 +114,17 @@ namespace GameClient
         {
             loginClientTCP = new ClientTCP(ClientTypes.LOGIN);
             loginClientTCP.InitNetworking(LoginServerIP, LoginServerPort);
-            if (loginClientTCP.IsConnected)
-            {
-                loginClientTCP.dataSender.RequestLogin(playerName);
-            }
-            else
-            {
-                SceneManager.LoadScene("Game");
-            }
+            PlayerName = playerName;
         }
         public void StartChatClient()
         {
-            gameClientTCP = new ClientTCP(ClientTypes.GAME);
+            chatClientTCP = new ClientTCP(ClientTypes.CHAT);
             chatClientTCP.InitNetworking(ChatServerIP, ChatServerPort);
         }
 
         public void StartGameClient()
         {
-            chatClientTCP = new ClientTCP(ClientTypes.CHAT);
+            gameClientTCP = new ClientTCP(ClientTypes.GAME);
             gameClientTCP.InitNetworking(GameServerIP, GameServerPort);
         }
         internal void UpdatePlayerLocation(byte[] data)

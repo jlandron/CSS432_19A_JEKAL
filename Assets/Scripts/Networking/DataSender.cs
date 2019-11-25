@@ -1,4 +1,5 @@
-﻿using Common.Protocols;
+﻿using System;
+using Common.Protocols;
 
 namespace GameClient
 {
@@ -30,11 +31,21 @@ namespace GameClient
             clientTCP.SendData(buffer.ToArray());
             buffer.Dispose();
         }
-        public void RequestLogin(string playerName)
+        public void RequestLogin()
         {
             ByteBuffer loginRequest = new ByteBuffer();
             loginRequest.Write((int)LoginMessage.Messages.LOGIN);
-            loginRequest.Write(playerName);
+            loginRequest.Write(NetworkManager.Instance.PlayerName);
+            clientTCP.SendData(loginRequest.ToArray());
+            loginRequest.Dispose();
+        }
+
+        internal void RequestJoin()
+        {
+            ByteBuffer loginRequest = new ByteBuffer();
+            loginRequest.Write((int)ChatMessage.Messages.JOIN);
+            loginRequest.Write(NetworkManager.Instance.PlayerName);
+            loginRequest.Write(NetworkManager.Instance.PlayerID);
             clientTCP.SendData(loginRequest.ToArray());
             loginRequest.Dispose();
         }

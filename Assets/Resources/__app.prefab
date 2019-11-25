@@ -70,11 +70,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fc61904758544c41af1c1f7649aaae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LoginServerIP: 127.0.0.1
-  LoginServerPort: 51092
+  LoginServerIP: 192.168.2.13
+  LoginServerPort: 4444
   chatServerIP: 
   chatServerPort: 0
   gameServerIP: 
   gameServerPort: 0
   startingPositions: []
-  playerPrefab: {fileID: 0}
+  playerPrefab: {fileID: 1324539822312374523, guid: 198aad17cd0ebc94f927f7459b1fa542,
+    type: 3}
+  loginRequestSent: 0
+  gameIsLaunched: 0
+  chatServerRequestSent: 0

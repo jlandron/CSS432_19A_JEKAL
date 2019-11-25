@@ -18,7 +18,7 @@
             LOGIN = 1,
             AUTH,
             REJECT,
-            DOWN
+            DOWN,
         };
 
         public LoginMessage()

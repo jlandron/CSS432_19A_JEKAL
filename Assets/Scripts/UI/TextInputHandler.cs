@@ -10,7 +10,6 @@ namespace GAME.UI {
         public void HandleText(string userName)
         {
             _textToHandle = userName;
-            Debug.Log(_textToHandle);
         }
     }
 }

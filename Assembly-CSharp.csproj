@@ -85,6 +85,7 @@
     <Compile Include="Assets\Scripts\Networking\Protocols\LoginMessage.cs" />
     <Compile Include="Assets\Scripts\UI\ButtonHandler.cs" />
     <Compile Include="Assets\Scripts\UI\PauseMenu.cs" />
+    <Compile Include="Assets\Scripts\UI\PrintMessageToTextbox.cs" />
     <Compile Include="Assets\Scripts\UI\TextInputHandler.cs" />
     <None Include="Assets\SampleScenes\Shaders\Skybox-Procedural.shader" />
     <None Include="Assets\Images\README.txt" />

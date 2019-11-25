@@ -73,7 +73,6 @@ namespace Jekal.Servers
                 login.Buffer.Write(temp);
             }
             while (netStream.DataAvailable);
-
             if (login.Parse() && (login.MessageType == LoginMessage.Messages.LOGIN))
             {
                 //Console.WriteLine("LOGINSERVER: Invalid login message received. Closing connection.");

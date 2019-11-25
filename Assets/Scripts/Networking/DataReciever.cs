@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Common.Protocols;
 using System;
+using Game.UI;
 
 namespace GameClient
 {
@@ -29,12 +30,16 @@ namespace GameClient
         }
         internal void HandleRejectMessage(byte[] data)
         {
+            Debug.LogError("Login rejected");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             int packetID = buffer.ReadInt();
             string msg = buffer.ReadString();
+            GameObject.FindObjectOfType<PrintMessageToTextbox>().WriteMessage(msg);
             //give player prompt to retry
             buffer.Dispose();
+            NetworkManager.Instance.loginSuccess = false;
+            NetworkManager.Instance.loginRequestSent = false;
             NetworkManager.Instance.loginClientTCP.Disconnect();
         }
 
@@ -84,9 +89,11 @@ namespace GameClient
             buffer.Write(data);
             int packetID = buffer.ReadInt();
             string msg = buffer.ReadString();
+
             //send message to chat controller
             buffer.Dispose();
             NetworkManager.Instance.chatClientTCP.Disconnect();
+            NetworkManager.Instance.chatServerRequestSent = false;
         }
         
         /////// Game server messages ///////

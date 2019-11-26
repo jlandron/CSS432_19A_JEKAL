@@ -194,27 +194,53 @@ namespace Jekal.Servers
 
         private void SendMessage(ChatMessage chatMessage)
         {
+            var byteBuffer = new Objects.ByteBuffer();
+            byteBuffer.Write((int)ChatMessage.Messages.MSG);
+            byteBuffer.Write(chatMessage.Source);
+            byteBuffer.Write(chatMessage.SourceId);
+            byteBuffer.Write(Encoding.ASCII.GetBytes(chatMessage.Message));
 
+            foreach (var p in players)
+            {
+                if (p.ChatSocket.Connected)
+                {
+                    p.NetStream.Write(byteBuffer.ToArray(), 0, byteBuffer.Count());
+                }
+            }
         }
 
         private void PrivateMessage(ChatMessage chatMessage)
         {
+            var byteBuffer = new Objects.ByteBuffer();
+            byteBuffer.Write((int)ChatMessage.Messages.PMSG);
+            byteBuffer.Write(chatMessage.Source);
+            byteBuffer.Write(chatMessage.SourceId);
+            byteBuffer.Write(chatMessage.Destination);
+            byteBuffer.Write(Encoding.ASCII.GetBytes(chatMessage.Message));
 
+            var player = _game.Players.GetPlayer(chatMessage.Destination);
+            if (player.ChatSocket.Connected)
+            {
+                player.NetStream.Write(byteBuffer.ToArray(), 0, byteBuffer.Count());
+            }
         }
 
         private void TeamMessage(ChatMessage chatMessage)
         {
 
         }
+
         private void SendSystemMessage(string message)
         {
-            var buffer = Encoding.ASCII.GetBytes(message);
-            
+            var byteBuffer = new Objects.ByteBuffer();
+            byteBuffer.Write((int)ChatMessage.Messages.SYSTEM);
+            byteBuffer.Write(Encoding.ASCII.GetBytes(message));
+
             foreach (var p in players)
             {
                 if (p.ChatSocket.Connected)
                 {
-                    p.NetStream.Write(buffer, 0, buffer.Length);
+                    p.NetStream.Write(byteBuffer.ToArray(), 0, byteBuffer.Count());
                 }
             }
         }

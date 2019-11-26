@@ -18,7 +18,8 @@
             MSG,
             PMSG,
             TMSG,
-            REJECT
+            REJECT,
+            CLOSE
         };
 
         public ChatMessage()
@@ -67,6 +68,10 @@
                     break;
                 case Messages.REJECT:
                     Message = Buffer.ReadString();
+                    break;
+                case Messages.CLOSE:
+                    Source = Buffer.ReadString();
+                    SourceId = Buffer.ReadInt();
                     break;
                 default:
                     return false;

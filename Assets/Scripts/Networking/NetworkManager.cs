@@ -37,27 +37,29 @@ namespace GameClient
         [SerializeField]
         private GameObject playerPrefab;
 
-        [Header("Internal Kill notifications")]
+        [Header("Internal notifications")]
         [SerializeField]
         private bool shouldKillLogin;
         [SerializeField]
         private bool shouldKillChat;
         [SerializeField]
         private bool shouldKillGame;
-        public Dictionary<int, GameObject> ConnectedPlayers { get; set; }
+        [SerializeField]
+        public bool loginSuccess = false;
+        [SerializeField]
+        public bool loginRequestSent = false;
+        [SerializeField]
+        public bool gameIsLaunched = false;
+        [SerializeField]
+        public bool chatRequestSent = false;
+        [SerializeField]
+        public bool gameRequestSent = false;
 
         public int NumberConnectedPlayers { get; private set; }
         public int PlayerID { get; private set; }
         public string PlayerName { get; private set; }
 
-        [SerializeField]
-        public bool loginSuccess = false;
-        [SerializeField]
-        public bool loginRequestSent = false;
-
-        public bool gameIsLaunched = false;
-        public bool chatServerRequestSent = false;
-
+        public Dictionary<int, GameObject> ConnectedPlayers { get; set; }
         private string errorMessageToPrint = "";
         private GameObject Canvas;
 
@@ -94,9 +96,9 @@ namespace GameClient
                 gameIsLaunched = true;
                 StartCoroutine(LaunchGame());
             }
-            if (chatClientTCP != null && chatClientTCP.IsConnected && gameIsLaunched && !chatServerRequestSent)
+            if (chatClientTCP != null && chatClientTCP.IsConnected && gameIsLaunched && !chatRequestSent)
             {
-                chatServerRequestSent = true;
+                chatRequestSent = true;
                 chatClientTCP.dataSender.RequestJoin();
             }
 
@@ -129,7 +131,7 @@ namespace GameClient
         {
             yield return SceneManager.LoadSceneAsync("Game");
             ShouldKillLogin = true;
-            //StartChatClient();
+            StartChatClient();
             //StartGameClient();
         }
 
@@ -187,6 +189,7 @@ namespace GameClient
         {
             Destroy(chatClientTCP);
             chatClientTCP = null;
+            chatRequestSent = false;
         }
 
         public void StartGameClient()
@@ -204,6 +207,7 @@ namespace GameClient
             Destroy(gameClientTCP);
             gameClientTCP = null;
             gameIsLaunched = false;
+            gameRequestSent = false;
         }
         internal void UpdatePlayerLocation(byte[] data)
         {

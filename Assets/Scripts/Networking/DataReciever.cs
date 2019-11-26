@@ -102,7 +102,7 @@ namespace GameClient
             //send message to chat controller
             buffer.Dispose();
             NetworkManager.Instance.chatClientTCP.Disconnect();
-            NetworkManager.Instance.chatServerRequestSent = false;
+            NetworkManager.Instance.chatRequestSent = false;
         }
 
         /////// Game server messages ///////

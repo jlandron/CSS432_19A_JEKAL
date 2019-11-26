@@ -73,11 +73,10 @@ namespace Jekal.Servers
                 login.Buffer.Write(temp);
             }
             while (netStream.DataAvailable);
+
             if (login.Parse() && (login.MessageType == LoginMessage.Messages.LOGIN))
             {
-                //moved buffer clear here before anything else might be written to it.
                 login.Buffer.Clear();
-                //Console.WriteLine("LOGINSERVER: Invalid login message received. Closing connection.");
                 if (!Authentication(login.Player))
                 {
                     Console.WriteLine($"LOGINSERVER: REJECT {login.Player} - Dupe.");
@@ -86,10 +85,7 @@ namespace Jekal.Servers
                 }
                 else
                 {
-                    //var playerName = login.GetPlayerName();
                     var playerName = login.Player;
-                    // Clear for reuse
-                    
 
                     if (!Authentication(playerName))
                     {
@@ -101,6 +97,7 @@ namespace Jekal.Servers
                     {
                         int sessionID = _game.Players.CreateSession(playerName).SessionID;
                         Console.WriteLine($"LOGINSERVER: AUTH {playerName}; SESSION: {sessionID}");
+
                         // Player Validated, create an auth message and a session
                         login.Buffer.Write((int)LoginMessage.Messages.AUTH);
                         login.Buffer.Write(_game.Chat.GetIP());

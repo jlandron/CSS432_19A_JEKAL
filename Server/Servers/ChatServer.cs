@@ -1,8 +1,10 @@
 ﻿using Common.Protocols;
+using Jekal.Objects;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +17,7 @@ namespace Jekal.Servers
         private readonly IPAddress _ipAddress;
         int nPort = 0;
         List<Task> connections;
+        List<Player> players;
 
         public ChatServer(JekalGame game)
         {
@@ -24,6 +27,7 @@ namespace Jekal.Servers
             IPHostEntry hostEntry = Dns.GetHostEntry(serverName);
             _ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
             connections = new List<Task>();
+            players = new List<Player>();
         }
 
         public int GetPort()
@@ -117,6 +121,9 @@ namespace Jekal.Servers
                     Console.WriteLine($"CHATSERVER: JOIN {playerName}; SESSION: {sessionId}");
                     var player = _game.Players.GetPlayer(playerName);
                     player.ChatSocket = playerConnection;
+                    player.NetStream = player.ChatSocket.GetStream();
+                    player.NetStream.BeginRead(player.ChatBuffer, 0, BUFFER_SIZE, new AsyncCallback(HandleMessage), player);
+                    players.Add(player);
                     SendSystemMessage($"[{playerName}] has joined the chat.");
                 }
             }
@@ -138,9 +145,78 @@ namespace Jekal.Servers
             return false;
         }
 
-        public void SendSystemMessage(string message)
+        private void HandleMessage(IAsyncResult ar)
+        {
+            var player = (Player)ar.AsyncState;
+            var length = player.NetStream.EndRead(ar);
+            var chatMsg = new ChatMessage();
+            byte[] temp = new byte[length];
+
+            Array.Copy(player.ChatBuffer, temp, length);
+            chatMsg.Buffer.Write(temp);
+
+            while (player.NetStream.DataAvailable)
+            {
+                player.NetStream.BeginRead(player.ChatBuffer, 0, BUFFER_SIZE, new AsyncCallback(HandleMessage), player);
+            }
+
+            if (!chatMsg.Parse())
+            {
+                // Invalid Message, drop it
+                return;
+            }
+
+            // Handle messages from client
+            switch (chatMsg.MessageType)
+            {
+                case ChatMessage.Messages.LEAVE:
+                    PlayerLeaving(chatMsg);
+                    break;
+                case ChatMessage.Messages.MSG:
+                    SendMessage(chatMsg);
+                    break;
+                case ChatMessage.Messages.PMSG:
+                    PrivateMessage(chatMsg);
+                    break;
+                case ChatMessage.Messages.TMSG:
+                    TeamMessage(chatMsg);
+                    break;
+                default:
+                    // Drop, invalid message
+                    return;
+            }
+        }
+
+        private void PlayerLeaving(ChatMessage chatMessage)
         {
 
+        }
+
+        private void SendMessage(ChatMessage chatMessage)
+        {
+
+        }
+
+        private void PrivateMessage(ChatMessage chatMessage)
+        {
+
+        }
+
+        private void TeamMessage(ChatMessage chatMessage)
+        {
+
+        }
+        private void SendSystemMessage(string message)
+        {
+            var buffer = Encoding.ASCII.GetBytes(message);
+            
+            foreach (var p in players)
+            {
+                if (p.ChatSocket.Connected)
+                {
+                    p.NetStream.Write(buffer, 0, buffer.Length);
+                }
+            }
         }
     }
 }

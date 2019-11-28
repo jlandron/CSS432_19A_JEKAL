@@ -10,6 +10,7 @@ namespace GameClient
 {
     public class NetworkManager : MonoBehaviour
     {
+
         [Header("Servers")]
         //TODO : make these settable in game menu
         [SerializeField]
@@ -121,7 +122,7 @@ namespace GameClient
             if (Canvas == null)
             {
                 Canvas = GameObject.FindGameObjectWithTag("Canvas");
-                if(Canvas != null)
+                if (Canvas != null)
                 {
                     Canvas.GetComponent<PrintMessageToTextbox>().WriteMessage(errorMessageToPrint);
                 }
@@ -156,6 +157,10 @@ namespace GameClient
         {
             errorMessageToPrint = msg;
             Debug.Log(msg);
+        }
+        internal void PrintToChat(string s1, string s2)
+        {
+            ChatManager.Instance.SendMessageToChat(s1, s2);
         }
         public void StartLoginClient(string playerName)
         {
@@ -202,6 +207,7 @@ namespace GameClient
             gameClientTCP.SetType(ClientTypes.GAME);
             gameClientTCP.InitNetworking(GameServerIP, GameServerPort);
         }
+
         internal void KillGameTcp()
         {
             Destroy(gameClientTCP);
@@ -209,6 +215,7 @@ namespace GameClient
             gameIsLaunched = false;
             gameRequestSent = false;
         }
+
         internal void UpdatePlayerLocation(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();

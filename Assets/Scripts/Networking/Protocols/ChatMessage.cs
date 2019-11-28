@@ -18,7 +18,8 @@
             MSG,
             PMSG,
             TMSG,
-            REJECT
+            REJECT,
+            CLOSE
         };
 
         public ChatMessage()

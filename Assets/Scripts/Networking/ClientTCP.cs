@@ -43,15 +43,23 @@ namespace GameClient
             _serverIP = serverIP;
             _serverPort = serverPort;
             _clientSocket.BeginConnect(serverIP, serverPort, new System.AsyncCallback(ClientConnectCallback), _clientSocket);
-            Debug.Log("Client " + Type + " started");
+            //Debug.Log("Client " + Type + " started");
         }
 
 
 
         private void ClientConnectCallback(IAsyncResult ar)
         {
-            _clientSocket.EndConnect(ar);
-
+            try
+            {
+                _clientSocket.EndConnect(ar);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+            }
+            
+            //Debug.Log("Client " + Type + " connected");
             if (_clientSocket.Connected == false)
             {
                 Debug.Log("Client Connection failed");
@@ -61,7 +69,7 @@ namespace GameClient
 
             _clientSocket.NoDelay = true;
             _myStream = _clientSocket.GetStream();
-            Debug.Log("Connected to server");
+            Debug.Log(this.Type + " Connected to server");
             _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE * 2, RecieveCallback, null);
             IsConnected = true;
         }
@@ -78,11 +86,12 @@ namespace GameClient
                 byte[] newBytes = new byte[length];
                 Array.Copy(_recieveBuffer, newBytes, length);
                 clientHandleData.HandleData(newBytes);
+                Debug.Log("Client: " + Type + "recieve callback and sending to handle data");
                 _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE * 2, RecieveCallback, null);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return;
+                Debug.LogError(e.Message);
             }
         }
 

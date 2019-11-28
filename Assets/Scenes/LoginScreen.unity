@@ -496,32 +496,32 @@ PrefabInstance:
     - target: {fileID: 4423804218858519097, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -778.8449
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4423804218858519097, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -653.1734
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4423804218858519097, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -505.16354
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4423804218858519097, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4423804218858519097, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4423804218858519097, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4423804218858519097, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58,
         type: 3}
@@ -550,7 +550,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2065246878, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
       propertyPath: LoginServerIP
-      value: 169.254.173.125
+      value: 10.65.69.143
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}

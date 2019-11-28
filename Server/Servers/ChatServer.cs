@@ -48,12 +48,8 @@ namespace Jekal.Servers
 
         public async Task<int> StartServer(CancellationToken token)
         {
-            string serverName = Dns.GetHostName();
-            IPHostEntry hostEntry = Dns.GetHostEntry(serverName);
-            IPAddress ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
-
-            Console.WriteLine($"CHATSERVER: Starting on {ipAddress}:{nPort}");
-            TcpListener chatListener = new TcpListener(ipAddress, nPort);
+            Console.WriteLine($"CHATSERVER: Starting on {_ipAddress.ToString()}:{nPort}");
+            TcpListener chatListener = new TcpListener(_ipAddress, nPort);
             token.Register(chatListener.Stop);
 
             chatListener.Start();
@@ -125,6 +121,22 @@ namespace Jekal.Servers
                     player.NetStream.BeginRead(player.ChatBuffer, 0, BUFFER_SIZE, new AsyncCallback(HandleMessage), player);
                     players.Add(player);
                     SendSystemMessage($"[{playerName}] has joined the chat.");
+                    var cm = new ChatMessage();
+                    cm.Source = player.Name;
+                    cm.SourceId = player.SessionID;
+                    cm.Message = "Test Message";
+                    SendMessage(cm);
+                    Thread.Sleep(100);
+                    SendMessage(cm);
+                    Thread.Sleep(100);
+                    SendMessage(cm);
+                    Thread.Sleep(100);
+                    SendMessage(cm);
+                    Thread.Sleep(100);
+                    SendMessage(cm);
+                    Thread.Sleep(100);
+                    SendMessage(cm);
+                    Thread.Sleep(100);
                 }
             }
             else
@@ -148,10 +160,23 @@ namespace Jekal.Servers
         private void HandleMessage(IAsyncResult ar)
         {
             var player = (Player)ar.AsyncState;
-            var length = player.NetStream.EndRead(ar);
+            int length = 0;
+            try
+            {
+                length = player.NetStream.EndRead(ar);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"CHATSERVER: Error talking to {player.Name}, closing connection.");
+                player.NetStream.Close();
+                player.ChatSocket.Close();
+                players.Remove(player);
+            }
+
             var chatMsg = new ChatMessage();
             byte[] temp = new byte[length];
 
+            Console.WriteLine("Chat message received.");
             Array.Copy(player.ChatBuffer, temp, length);
             chatMsg.Buffer.Write(temp);
 
@@ -185,6 +210,8 @@ namespace Jekal.Servers
                     // Drop, invalid message
                     return;
             }
+
+            player.NetStream.BeginRead(player.ChatBuffer, 0, BUFFER_SIZE, new AsyncCallback(HandleMessage), player);
         }
 
         private void PlayerLeaving(ChatMessage chatMessage)
@@ -198,15 +225,18 @@ namespace Jekal.Servers
             byteBuffer.Write((int)ChatMessage.Messages.MSG);
             byteBuffer.Write(chatMessage.Source);
             byteBuffer.Write(chatMessage.SourceId);
-            byteBuffer.Write(Encoding.ASCII.GetBytes(chatMessage.Message));
+            byteBuffer.Write(chatMessage.Message);
 
             foreach (var p in players)
             {
                 if (p.ChatSocket.Connected)
                 {
                     p.NetStream.Write(byteBuffer.ToArray(), 0, byteBuffer.Count());
+                    p.NetStream.Flush();
                 }
             }
+
+            byteBuffer.Dispose();
         }
 
         private void PrivateMessage(ChatMessage chatMessage)
@@ -216,7 +246,7 @@ namespace Jekal.Servers
             byteBuffer.Write(chatMessage.Source);
             byteBuffer.Write(chatMessage.SourceId);
             byteBuffer.Write(chatMessage.Destination);
-            byteBuffer.Write(Encoding.ASCII.GetBytes(chatMessage.Message));
+            byteBuffer.Write(chatMessage.Message);
 
             var player = _game.Players.GetPlayer(chatMessage.Destination);
             if (player.ChatSocket.Connected)
@@ -234,7 +264,7 @@ namespace Jekal.Servers
         {
             var byteBuffer = new Objects.ByteBuffer();
             byteBuffer.Write((int)ChatMessage.Messages.SYSTEM);
-            byteBuffer.Write(Encoding.ASCII.GetBytes(message));
+            byteBuffer.Write(message);
 
             foreach (var p in players)
             {

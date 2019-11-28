@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Game.UI
+namespace NetworkGame.UI
 {
     public class QueuedMessage
     {

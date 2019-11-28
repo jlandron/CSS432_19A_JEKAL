@@ -1,10 +1,10 @@
-﻿using GameClient;
+﻿using NetworkGame.Client;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 
-namespace GAME.UI
+namespace NetworkGame.UI
 {
     public class ButtonHandler : MonoBehaviour
     {

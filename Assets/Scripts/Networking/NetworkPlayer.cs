@@ -1,9 +1,8 @@
 ﻿using Common.Protocols;
-using System;
 using System.Collections;
 using UnityEngine;
 
-namespace GameClient
+namespace NetworkGame.Client
 {
 
     public class NetworkPlayer : MonoBehaviour
@@ -54,7 +53,9 @@ namespace GameClient
             if (isLocalPlayer)
             {
                 if (NetworkManager.Instance.gameClientTCP != null)
+                {
                     UpdatePlayerMovement();
+                }
             }
             else
             {

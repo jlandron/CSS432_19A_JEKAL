@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace Game.UI {
+namespace NetworkGame.UI {
     public class PauseMenu : MonoBehaviour {
         [SerializeField]
         RectTransform[] children;

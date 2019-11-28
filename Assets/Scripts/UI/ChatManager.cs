@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using NetworkGame.Client;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using GameClient;
-using Common.Protocols;
+using UnityStandardAssets.Characters.ThirdPerson;
 
-namespace Game.UI
+namespace NetworkGame.UI
 {
     public class ChatManager : MonoBehaviour
     {
@@ -22,8 +22,8 @@ namespace Game.UI
         GameObject textObject;
         [SerializeField]
         InputField chatBox;
-
-        private string currentMessage = string.Empty;
+        [SerializeField]
+        GameObject localPlayer;
 
         public static ChatManager Instance { get; private set; }
         private void Awake()
@@ -67,9 +67,17 @@ namespace Game.UI
             }
 #endif
             QueuedMessage msg;
-            if(chatMessages.TryDequeue(out msg))
+            if (chatMessages.TryDequeue(out msg))
             {
                 SendMessageToChat(msg.playerName, msg.message);
+            }
+            if (chatBox.isFocused)
+            {
+                localPlayer.GetComponent<ThirdPersonUserControl>().enabled = false;
+            }
+            else
+            {
+                localPlayer.GetComponent<ThirdPersonUserControl>().enabled = true;
             }
         }
 

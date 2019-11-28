@@ -1,10 +1,8 @@
 ﻿using Common.Protocols;
 using UnityEngine;
 
-namespace GameClient
+namespace NetworkGame.Client
 {
-
-
     public class DataSender
     {
         private ClientTCP clientTCP;
@@ -13,52 +11,46 @@ namespace GameClient
         {
             this.clientTCP = clientTCP;
         }
-
-        public void SendChatMessage()
+        ////// Chat ///////
+        internal void RequestJoin()
         {
             ByteBuffer buffer = new ByteBuffer();
+            buffer.Write((int)ChatMessage.Messages.JOIN);
+            buffer.Write(NetworkManager.Instance.PlayerName);
+            buffer.Write(NetworkManager.Instance.PlayerID);
+            clientTCP.dataToSend.Enqueue(buffer.ToArray());
+            buffer.Dispose();
+        }
+        internal void SendChatMessage(string message)
+        {
+            Debug.Log("Sending chat msg");
+            ByteBuffer buffer = new ByteBuffer();
             buffer.Write((int)ChatMessage.Messages.MSG);
-            buffer.Write("Client chat message to sent from client!");
-            clientTCP.SendData(buffer.ToArray());
+            buffer.Write(NetworkManager.Instance.PlayerName);
+            buffer.Write(NetworkManager.Instance.PlayerID);
+            buffer.Write(message);
+            clientTCP.dataToSend.Enqueue(buffer.ToArray());
             buffer.Dispose();
         }
 
+        /////// Login //////
+        public void RequestLogin()
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write((int)LoginMessage.Messages.LOGIN);
+            buffer.Write(NetworkManager.Instance.PlayerName);
+            clientTCP.dataToSend.Enqueue(buffer.ToArray());
+            buffer.Dispose();
+        }
+
+        /////// Game ////////
         public void SendTransformMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
             //buffer.Write((int)GameMessage.UPDATE);
             buffer.Write(data);
-            clientTCP.SendData(buffer.ToArray());
+            clientTCP.dataToSend.Enqueue(buffer.ToArray());
             buffer.Dispose();
-        }
-        public void RequestLogin()
-        {
-            ByteBuffer loginRequest = new ByteBuffer();
-            loginRequest.Write((int)LoginMessage.Messages.LOGIN);
-            loginRequest.Write(NetworkManager.Instance.PlayerName);
-            clientTCP.SendData(loginRequest.ToArray());
-            loginRequest.Dispose();
-        }
-
-        internal void RequestJoin()
-        {
-            ByteBuffer loginRequest = new ByteBuffer();
-            loginRequest.Write((int)ChatMessage.Messages.JOIN);
-            loginRequest.Write(NetworkManager.Instance.PlayerName);
-            loginRequest.Write(NetworkManager.Instance.PlayerID);
-            clientTCP.SendData(loginRequest.ToArray());
-            loginRequest.Dispose();
-        }
-        internal void SendChatMessage(string message)
-        {
-            Debug.Log("Sending chat msg");
-            ByteBuffer byteBuffer = new ByteBuffer();
-            byteBuffer.Write((int)ChatMessage.Messages.MSG);
-            byteBuffer.Write(NetworkManager.Instance.PlayerName);
-            byteBuffer.Write(NetworkManager.Instance.PlayerID);
-            byteBuffer.Write(message);
-            clientTCP.SendData(byteBuffer.ToArray());
-            byteBuffer.Dispose();
         }
     }
 }

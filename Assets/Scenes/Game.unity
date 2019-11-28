@@ -122,12 +122,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &20575121 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5706879398643400104, guid: 97a8c8ab4d9e3a74495cb2295f402f16,
-    type: 3}
-  m_PrefabInstance: {fileID: 5706879398659722809}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &20575122 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5706879398643400107, guid: 97a8c8ab4d9e3a74495cb2295f402f16,
@@ -430,6 +424,7 @@ MonoBehaviour:
   textObject: {fileID: 6574905930300427648, guid: eeaae365f471ea64eb408104df56c537,
     type: 3}
   chatBox: {fileID: 491569396}
+  localPlayer: {fileID: 1995320642}
 --- !u!1 &1528987927
 GameObject:
   m_ObjectHideFlags: 0
@@ -641,6 +636,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1995320642 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6202845134884782547, guid: 1b5aa62088567924ab68c8556e321dbd,
+    type: 3}
+  m_PrefabInstance: {fileID: 1632579091}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2065246876
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -652,6 +653,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: __app
+      objectReference: {fileID: 0}
+    - target: {fileID: 4423804218858519095, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58,
+        type: 3}
+      propertyPath: m_TagString
+      value: Canvas
       objectReference: {fileID: 0}
     - target: {fileID: 4423804218858519097, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58,
         type: 3}
@@ -708,22 +714,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2065246878, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
-      propertyPath: playerPrefab
-      value: 
-      objectReference: {fileID: 1324539822312374523, guid: 198aad17cd0ebc94f927f7459b1fa542,
-        type: 3}
-    - target: {fileID: 2065246878, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
-      propertyPath: LoginServerIP
-      value: 169.254.173.125
-      objectReference: {fileID: 0}
-    - target: {fileID: 4423804218858519094, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58,
-        type: 3}
-      propertyPath: pauseMenu
-      value: 
-      objectReference: {fileID: 20575121}
-    m_RemovedComponents:
-    - {fileID: 835538435, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
 --- !u!1001 &2354205690199184961
 PrefabInstance:

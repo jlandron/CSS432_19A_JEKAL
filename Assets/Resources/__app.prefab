@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4423804218858519094}
   - component: {fileID: 4715162495731654904}
   - component: {fileID: 2065246878}
+  - component: {fileID: 604086555}
   m_Layer: 0
   m_Name: __app
   m_TagString: Untagged
@@ -70,15 +71,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fc61904758544c41af1c1f7649aaae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LoginServerIP: 192.168.2.13
+  LoginServerIP: 10.102.75.185
   LoginServerPort: 4444
   chatServerIP: 
   chatServerPort: 0
   gameServerIP: 
   gameServerPort: 0
+  loginClientTCP: {fileID: 0}
+  gameClientTCP: {fileID: 0}
+  chatClientTCP: {fileID: 0}
+  shouldKillLogin: 0
+  shouldKillChat: 0
+  shouldKillGame: 0
+  loginSuccess: 0
+  loginRequestSent: 0
+  gameIsLaunched: 0
+  chatRequestSent: 0
+  gameRequestSent: 0
+  errorMessageToPrint: 
+--- !u!114 &604086555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4423804218858519095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 242260f01bb78404e81e8e24728cdc5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   startingPositions: []
   playerPrefab: {fileID: 1324539822312374523, guid: 198aad17cd0ebc94f927f7459b1fa542,
     type: 3}
-  loginRequestSent: 0
-  gameIsLaunched: 0
-  chatServerRequestSent: 0

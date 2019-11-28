@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GameClient
+namespace NetworkGame.Client
 {
     public enum ClientTypes
     {

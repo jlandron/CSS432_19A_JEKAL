@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Net.Sockets;
 using UnityEngine;
 
-namespace GameClient
+namespace NetworkGame.Client
 {
     public class ClientTCP : MonoBehaviour
     {
@@ -10,6 +11,7 @@ namespace GameClient
         private TcpClient _clientSocket;
         private NetworkStream _myStream;
         private byte[] _recieveBuffer;
+        public ConcurrentQueue<byte[]> dataToSend;
 
         private string _serverIP;
         private int _serverPort;
@@ -25,6 +27,7 @@ namespace GameClient
             dataSender = new DataSender(this);
             dataReciever = new DataReciever(this);
             clientHandleData = new ClientHandleData(this);
+            dataToSend = new ConcurrentQueue<byte[]>();
         }
         public void SetType(ClientTypes type)
         {
@@ -58,7 +61,7 @@ namespace GameClient
             {
                 Debug.LogError(e.Message);
             }
-            
+
             //Debug.Log("Client " + Type + " connected");
             if (_clientSocket.Connected == false)
             {
@@ -69,7 +72,7 @@ namespace GameClient
 
             _clientSocket.NoDelay = true;
             _myStream = _clientSocket.GetStream();
-            Debug.Log(this.Type + " Connected to server");
+            Debug.Log(Type + " Connected to server");
             _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE * 2, RecieveCallback, null);
             IsConnected = true;
         }
@@ -86,7 +89,7 @@ namespace GameClient
                 byte[] newBytes = new byte[length];
                 Array.Copy(_recieveBuffer, newBytes, length);
                 clientHandleData.HandleData(newBytes);
-                Debug.Log("Client: " + Type + "recieve callback and sending to handle data");
+                Debug.Log("Client: " + Type + " recieved callback and sending to handle data");
                 _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE * 2, RecieveCallback, null);
             }
             catch (Exception e)
@@ -95,9 +98,13 @@ namespace GameClient
             }
         }
 
-        public void SendData(byte[] data)
+        private void Update()
         {
-            _myStream.Write(data, 0, data.Length);
+            byte[] result;
+            if (dataToSend.TryDequeue(out result))
+            {
+                _myStream.Write(result, 0, result.Length);
+            }
         }
 
         public void Disconnect()

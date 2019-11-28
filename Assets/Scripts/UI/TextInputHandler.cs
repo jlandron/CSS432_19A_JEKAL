@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace GAME.UI {
+namespace NetworkGame.UI
+{
     public class TextInputHandler : MonoBehaviour
     {
         public string _textToHandle;

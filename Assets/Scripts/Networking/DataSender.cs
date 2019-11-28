@@ -1,8 +1,9 @@
 ﻿using Common.Protocols;
+using UnityEngine;
 
 namespace GameClient
 {
-    //!!!make sure to sync enum with Server code!!!
+
 
     public class DataSender
     {
@@ -47,6 +48,17 @@ namespace GameClient
             loginRequest.Write(NetworkManager.Instance.PlayerID);
             clientTCP.SendData(loginRequest.ToArray());
             loginRequest.Dispose();
+        }
+        internal void SendChatMessage(string message)
+        {
+            Debug.Log("Sending chat msg");
+            ByteBuffer byteBuffer = new ByteBuffer();
+            byteBuffer.Write((int)ChatMessage.Messages.MSG);
+            byteBuffer.Write(NetworkManager.Instance.PlayerName);
+            byteBuffer.Write(NetworkManager.Instance.PlayerID);
+            byteBuffer.Write(message);
+            clientTCP.SendData(byteBuffer.ToArray());
+            byteBuffer.Dispose();
         }
     }
 }

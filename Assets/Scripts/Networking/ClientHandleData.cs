@@ -34,15 +34,18 @@ namespace GameClient
                     packets.Add((int)LoginMessage.Messages.AUTH, clientTCP.dataReciever.HandleAuthMessage);
                     packets.Add((int)LoginMessage.Messages.REJECT, clientTCP.dataReciever.HandleRejectMessage);
                     packets.Add((int)LoginMessage.Messages.DOWN, clientTCP.dataReciever.HandleRejectMessage);
+                    Debug.Log("Login packets setup");
                     break;
                 case ClientTypes.CHAT:
                     packets.Add((int)ChatMessage.Messages.JOIN, clientTCP.dataReciever.HandleJoinMessage);
                     packets.Add((int)ChatMessage.Messages.LEAVE, clientTCP.dataReciever.HandleLeaveMessage);
-                    packets.Add((int)ChatMessage.Messages.SYSTEM, clientTCP.dataReciever.HandleChatMessage);
+                    packets.Add((int)ChatMessage.Messages.SYSTEM, clientTCP.dataReciever.HandleSystemChatMessage);
                     packets.Add((int)ChatMessage.Messages.MSG, clientTCP.dataReciever.HandleChatMessage);
-                    packets.Add((int)ChatMessage.Messages.PMSG, clientTCP.dataReciever.HandleChatMessage);
-                    packets.Add((int)ChatMessage.Messages.TMSG, clientTCP.dataReciever.HandleChatMessage);
+                    packets.Add((int)ChatMessage.Messages.PMSG, clientTCP.dataReciever.HandlePrivateChatMessage);
+                    packets.Add((int)ChatMessage.Messages.TMSG, clientTCP.dataReciever.HandleTeamChatMessage);
                     packets.Add((int)ChatMessage.Messages.REJECT, clientTCP.dataReciever.HandleChatRejectMessage);
+                    packets.Add((int)ChatMessage.Messages.CLOSE, clientTCP.dataReciever.HandleCloseMessage);
+                    Debug.Log("Chat packets setup");
                     break;
                 case ClientTypes.GAME:
                     Debug.LogError("No game packets made yet");
@@ -77,19 +80,19 @@ namespace GameClient
         }
         private void HandleDataPackets(byte[] data)
         {
+
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             //check packet type
-            int packetID = buffer.ReadInt();
-            int i = buffer.ReadInt();
-            //string s = buffer.ReadString();
-            Debug.Log("Packet with ID: " + packetID + " being handled");
-            buffer.Dispose();
+            int packetID = buffer.ReadInt(false);
+            Debug.Log("Client: " + clientTCP.Type + " recieved Packet with ID: " + packetID + " being handled");
+
             if (packets.TryGetValue(packetID, out Packet packet))
             {
                 //Debug.Log("invoking: " + packetID);
-                packet.Invoke(data);
+                packet.Invoke(buffer.ToArray());
             }
+            buffer.Dispose();
         }
     }
 }

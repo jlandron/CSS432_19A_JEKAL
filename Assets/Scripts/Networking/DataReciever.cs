@@ -6,8 +6,9 @@ using UnityEngine;
 namespace GameClient
 {
 
-    public class DataReciever
+    public  class DataReciever
     {
+
         private ClientTCP clientTCP;
 
         public DataReciever(ClientTCP clientTCP)
@@ -15,7 +16,7 @@ namespace GameClient
             this.clientTCP = clientTCP;
         }
         //////// Login server messages ////////
-        internal void HandleAuthMessage(byte[] data)
+        internal  void HandleAuthMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
@@ -29,14 +30,13 @@ namespace GameClient
             NetworkManager.Instance.loginSuccess = true;
         }
 
-        internal void HandleLoginMessage(byte[] data)
+        internal  void HandleLoginMessage(byte[] data)
         {
             Debug.Log("Not sure why I am reciving this message");
         }
 
-        internal void HandleRejectMessage(byte[] data)
+        internal  void HandleRejectMessage(byte[] data)
         {
-            
             Debug.Log("Login rejected");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
@@ -52,8 +52,10 @@ namespace GameClient
 
         }
 
+        
+
         /////// Chat server messages ////////
-        public void HandleWelcomeMessage(byte[] data)
+        public  void HandleWelcomeMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
@@ -63,7 +65,53 @@ namespace GameClient
             buffer.Dispose();
         }
 
-        public void HandleChatMessage(byte[] data)
+        internal  void HandleCloseMessage(byte[] data)
+        {
+            Debug.Log("Recieved chat close signal");
+            NetworkManager.Instance.chatClientTCP.Disconnect();
+            NetworkManager.Instance.chatRequestSent = false;
+        }
+
+        public  void HandleChatMessage(byte[] data)
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            int packetID = buffer.ReadInt();
+            string playerName = buffer.ReadString();
+            int playerID = buffer.ReadInt();
+            string msg = buffer.ReadString();
+            Debug.Log("Chat message: " + msg);
+            NetworkManager.Instance.PrintToChat(playerName, msg);
+            //send message to chat controller
+            buffer.Dispose();
+        }
+        public  void HandleSystemChatMessage(byte[] data)
+        {
+            try
+            {
+                ByteBuffer buffer = new ByteBuffer();
+                buffer.Write(data);
+                int packetID = buffer.ReadInt();
+                string msg = buffer.ReadString();
+                NetworkManager.Instance.PrintToChat("System", msg);
+                Debug.Log("System message: " + msg);
+                buffer.Dispose();
+            }
+            catch (Exception e )
+            {
+                Debug.LogError(e.Message);
+            }
+        }
+        internal  void HandlePrivateChatMessage(byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+        internal  void HandleTeamChatMessage(byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal  void HandleJoinMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
@@ -73,7 +121,7 @@ namespace GameClient
             buffer.Dispose();
         }
 
-        internal void HandleJoinMessage(byte[] data)
+        internal  void HandleLeaveMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
@@ -82,17 +130,7 @@ namespace GameClient
             //send message to chat controller
             buffer.Dispose();
         }
-
-        internal void HandleLeaveMessage(byte[] data)
-        {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            int packetID = buffer.ReadInt();
-            string msg = buffer.ReadString();
-            //send message to chat controller
-            buffer.Dispose();
-        }
-        internal void HandleChatRejectMessage(byte[] data)
+        internal  void HandleChatRejectMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
@@ -106,7 +144,7 @@ namespace GameClient
         }
 
         /////// Game server messages ///////
-        public void HandleInstatiatePlayer(byte[] data)
+        public  void HandleInstatiatePlayer(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
@@ -116,7 +154,7 @@ namespace GameClient
             NetworkManager.Instance.InstatiatePlayer(index);
         }
 
-        public void HandlePlayerTranformMessage(byte[] data)
+        public  void HandlePlayerTranformMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);

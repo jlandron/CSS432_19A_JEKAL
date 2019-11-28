@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using GameClient;
+using Common.Protocols;
 
 public class ChatManager : MonoBehaviour
 {
@@ -18,6 +20,16 @@ public class ChatManager : MonoBehaviour
 
     private string currentMessage = string.Empty;
 
+    public static ChatManager Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            return;
+        }
+        Instance = this;
+    }
+
     private void Update()
     {
         if (chatBox.text != "")
@@ -25,7 +37,8 @@ public class ChatManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Return))
             {
                 //TODO : send to network
-                SendMessageToChat(chatBox.text);
+                NetworkManager.Instance.chatClientTCP.dataSender.SendChatMessage(chatBox.text);
+                //SendMessageToChat(chatBox.text);
                 chatBox.text = "";
             }
         }

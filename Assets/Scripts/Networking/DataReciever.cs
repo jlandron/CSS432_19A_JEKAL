@@ -43,7 +43,7 @@ namespace GameClient
             int packetID = buffer.ReadInt();
             string msg = buffer.ReadString();
             buffer.Dispose();
-            NetworkManager.Instance.PrintErrorToCanvas(msg);
+            //NetworkManager.Instance.PrintErrorToCanvas(msg);
             //give player prompt to retry
             lock (NetworkManager.Instance)
             {
@@ -81,7 +81,7 @@ namespace GameClient
             int playerID = buffer.ReadInt();
             string msg = buffer.ReadString();
             Debug.Log("Chat message: " + msg);
-            NetworkManager.Instance.PrintToChat(playerName, msg);
+            ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage(playerName, msg));
             //send message to chat controller
             buffer.Dispose();
         }
@@ -93,7 +93,7 @@ namespace GameClient
                 buffer.Write(data);
                 int packetID = buffer.ReadInt();
                 string msg = buffer.ReadString();
-                NetworkManager.Instance.PrintToChat("System", msg);
+                ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage("System", msg));
                 Debug.Log("System message: " + msg);
                 buffer.Dispose();
             }

@@ -1,93 +1,106 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Concurrent;
 using UnityEngine;
 using UnityEngine.UI;
 using GameClient;
 using Common.Protocols;
 
-public class ChatManager : MonoBehaviour
+namespace Game.UI
 {
-    [SerializeField]
-    internal List<Message> chatHistory = new List<Message>();
-    [SerializeField]
-    private int maxMessages = 50;
-
-    [SerializeField]
-    GameObject chatPanel;
-    [SerializeField]
-    GameObject textObject;
-    [SerializeField]
-    InputField chatBox;
-
-    private string currentMessage = string.Empty;
-
-    public static ChatManager Instance { get; private set; }
-    private void Awake()
+    public class ChatManager : MonoBehaviour
     {
-        if (Instance != null)
-        {
-            return;
-        }
-        Instance = this;
-    }
+        [SerializeField]
+        internal List<Message> chatHistory;
+        public ConcurrentQueue<QueuedMessage> chatMessages;
 
-    private void Update()
-    {
-        if (chatBox.text != "")
+        [SerializeField]
+        private int maxMessages = 50;
+
+        [SerializeField]
+        GameObject chatPanel;
+        [SerializeField]
+        GameObject textObject;
+        [SerializeField]
+        InputField chatBox;
+
+        private string currentMessage = string.Empty;
+
+        public static ChatManager Instance { get; private set; }
+        private void Awake()
         {
-            if (Input.GetKeyDown(KeyCode.Return))
+            if (Instance != null)
             {
-                //TODO : send to network
-                NetworkManager.Instance.chatClientTCP.dataSender.SendChatMessage(chatBox.text);
-                //SendMessageToChat(chatBox.text);
-                chatBox.text = "";
+                return;
             }
+            Instance = this;
+            chatHistory = new List<Message>();
+            chatMessages = new ConcurrentQueue<QueuedMessage>();
         }
-        else
+
+        private void Update()
         {
-            if (!chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))
+            if (chatBox.text != "")
             {
-                chatBox.ActivateInputField();
+                if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    //TODO : send to network
+                    NetworkManager.Instance.chatClientTCP.dataSender.SendChatMessage(chatBox.text);
+                    //SendMessageToChat(chatBox.text);
+                    chatBox.text = "";
+                }
             }
-        }
+            else
+            {
+                if (!chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))
+                {
+                    chatBox.ActivateInputField();
+                }
+            }
 #if UNITY_EDITOR
-        if (!chatBox.isFocused)
-        {
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (!chatBox.isFocused)
             {
-                SendMessageToChat("You Pressed the Space bar");
-                Debug.Log("space");
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    SendMessageToChat("You Pressed the Space bar");
+                    Debug.Log("space");
+                }
+            }
+#endif
+            QueuedMessage msg;
+            if(chatMessages.TryDequeue(out msg))
+            {
+                SendMessageToChat(msg.playerName, msg.message);
             }
         }
-#endif
-    }
 
-    public void SendMessageToChat(string text)
-    {
-        SendMessageToChat("player", text);
-    }
-
-    //TODO : Recieve from network
-    public void SendMessageToChat(string playerName, string text)
-    {
-        if (chatHistory.Count >= maxMessages)
+        public void SendMessageToChat(string text)
         {
-            Destroy(chatHistory[0].textObject.gameObject);
-            chatHistory.Remove(chatHistory[0]);
+            SendMessageToChat("player", text);
         }
-        Message newMessage = new Message();
-        newMessage.playerName = playerName;
-        newMessage.text = text;
-        GameObject newText = Instantiate(textObject, chatPanel.transform);
-        newMessage.textObject = newText.GetComponent<Text>();
-        newMessage.textObject.text = newMessage.playerName + ": " + newMessage.text;
-        chatHistory.Add(newMessage);
-    }
-}
 
-[System.Serializable]
-internal class Message
-{
-    internal string playerName = "";
-    internal string text = "";
-    internal Text textObject;
+        //TODO : Recieve from network
+        public void SendMessageToChat(string playerName, string text)
+        {
+            if (chatHistory.Count >= maxMessages)
+            {
+                Destroy(chatHistory[0].textObject.gameObject);
+                chatHistory.Remove(chatHistory[0]);
+            }
+            Message newMessage = new Message();
+            newMessage.playerName = playerName;
+            newMessage.text = text;
+            GameObject newText = Instantiate(textObject, chatPanel.transform);
+            newMessage.textObject = newText.GetComponent<Text>();
+            newMessage.textObject.text = newMessage.playerName + ": " + newMessage.text;
+            chatHistory.Add(newMessage);
+        }
+    }
+
+    [System.Serializable]
+    internal class Message
+    {
+        internal string playerName = "";
+        internal string text = "";
+        internal Text textObject;
+    }
 }

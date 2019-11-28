@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections.Concurrent;
 
 namespace GameClient
 {
@@ -80,6 +81,7 @@ namespace GameClient
                 return;
             }
             ConnectedPlayers = new Dictionary<int, GameObject>();
+
             NumberConnectedPlayers = 0;
             Instance = this;
         }
@@ -152,15 +154,6 @@ namespace GameClient
             {
                 chatClientTCP.Disconnect();
             }
-        }
-        internal void PrintErrorToCanvas(string msg)
-        {
-            errorMessageToPrint = msg;
-            Debug.Log(msg);
-        }
-        internal void PrintToChat(string s1, string s2)
-        {
-            ChatManager.Instance.SendMessageToChat(s1, s2);
         }
         public void StartLoginClient(string playerName)
         {

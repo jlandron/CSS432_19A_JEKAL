@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 604086555}
   m_Layer: 0
   m_Name: __app
-  m_TagString: Untagged
+  m_TagString: Canvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -102,5 +102,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startingPositions: []
-  playerPrefab: {fileID: 1324539822312374523, guid: 198aad17cd0ebc94f927f7459b1fa542,
+  playerPrefab: {fileID: 4553292336780590500, guid: d5dda3ffd2ccfba45b5211cd0ff0ae84,
     type: 3}

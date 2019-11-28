@@ -76,6 +76,18 @@ namespace NetworkGame.Client
         }
         private void Update()
         {
+            if (Canvas == null)
+            {
+                Canvas = GameObject.FindGameObjectWithTag("Canvas");
+            }
+            if (Canvas != null && errorMessageToPrint != "")
+            {
+                Canvas.GetComponent<PrintMessageToTextbox>().loginErrors.Enqueue(errorMessageToPrint);
+                errorMessageToPrint = "";
+            }
+        }
+        private void FixedUpdate()
+        {
             //handle player login
             if (loginClientTCP != null && loginClientTCP.IsConnected && !LoginSuccess && !LoginRequestSent)
             {
@@ -110,15 +122,6 @@ namespace NetworkGame.Client
                 ShouldKillGame = false;
             }
 
-            if (Canvas == null)
-            {
-                Canvas = GameObject.FindGameObjectWithTag("Canvas");
-            }
-            if (Canvas != null && errorMessageToPrint != "")
-            {
-                Canvas.GetComponent<PrintMessageToTextbox>().loginErrors.Enqueue(errorMessageToPrint);
-                errorMessageToPrint = "";
-            }
         }
         private IEnumerator LaunchGame()
         {

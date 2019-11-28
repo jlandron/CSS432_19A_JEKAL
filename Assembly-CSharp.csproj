@@ -89,6 +89,7 @@
     <Compile Include="Assets\Scripts\UI\PrintMessageToTextbox.cs" />
     <Compile Include="Assets\Scripts\UI\TextInputHandler.cs" />
     <None Include="Assets\SampleScenes\Shaders\Skybox-Procedural.shader" />
+    <None Include="Assets\Images\Components\README.txt" />
     <None Include="Assets\Images\README.txt" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/Unity/MyProjects/Networking_Game_Project/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityStandardAssets.Characters.ThirdPerson;
+using UnityStandardAssets.Characters.FirstPerson;
 
 namespace NetworkGame.UI
 {
@@ -73,11 +73,11 @@ namespace NetworkGame.UI
             }
             if (chatBox.isFocused)
             {
-                localPlayer.GetComponent<ThirdPersonUserControl>().enabled = false;
+                localPlayer.GetComponent<FirstPersonController>().enabled = false;
             }
             else
             {
-                localPlayer.GetComponent<ThirdPersonUserControl>().enabled = true;
+                localPlayer.GetComponent<FirstPersonController>().enabled = true;
             }
         }
 

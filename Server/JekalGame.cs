@@ -10,18 +10,9 @@ namespace Jekal
     {
         public GameManager Games { get; set; }
         public PlayerManager Players { get; set; }
-
-        public ChatServer Chat
-        {
-            get
-            {
-                return chatServer;
-            }
-        }
+        public ChatServer Chat { get; private set; }
 
         private LoginServer loginServer;
-        private ChatServer chatServer;
-        private GameServer gameServer;
 
         private CancellationTokenSource source;
 
@@ -36,8 +27,7 @@ namespace Jekal
         {
             source = new CancellationTokenSource();
             loginServer = new LoginServer(this);
-            chatServer = new ChatServer(this);
-            gameServer = new GameServer(this);
+            Chat = new ChatServer(this);
             Games = new GameManager(this);
             Players = new PlayerManager();
         }
@@ -46,8 +36,7 @@ namespace Jekal
         {
             var token = source.Token;
             var loginTask = loginServer.StartServer(token);
-            var chatTask = chatServer.StartServer(token);
-            //var gameTask = gameServer.StartServer(token);
+            var chatTask = Chat.StartServer(token);
 
             Task.WaitAll(loginTask, chatTask);
         }

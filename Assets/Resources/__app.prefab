@@ -71,7 +71,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fc61904758544c41af1c1f7649aaae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LoginServerIP: 10.102.75.185
+  LoginServerIP: thaldin.mynetgear.com
   LoginServerPort: 4444
   chatServerIP: 
   chatServerPort: 0

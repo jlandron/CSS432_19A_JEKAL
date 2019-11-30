@@ -174,7 +174,7 @@ namespace NetworkGame.Client
             }
             chatClientTCP = gameObject.AddComponent<ClientTCP>();
             chatClientTCP.SetType(ClientTypes.CHAT);
-            chatClientTCP.InitNetworking(ChatServerIP, ChatServerPort);
+            chatClientTCP.InitNetworking(LoginServerIP, ChatServerPort);
         }
         internal void KillChatTcp()
         {
@@ -191,7 +191,7 @@ namespace NetworkGame.Client
             }
             gameClientTCP = gameObject.AddComponent<ClientTCP>();
             gameClientTCP.SetType(ClientTypes.GAME);
-            gameClientTCP.InitNetworking(GameServerIP, GameServerPort);
+            gameClientTCP.InitNetworking(LoginServerIP, GameServerPort);
         }
 
         internal void KillGameTcp()

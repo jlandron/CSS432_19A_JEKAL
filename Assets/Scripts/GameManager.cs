@@ -19,10 +19,14 @@ namespace NetworkGame
 #if UNITY_EDITOR
             else
             {
-                //SceneManager.LoadSceneAsync(3);
+                SceneManager.LoadSceneAsync(3);
             }
-#endif
-        }
 
+        }
+        void LateUpdate()
+        {
+            Cursor.visible = true;
+        }
+#endif
     }
 }

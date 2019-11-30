@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 
 namespace Jekal.Objects
 {
@@ -10,12 +9,10 @@ namespace Jekal.Objects
         public byte[] ChatBuffer { get; set; }
         public string Name { get; set; }
         public int SessionID { get; set; }
-        int score;
         public TcpClient ChatSocket { get; set; }
         public TcpClient GameSocket { get; set; }
-        public NetworkStream NetStream { get; set; }
-
-        Socket gameSocket;
+        public NetworkStream ChatStream { get; set; }
+        public NetworkStream GameStream { get; set; }
 
         public Player()
         {

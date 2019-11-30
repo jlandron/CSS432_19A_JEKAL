@@ -58,11 +58,6 @@
     <Compile Include="Objects\ScoreBoard.cs" />
     <Compile Include="Servers\ChatServer.cs" />
     <Compile Include="Servers\GameServer.cs" />
-    <Compile Include="Servers\GameServerClasses\DataReciever.cs" />
-    <Compile Include="Servers\GameServerClasses\DataSender.cs" />
-    <Compile Include="Servers\GameServerClasses\GameClient.cs" />
-    <Compile Include="Servers\GameServerClasses\GameClientManager.cs" />
-    <Compile Include="Servers\GameServerClasses\HandleGameData.cs" />
     <Compile Include="Servers\IServer.cs" />
     <Compile Include="Servers\LoginServer.cs" />
   </ItemGroup>

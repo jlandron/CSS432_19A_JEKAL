@@ -1,7 +1,6 @@
 ﻿using Jekal.Objects;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 
 namespace Jekal.Managers
 {
@@ -77,6 +76,28 @@ namespace Jekal.Managers
             };
             _players.Add(newPlayer.SessionID, newPlayer);
             return newPlayer;
+        }
+
+        public void CloseChat(Player player)
+        {
+            player.ChatStream.Close();
+            player.ChatSocket.Close();
+
+            if (!player.GameSocket.Connected)
+            {
+                _players.Remove(player.SessionID);
+            }
+        }
+
+        public void CloseGame(Player player)
+        {
+            player.ChatStream.Close();
+            player.GameSocket.Close();
+
+            if (!player.ChatSocket.Connected)
+            {
+                _players.Remove(player.SessionID);
+            }
         }
     }
 }

@@ -44,6 +44,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocols\ByteBuffer.cs" />
     <Compile Include="Protocols\ChatMessage.cs" />
+    <Compile Include="Protocols\GameMessage.cs" />
     <Compile Include="Protocols\LoginMessage.cs" />
   </ItemGroup>
   <ItemGroup>

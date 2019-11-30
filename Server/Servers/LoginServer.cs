@@ -120,12 +120,6 @@ namespace Jekal.Servers
             return Task.FromResult(0);
         }
 
-        public void StopServer()
-        {
-            // TODO: Remove this from class and interface
-            return;
-        }
-
         private bool Authentication(string playerName)
         {
             // This is where real security would go.

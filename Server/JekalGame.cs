@@ -37,8 +37,9 @@ namespace Jekal
             var token = source.Token;
             var loginTask = loginServer.StartServer(token);
             var chatTask = Chat.StartServer(token);
+            var gameTask = Games.StartServer(token);
 
-            Task.WaitAll(loginTask, chatTask);
+            Task.WaitAll(loginTask, chatTask, gameTask);
         }
 
         public void StopGame()

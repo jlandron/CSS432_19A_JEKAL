@@ -1,5 +1,7 @@
-﻿using Jekal.Servers.GameServerClasses;
+﻿using Common.Protocols;
+using Jekal.Objects;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -9,28 +11,39 @@ namespace Jekal.Servers
 {
     internal class GameServer : IServer
     {
-        private TcpListener serverSocket;
+        const int BUFFER_SIZE = 4096;
         private readonly JekalGame _game;
         private readonly IPAddress _ipAddress;
         int nPort = 0;
-        public HandleGameData gameData;
-        public GameClientManager clientManager;
-        public DataSender dataSender;
-        public DataReciever dataReciever;
+        List<Task> connections;
+        List<Player> players;
 
-        //TODO: talk to Ed about integrating this code fully into his server architecture
+        public GameServer(JekalGame game)
+        {
+            _game = game;
+            nPort = Convert.ToInt32(_game.Settings["gameServerPort"]);
+            string serverName = Dns.GetHostName();
+            IPHostEntry hostEntry = Dns.GetHostEntry(serverName);
+            _ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
+            connections = new List<Task>();
+            players = new List<Player>();
+        }
+
         public async Task<int> StartServer(CancellationToken token)
         {
             Console.WriteLine($"GAMESERVER: Starting on {_ipAddress.ToString()}:{nPort}");
-            token.Register(serverSocket.Stop);
+            TcpListener gameListener = new TcpListener(_ipAddress, nPort);
+            token.Register(gameListener.Stop);
 
-            InitGame(); //start allowing clients to connect
+            gameListener.Start();
 
             while (!token.IsCancellationRequested)
             {
                 try
                 {
-                    Thread.Sleep(100);
+                    TcpClient playerConnection = await gameListener.AcceptTcpClientAsync();
+                    Task playerTask = HandleConnection(playerConnection);
+                    connections.Add(playerTask);
                 }
                 catch (ObjectDisposedException) when (token.IsCancellationRequested)
                 {
@@ -46,42 +59,81 @@ namespace Jekal.Servers
             return 0;
         }
 
-        public GameServer(JekalGame game)
+        private Task HandleConnection(TcpClient playerConnection)
         {
-            string serverName = Dns.GetHostName();
-            IPHostEntry hostEntry = Dns.GetHostEntry(serverName);
-            _ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
-            _game = game;
-            nPort = Convert.ToInt32(_game.Settings["gameServerPort"]);
-            serverSocket = new TcpListener(_ipAddress, nPort);
-            gameData = new HandleGameData(this); //handles taking in the async mesages and passes them to the correct method in recieve data
-            clientManager = new GameClientManager(this); //holds dictionary of each client connection
-            dataSender = new DataSender(this); //responsible to sending data to clients
-            dataReciever = new DataReciever(this); //responsible to recieving data from clients
+            Console.WriteLine("GAMESERVER: Incoming Connection");
+            NetworkStream netStream = playerConnection.GetStream();
+
+            var gameMsg = new GameMessage();
+            byte[] inBuffer;
+            inBuffer = new byte[BUFFER_SIZE];
+
+            do
+            {
+                int bytesRead = netStream.Read(inBuffer, 0, inBuffer.Length);
+                byte[] temp = new byte[bytesRead];
+                Array.Copy(inBuffer, temp, bytesRead);
+                gameMsg.Buffer.Write(temp);
+            }
+            while (netStream.DataAvailable);
+
+            if (gameMsg.Parse() && (gameMsg.MessageType == GameMessage.Messages.GAMEJOIN))
+            {
+                var playerName = gameMsg.Source;
+                var sessionId = gameMsg.SourceId;
+
+                // Clear for reuse
+                gameMsg.Buffer.Clear();
+
+                if (!Authentication(playerName, sessionId))
+                {
+                    Console.WriteLine($"GAMESERVER: Reject {playerName} - No Session");
+                    gameMsg.Buffer.Write((int)ChatMessage.Messages.REJECT);
+                    gameMsg.Buffer.Write("No session ID.");
+                    netStream.Write(gameMsg.Buffer.ToArray(), 0, gameMsg.Buffer.Count());
+                    netStream.Close();
+                    playerConnection.Close();
+                }
+                else
+                {
+                    Console.WriteLine($"GAMESERVER: JOIN {playerName}; SESSION: {sessionId}");
+                    var player = _game.Players.GetPlayer(playerName);
+                    player.GameSocket = playerConnection;
+                    player.GameStream = player.GameSocket.GetStream();
+
+                    // TODO: Get available game from GameManager
+                    // TODO: Get team from game
+                    // TODO: Add player to game and team
+                    // TODO: Set listener handler to game handler
+                }
+            }
+            else
+            {
+                Console.WriteLine("GAMESERVER: Expecting chat GAMEJOIN message. Closing connection.");
+                netStream.Close();
+                playerConnection.Close();
+            }
+
+            return Task.FromResult(0);
         }
-        public void InitGame()
+
+        private bool Authentication(string playerName, int sessionId)
         {
-            Console.WriteLine("Initilizaing Packets");
-            gameData.InitPackets();
-            serverSocket.Start();
-            serverSocket.BeginAcceptTcpClient(new AsyncCallback(OnClientConnect), null);
+            if (_game.Players.ValidateSession(playerName, sessionId))
+            {
+                return true;
+            }
+            return false;
         }
 
-        //accept new connections infinitly
-        //TODO: find a way to integrate this async method call with Ed's cancellationToken system
-        private void OnClientConnect(IAsyncResult ar)
+        public int GetPort()
         {
-            TcpClient client = serverSocket.EndAcceptTcpClient(ar);
-            serverSocket.BeginAcceptTcpClient(new AsyncCallback(OnClientConnect), null);
-            clientManager.CreateNewConnection(client);
+            return nPort;
         }
 
-
-        public void StopServer()
+        public string GetIP()
         {
-            throw new System.NotImplementedException();
+            return _ipAddress.ToString();
         }
-
-
     }
 }

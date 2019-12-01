@@ -65,7 +65,6 @@ namespace Jekal.Protocols
                 case Messages.TMSG:
                     Source = Buffer.ReadString();
                     SourceId = Buffer.ReadInt();
-                    Destination = Buffer.ReadString();
                     Message = Buffer.ReadString();
                     break;
                 case Messages.REJECT:

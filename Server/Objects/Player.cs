@@ -11,6 +11,15 @@ namespace Jekal.Objects
         public string Name { get; set; }
         public int SessionID { get; set; }
         public int GameID { get; set; }
+        public int TeamID { get; set; }
+        public float PosX { get; set; }
+        public float PosY { get; set; }
+        public float PosZ { get; set; }
+        public float RotX { get; set; }
+        public float RotY { get; set; }
+        public float RotZ { get; set; }
+        public float RotW { get; set; }
+
 
         // Chat Networking
         private TcpClient _chatSocket;

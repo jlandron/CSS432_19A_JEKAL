@@ -50,7 +50,6 @@
     <Compile Include="Managers\PlayerManager.cs" />
     <Compile Include="Objects\ByteBuffer.cs" />
     <Compile Include="Objects\Game.cs" />
-    <Compile Include="Objects\NetworkMessage.cs" />
     <Compile Include="Objects\Player.cs" />
     <Compile Include="Objects\Team.cs" />
     <Compile Include="Program.cs" />

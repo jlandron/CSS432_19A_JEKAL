@@ -1,4 +1,5 @@
-﻿using Jekal.Protocols;
+﻿using Jekal.Objects;
+using Jekal.Protocols;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -86,7 +87,7 @@ namespace Jekal.Servers
                 if (!Authentication(playerName, sessionId))
                 {
                     Console.WriteLine($"GAMESERVER: Reject {playerName} - No Session");
-                    gameMsg.Buffer.Write((int)ChatMessage.Messages.REJECT);
+                    gameMsg.Buffer.Write((int)GameMessage.Messages.REJECT);
                     gameMsg.Buffer.Write("No session ID.");
                     netStream.Write(gameMsg.Buffer.ToArray(), 0, gameMsg.Buffer.Count());
                     netStream.Close();
@@ -99,11 +100,24 @@ namespace Jekal.Servers
                     var game = _jekal.Games.GetWaitingGame();
                     player.AssignGameConnection(playerConnection, new AsyncCallback(game.HandleMessage));
                     player.GameID = game.GameId;
-                    // TODO: Get team from game
-                    // TODO: Add player to game and team
-                    game.AddPlayer(player);
+                    if (!game.AddPlayer(player))
+                    {
+                        Console.WriteLine("GAMESERVER: Unable to add player to game.");
+                        return Task.FromResult(0);
+                    }
 
-                    // TODO: Start game if ready.
+                    Console.WriteLine($"GAMESERVER: GAME: {player.GameID}; TEAMJOIN {playerName}; TEAM: {player.TeamID}");
+                    var buffer = new ByteBuffer();
+                    buffer.Write((int)GameMessage.Messages.TEAMJOIN);
+                    buffer.Write(player.Name);
+                    buffer.Write(player.TeamID);
+                    game.GetTeam(player.TeamID).SendMessage(buffer);
+
+                    if (game.ReadyToStart)
+                    {
+                        var gameTask = game.Start();
+                        _jekal.Games.AddGame(gameTask);
+                    }
                 }
             }
             else

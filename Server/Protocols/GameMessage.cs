@@ -7,6 +7,7 @@ namespace Jekal.Protocols
         public enum Messages
         {
             GAMEJOIN = 1,
+            REJECT,
             TEAMJOIN,
             TEAMSWITCH,
             UPDATE,

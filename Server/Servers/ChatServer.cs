@@ -12,22 +12,20 @@ namespace Jekal.Servers
     public class ChatServer : IServer
     {
         const int BUFFER_SIZE = 4096;
-        private readonly JekalGame _game;
+        private readonly JekalGame _jekal;
         private readonly IPAddress _ipAddress;
         int nPort = 0;
         List<Task> connections;
-        List<Player> players;
         List<Player> closedConnections;
 
-        public ChatServer(JekalGame game)
+        public ChatServer(JekalGame jekal)
         {
-            _game = game;
-            nPort = Convert.ToInt32(_game.Settings["chatServerPort"]);
+            _jekal = jekal;
+            nPort = Convert.ToInt32(_jekal.Settings["chatServerPort"]);
             string serverName = Dns.GetHostName();
             IPHostEntry hostEntry = Dns.GetHostEntry(serverName);
             _ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
             connections = new List<Task>();
-            players = new List<Player>();
             closedConnections = new List<Player>();
         }
 
@@ -110,9 +108,8 @@ namespace Jekal.Servers
                 else
                 {
                     Console.WriteLine($"CHATSERVER: JOIN {playerName}; SESSION: {sessionId}");
-                    var player = _game.Players.GetPlayer(playerName);
+                    var player = _jekal.Players.GetPlayer(playerName);
                     player.AssignChatConnection(playerConnection, new AsyncCallback(HandleMessage));
-                    players.Add(player);
                     SendSystemMessage($"[{playerName}] has joined the chat.");
                 }
             }
@@ -127,7 +124,7 @@ namespace Jekal.Servers
 
         private bool Authentication(string playerName, int sessionId)
         {
-            if (_game.Players.ValidateSession(playerName, sessionId))
+            if (_jekal.Players.ValidateSession(playerName, sessionId))
             {
                 return true;
             }
@@ -192,28 +189,30 @@ namespace Jekal.Servers
                     Console.WriteLine($"CHATSERVER ERROR: {ex.Message}");
                     CloseConnection(player);
                 }
-            }
+            } // End lock
         }
 
         private void PlayerLeaving(ChatMessage chatMessage)
         {
+            var player = _jekal.Players.GetPlayer(chatMessage.Source);
+            CloseConnection(player);
             SendSystemMessage($"[{chatMessage.Source}] has left the chat.");
             CheckClosedConnections();
         }
 
         private void StandardMessage(ChatMessage chatMessage)
         {
-            var byteBuffer = new Objects.ByteBuffer();
+            var byteBuffer = new ByteBuffer();
             byteBuffer.Write((int)ChatMessage.Messages.MSG);
             byteBuffer.Write(chatMessage.Source);
             byteBuffer.Write(chatMessage.SourceId);
             byteBuffer.Write(chatMessage.Message);
 
-            foreach (var p in players)
+            foreach (var p in _jekal.Players.GetAllPlayers())
             {
-                if (!p.SendChatMessage(byteBuffer))
+                if (!p.Value.SendChatMessage(byteBuffer))
                 {
-                    CloseConnection(p);
+                    CloseConnection(p.Value);
                 }
             }
             byteBuffer.Dispose();
@@ -222,14 +221,14 @@ namespace Jekal.Servers
 
         private void PrivateMessage(ChatMessage chatMessage)
         {
-            var byteBuffer = new Objects.ByteBuffer();
+            var byteBuffer = new ByteBuffer();
             byteBuffer.Write((int)ChatMessage.Messages.PMSG);
             byteBuffer.Write(chatMessage.Source);
             byteBuffer.Write(chatMessage.SourceId);
             byteBuffer.Write(chatMessage.Destination);
             byteBuffer.Write(chatMessage.Message);
 
-            var player = _game.Players.GetPlayer(chatMessage.Destination);
+            var player = _jekal.Players.GetPlayer(chatMessage.Destination);
             if (!player.SendChatMessage(byteBuffer))
             {
                 CloseConnection(player);
@@ -240,24 +239,31 @@ namespace Jekal.Servers
 
         private void TeamMessage(ChatMessage chatMessage)
         {
+            var player = _jekal.Players.GetPlayer(chatMessage.Source);
+            var team = _jekal.Games.GetGame(player.GameID).GetTeam(player.TeamID);
+            var byteBuffer = new ByteBuffer();
+            byteBuffer.Write((int)ChatMessage.Messages.TMSG);
+            byteBuffer.Write(player.Name);
+            byteBuffer.Write(player.SessionID);
+            byteBuffer.Write(chatMessage.Message);
+            team.SendMessage(byteBuffer);
             CheckClosedConnections();
         }
 
         private void SendSystemMessage(string message)
         {
-            var byteBuffer = new Objects.ByteBuffer();
+            var byteBuffer = new ByteBuffer();
             byteBuffer.Write((int)ChatMessage.Messages.SYSTEM);
             byteBuffer.Write(message);
 
-            foreach (var p in players)
+            foreach (var p in _jekal.Players.GetAllPlayers())
             {
-                if (!p.SendChatMessage(byteBuffer))
+                if (!p.Value.SendChatMessage(byteBuffer))
                 {
-                    CloseConnection(p);
+                    CloseConnection(p.Value);
                 }
             }
             byteBuffer.Dispose();
-
             CheckClosedConnections();
         }
 
@@ -277,8 +283,7 @@ namespace Jekal.Servers
         private void CloseConnection(Player player)
         {
             Console.WriteLine($"CHATSERVER: Error communicating to {player.Name}.  Closing chat connection.");
-            players.Remove(player);
-            _game.Players.RemovePlayer(player);
+            _jekal.Players.RemovePlayer(player);
             closedConnections.Add(player);
         }
     }

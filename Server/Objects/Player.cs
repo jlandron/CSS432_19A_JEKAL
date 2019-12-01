@@ -171,6 +171,15 @@ namespace Jekal.Objects
             if (!success)
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending chat message, closing connection.");
+                if (_chatStream != null)
+                {
+                    _chatStream.Close();
+                }
+
+                if (_chatSocket != null)
+                {
+                    _chatSocket.Close();
+                }
             }
 
             return success;
@@ -182,6 +191,15 @@ namespace Jekal.Objects
             if (!success)
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending game message, closing connection.");
+                if (_gameStream != null)
+                {
+                    _gameStream.Close();
+                }
+
+                if (_gameSocket != null)
+                {
+                    _gameSocket.Close();
+                }
             }
 
             return success;

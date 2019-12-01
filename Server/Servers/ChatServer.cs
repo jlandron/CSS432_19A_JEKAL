@@ -189,6 +189,18 @@ namespace Jekal.Servers
                     Console.WriteLine($"CHATSERVER ERROR: {ex.Message}");
                     CloseConnection(player);
                 }
+
+                foreach (var p in closedConnections)
+                {
+                    _jekal.Players.RemovePlayer(p);
+                }
+
+                foreach (var p in closedConnections)
+                {
+                    SendSystemMessage($"[{p.Name}] has left the chat.");
+                }
+
+                closedConnections.Clear();
             } // End lock
         }
 
@@ -196,8 +208,6 @@ namespace Jekal.Servers
         {
             var player = _jekal.Players.GetPlayer(chatMessage.Source);
             CloseConnection(player);
-            SendSystemMessage($"[{chatMessage.Source}] has left the chat.");
-            CheckClosedConnections();
         }
 
         private void StandardMessage(ChatMessage chatMessage)
@@ -216,7 +226,6 @@ namespace Jekal.Servers
                 }
             }
             byteBuffer.Dispose();
-            CheckClosedConnections();
         }
 
         private void PrivateMessage(ChatMessage chatMessage)
@@ -234,7 +243,6 @@ namespace Jekal.Servers
                 CloseConnection(player);
             }
             byteBuffer.Dispose();
-            CheckClosedConnections();
         }
 
         private void TeamMessage(ChatMessage chatMessage)
@@ -247,7 +255,7 @@ namespace Jekal.Servers
             byteBuffer.Write(player.SessionID);
             byteBuffer.Write(chatMessage.Message);
             team.SendMessage(byteBuffer);
-            CheckClosedConnections();
+            byteBuffer.Dispose();
         }
 
         private void SendSystemMessage(string message)
@@ -264,7 +272,6 @@ namespace Jekal.Servers
                 }
             }
             byteBuffer.Dispose();
-            CheckClosedConnections();
         }
 
         private void CheckClosedConnections()
@@ -283,7 +290,6 @@ namespace Jekal.Servers
         private void CloseConnection(Player player)
         {
             Console.WriteLine($"CHATSERVER: Error communicating to {player.Name}.  Closing chat connection.");
-            _jekal.Players.RemovePlayer(player);
             closedConnections.Add(player);
         }
     }

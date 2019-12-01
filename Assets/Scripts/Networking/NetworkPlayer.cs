@@ -107,24 +107,14 @@ namespace NetworkGame.Client
             buffer.Dispose();
         }
 
-        public void ReceiveMovementMessage(byte[] data)
+        public void ReceiveMovementMessage(Vector3 pos, Quaternion rot, float timeToLerp)
         {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            buffer.ReadInt();  //message type code
-            buffer.ReadInt(); //this character id
-            //read position and rotation
-            Vector3 _position = new Vector3(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
-            Quaternion _rotation = new Quaternion(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
-            //read lerp time
-            float _timeToLerp = buffer.ReadFloat();
-            buffer.Dispose();
 
             lastRealPosition = realPosition;
             lastRealRotation = realRotation;
-            realPosition = _position;
-            realRotation = _rotation;
-            timeToLerp = _timeToLerp;
+            realPosition = pos;
+            realRotation = rot;
+            this.timeToLerp = timeToLerp;
 
             if (realPosition != transform.position)
             {

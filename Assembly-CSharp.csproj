@@ -82,6 +82,7 @@
     <Compile Include="Assets\Scripts\Networking\NetworkPlayer.cs" />
     <Compile Include="Assets\Scripts\Networking\Protocols\ByteBuffer.cs" />
     <Compile Include="Assets\Scripts\Networking\Protocols\ChatMessage.cs" />
+    <Compile Include="Assets\Scripts\Networking\Protocols\GameMessage.cs" />
     <Compile Include="Assets\Scripts\Networking\Protocols\LoginMessage.cs" />
     <Compile Include="Assets\Scripts\PlayerManager.cs" />
     <Compile Include="Assets\Scripts\UI\ButtonHandler.cs" />

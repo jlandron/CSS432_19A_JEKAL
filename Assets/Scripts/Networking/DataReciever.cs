@@ -1,6 +1,5 @@
 ﻿using Common.Protocols;
 using NetworkGame.UI;
-using System;
 using UnityEngine;
 
 namespace NetworkGame.Client
@@ -14,12 +13,100 @@ namespace NetworkGame.Client
         {
             this.clientTCP = clientTCP;
         }
+
+        /////// Chat server messages ////////
+
+        internal void HandleJoinMessage(byte[] data)
+        {
+            Debug.Log("Not sure why I am reciving this message: Chat JOIN");
+        }
+        internal void HandleLeaveMessage(byte[] data)
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            _ = buffer.ReadInt();
+            string playerName = buffer.ReadString();
+            _ = buffer.ReadInt();
+            buffer.Dispose();
+            ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage(playerName, " Disconnected"));
+            Debug.Log("Leave message: " + playerName);
+
+        }
+        internal void HandleSystemChatMessage(byte[] data)
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            _ = buffer.ReadInt();
+            string msg = buffer.ReadString();
+            buffer.Dispose();
+            ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage("System", msg, QueuedMessage.Type.SYSTEM));
+            Debug.Log("System message: " + msg);
+
+        }
+        internal void HandleChatMessage(byte[] data)
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            _ = buffer.ReadInt();
+            string playerName = buffer.ReadString();
+            _ = buffer.ReadInt();
+            string msg = buffer.ReadString();
+            buffer.Dispose();
+            Debug.Log("Chat message: " + msg);
+            ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage(playerName, msg));
+        }
+        internal void HandlePrivateChatMessage(byte[] data)
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            _ = buffer.ReadInt();
+            string playerName = buffer.ReadString();
+            _ = buffer.ReadInt();
+            _ = buffer.ReadString();
+            string msg = buffer.ReadString();
+            buffer.Dispose();
+            Debug.Log("Chat message: " + msg);
+            ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage(playerName, msg, QueuedMessage.Type.PRIVATE));
+        }
+        internal void HandleTeamChatMessage(byte[] data)
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            _ = buffer.ReadInt();
+            string playerName = buffer.ReadString();
+            _ = buffer.ReadInt();
+            string msg = buffer.ReadString();
+            buffer.Dispose();
+            Debug.Log("Chat message: " + msg);
+            ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage(playerName, msg, QueuedMessage.Type.TEAM));
+        }
+        internal void HandleChatRejectMessage(byte[] data)
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            _ = buffer.ReadInt();
+            string msg = buffer.ReadString();
+            Debug.Log("System message: " + msg);
+            buffer.Dispose();
+            NetworkManager.Instance.ShouldKillChat = true;
+            NetworkManager.Instance.ChatRequestSent = false;
+        }
+        internal void HandleCloseMessage(byte[] data)
+        {
+            Debug.Log("Recieved chat close signal");
+            NetworkManager.Instance.chatClientTCP.Disconnect();
+            NetworkManager.Instance.ChatRequestSent = false;
+        }
         //////// Login server messages ////////
+        internal void HandleLoginMessage(byte[] data)
+        {
+            Debug.Log("Not sure why I am reciving this message: Login request");
+        }
         internal void HandleAuthMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
-            int packetID = buffer.ReadInt();
+            _ = buffer.ReadInt();
             NetworkManager.Instance.ChatServerIP = buffer.ReadString();
             NetworkManager.Instance.ChatServerPort = buffer.ReadInt();
             NetworkManager.Instance.GameServerIP = buffer.ReadString();
@@ -28,18 +115,12 @@ namespace NetworkGame.Client
             buffer.Dispose();
             NetworkManager.Instance.LoginSuccess = true;
         }
-
-        internal void HandleLoginMessage(byte[] data)
-        {
-            Debug.Log("Not sure why I am reciving this message");
-        }
-
         internal void HandleRejectMessage(byte[] data)
         {
             Debug.Log("Login rejected");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
-            int packetID = buffer.ReadInt();
+            _ = buffer.ReadInt();
             string msg = buffer.ReadString();
             buffer.Dispose();
             NetworkManager.Instance.errorMessageToPrint = msg;
@@ -47,123 +128,55 @@ namespace NetworkGame.Client
             NetworkManager.Instance.ShouldKillLogin = true;
         }
 
-
-
-        /////// Chat server messages ////////
-        public void HandleWelcomeMessage(byte[] data)
-        {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            int packetID = buffer.ReadInt();
-            string msg = buffer.ReadString();
-            //send message to chat controller
-            buffer.Dispose();
-        }
-
-        internal void HandleCloseMessage(byte[] data)
-        {
-            Debug.Log("Recieved chat close signal");
-            NetworkManager.Instance.chatClientTCP.Disconnect();
-            NetworkManager.Instance.ChatRequestSent = false;
-        }
-
-        public void HandleChatMessage(byte[] data)
-        {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            int packetID = buffer.ReadInt();
-            string playerName = buffer.ReadString();
-            int playerID = buffer.ReadInt();
-            string msg = buffer.ReadString();
-            Debug.Log("Chat message: " + msg);
-            ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage(playerName, msg));
-            //send message to chat controller
-            buffer.Dispose();
-        }
-        public void HandleSystemChatMessage(byte[] data)
-        {
-
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            int packetID = buffer.ReadInt();
-            string msg = buffer.ReadString();
-            ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage("System", msg));
-            Debug.Log("System message: " + msg);
-            buffer.Dispose();
-
-        }
-        internal void HandlePrivateChatMessage(byte[] data)
-        {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            int packetID = buffer.ReadInt();
-            string msg = buffer.ReadString();
-            ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage("System", msg));
-            Debug.Log("System message: " + msg);
-            buffer.Dispose();
-        }
-        internal void HandleTeamChatMessage(byte[] data)
-        {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            int packetID = buffer.ReadInt();
-            string msg = buffer.ReadString();
-            ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage("System", msg));
-            Debug.Log("System message: " + msg);
-            buffer.Dispose();
-        }
-
-        internal void HandleJoinMessage(byte[] data)
-        {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            int packetID = buffer.ReadInt();
-            string msg = buffer.ReadString();
-            ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage("System", msg));
-            Debug.Log("System message: " + msg);
-            buffer.Dispose();
-        }
-
-        internal void HandleLeaveMessage(byte[] data)
-        {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            int packetID = buffer.ReadInt();
-            string msg = buffer.ReadString();
-            ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage("System", msg));
-            Debug.Log("System message: " + msg);
-            buffer.Dispose();
-        }
-        internal void HandleChatRejectMessage(byte[] data)
-        {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            int packetID = buffer.ReadInt();
-            string msg = buffer.ReadString();
-            ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage("System", msg));
-            Debug.Log("System message: " + msg);
-            buffer.Dispose();
-            NetworkManager.Instance.ShouldKillChat = true;
-            NetworkManager.Instance.ChatRequestSent = false;
-        }
-
         /////// Game server messages ///////
-        public void HandleInstatiatePlayer(byte[] data)
+        internal void HandleGameJoinMessage(byte[] data)
         {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            int packetID = buffer.ReadInt();
-            int index = buffer.ReadInt();
-            buffer.Dispose();
-            PlayerManager.Instance.playersToSpawn.Enqueue(index);
+            PlayerManager.Instance.playersToSpawn.Enqueue(data);
         }
-
-        public void HandlePlayerTranformMessage(byte[] data)
+        internal void HandleGameRejectMessage(byte[] data)
         {
+            Debug.Log("Login rejected");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
-            PlayerManager.Instance.playersToUpdate.Enqueue(buffer.ToArray());
+            _ = buffer.ReadInt();
+            string msg = buffer.ReadString();
             buffer.Dispose();
+            NetworkManager.Instance.errorMessageToPrint = msg;
+            //give player prompt to retry
+            NetworkManager.Instance.ShouldKillLogin = true;
+            NetworkManager.Instance.ShouldKillGame = true;
+        }
+        internal void HandleTeamJoinMessage(byte[] data)
+        {
+            PlayerManager.Instance.playersJoiningTeam.Enqueue(data);
+        }
+        internal void HandleUpdateMessage(byte[] data)
+        {
+            Debug.Log("Not sure why I am reciving this message: Game Update");
+        }
+        internal void HandleTagMessage(byte[] data)
+        {
+            Debug.Log("Not sure why I am reciving this message: Game Tag");
+        }
+        internal void HandleStatusMessage(byte[] data)
+        {
+            PlayerManager.Instance.playersToUpdate.Enqueue(data);
+        }
+        internal void HandleScoreMessage(byte[] data)
+        {
+            
+        }
+        internal void HandleSGameEndMessage(byte[] data)
+        {
+
+        }
+        internal void HandleGameStartMessage(byte[] data)
+        {
+
+        }
+        internal void HandleGameWaitMessage(byte[] data)
+        {
+
         }
     }
 }

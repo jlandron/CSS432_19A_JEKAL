@@ -56,20 +56,27 @@ namespace NetworkGame.UI
                     chatBox.ActivateInputField();
                 }
             }
-#if UNITY_EDITOR
-            if (!chatBox.isFocused)
-            {
-                if (Input.GetKeyDown(KeyCode.Space))
-                {
-                    SendMessageToChat("You Pressed the Space bar");
-                    Debug.Log("space");
-                }
-            }
-#endif
             QueuedMessage msg;
             if (chatMessages.TryDequeue(out msg))
             {
-                SendMessageToChat(msg.playerName, msg.message);
+
+                switch (msg.type)
+                {
+                    case QueuedMessage.Type.NULL:
+                        SendMessageToChat(msg.playerName, msg.message, Color.white);
+                        break;
+                    case QueuedMessage.Type.TEAM:
+                        SendMessageToChat(msg.playerName, msg.message, Color.yellow);
+                        break;
+                    case QueuedMessage.Type.PRIVATE:
+                        SendMessageToChat(msg.playerName, msg.message, Color.red);
+                        break;
+                    case QueuedMessage.Type.SYSTEM:
+                        SendMessageToChat(msg.playerName, msg.message, Color.green);
+                        break;
+                    default:
+                        break;
+                }
             }
             if (chatBox.isFocused)
             {
@@ -83,11 +90,11 @@ namespace NetworkGame.UI
 
         public void SendMessageToChat(string text)
         {
-            SendMessageToChat("player", text);
+            SendMessageToChat("player", text, Color.white);
         }
 
         //TODO : Recieve from network
-        public void SendMessageToChat(string playerName, string text)
+        public void SendMessageToChat(string playerName, string text, Color color)
         {
             if (chatHistory.Count >= maxMessages)
             {
@@ -96,10 +103,12 @@ namespace NetworkGame.UI
             }
             Message newMessage = new Message();
             newMessage.playerName = playerName;
-            newMessage.text = text;
+            newMessage.msg = text;
+            newMessage.color = color;
             GameObject newText = Instantiate(textObject, chatPanel.transform);
             newMessage.textObject = newText.GetComponent<Text>();
-            newMessage.textObject.text = newMessage.playerName + ": " + newMessage.text;
+            newMessage.textObject.text = newMessage.playerName + ": " + newMessage.msg;
+            newMessage.textObject.color = color;
             chatHistory.Add(newMessage);
         }
     }
@@ -107,8 +116,9 @@ namespace NetworkGame.UI
     [System.Serializable]
     internal class Message
     {
-        internal string playerName = "";
-        internal string text = "";
+        internal string playerName;
+        internal string msg;
         internal Text textObject;
+        internal Color color = Color.white;
     }
 }

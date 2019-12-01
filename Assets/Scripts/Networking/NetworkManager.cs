@@ -218,6 +218,5 @@ namespace NetworkGame.Client
         public bool GameIsLaunched { get => gameIsLaunched; set => gameIsLaunched = value; }
         public bool ChatRequestSent { get => chatRequestSent; set => chatRequestSent = value; }
         public bool GameRequestSent { get => gameRequestSent; set => gameRequestSent = value; }
-
     }
 }

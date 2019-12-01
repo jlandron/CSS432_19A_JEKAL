@@ -1,8 +1,7 @@
 ﻿using Common.Protocols;
-using NetworkGame.Client;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace NetworkGame
@@ -11,10 +10,13 @@ namespace NetworkGame
     {
 
         [SerializeField]
-        public Dictionary<int, GameObject> ConnectedPlayers { get; private set; }
+        public Dictionary<int, Player> ConnectedPlayers { get; private set; }
         public static PlayerManager Instance { get; private set; }
-        public ConcurrentQueue<int> playersToSpawn { get; private set; }
+        public ConcurrentQueue<byte[]> playersToSpawn { get; private set; }
+        public ConcurrentQueue<byte[]> playersJoiningTeam { get; private set; }
+        public ConcurrentQueue<byte[]> playersToRemove { get; private set; }
         public ConcurrentQueue<byte[]> playersToUpdate { get; private set; }
+        public ConcurrentQueue<byte[]> playersTagged { get; private set; }
 
         [Header("Player")]
         [SerializeField]
@@ -30,88 +32,148 @@ namespace NetworkGame
             {
                 return;
             }
-            ConnectedPlayers = new Dictionary<int, GameObject>();
-            playersToSpawn = new ConcurrentQueue<int>();
+            ConnectedPlayers = new Dictionary<int, Player>();
+            playersToSpawn = new ConcurrentQueue<byte[]>();
+            playersJoiningTeam = new ConcurrentQueue<byte[]>();
+            playersToRemove = new ConcurrentQueue<byte[]>();
             playersToUpdate = new ConcurrentQueue<byte[]>();
+
             NumberConnectedPlayers = 0;
         }
 
         // Update is called once per frame
         void Update()
         {
-            int playerToSpawnID;
-            if (playersToSpawn.TryDequeue(out playerToSpawnID))
+            byte[] playerToSpawnData;
+            if (playersToSpawn.TryDequeue(out playerToSpawnData))
             {
-                InstatiatePlayer(playerToSpawnID);
+                InstatiatePlayer(playerToSpawnData);
             }
-            
-            for(int i = 0; i < NumberConnectedPlayers; i++)
+            byte[] playerToJoinTeamData;
+            if (playersJoiningTeam.TryDequeue(out playerToJoinTeamData))
             {
-                byte[] playerToUpdate;
-                if (playersToUpdate.TryDequeue(out playerToUpdate))
-                {
-                    UpdatePlayerLocation(playerToUpdate);
-                }
+                HandleJoinTeam(playerToJoinTeamData);
             }
-            
+            byte[] playerToRemoveData;
+            if (playersJoiningTeam.TryDequeue(out playerToRemoveData))
+            {
+                HandleRemovePlayer(playerToRemoveData);
+            }
+
+            byte[] updateData;
+            if (playersToUpdate.TryDequeue(out updateData))
+            {
+                UpdateGame(updateData);
+            }
         }
 
-        internal GameObject GetPlayerFromConnectedPlayers(int _playerID)
+        private void HandleRemovePlayer(byte[] data)
         {
-            if (ConnectedPlayers.ContainsKey(_playerID))
-            {
-                return ConnectedPlayers[_playerID];
-            }
-            return null;
+            ByteBuffer byteBuffer = new ByteBuffer();
+            byteBuffer.Write(data);
+            _ = byteBuffer.ReadInt();
+            int playerID = byteBuffer.ReadInt();
+            RemovePlayerFromConnectedPlayers(playerID);
+            byteBuffer.Dispose();
         }
-        internal void UpdatePlayerLocation(byte[] data)
+        private void HandleJoinTeam(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
-            int packetID = buffer.ReadInt();
-            int index = buffer.ReadInt();
+            _ = buffer.ReadInt();
+            _ = buffer.ReadString();
+            int playerID = buffer.ReadInt();
+            int teamNum = buffer.ReadInt();
             buffer.Dispose();
-            //update the player
-            ConnectedPlayers[index].GetComponent<Client.NetworkPlayer>().ReceiveMovementMessage(data);
+            ConnectedPlayers[playerID].teamNum = teamNum;
+        }
+        internal void UpdateGame(byte[] data)
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            _ = buffer.ReadInt(); //message type
+            UpdateGameTime(buffer.ReadFloat());
+            try
+            {
+                for (int i = 0; i < NumberConnectedPlayers; i++)
+                {
+                    int playerID = buffer.ReadInt();
+                    Vector3 playerPos = new Vector3(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
+                    Quaternion rotation = new Quaternion(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
+                    ConnectedPlayers[playerID].playerObject.GetComponent<Client.NetworkPlayer>().ReceiveMovementMessage(playerPos, rotation, buffer.ReadFloat());
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            buffer.Dispose();
+        }
+
+        private void UpdateGameTime(float v)
+        {
+            //throw new NotImplementedException();
         }
 
         //TODO: add team locations and instantiations
-        internal void InstatiatePlayer(int _playerID)
+        internal void InstatiatePlayer(byte[] data)
         {
             //add spawning locations for teams, more game information needed
-            if(playerPrefab == null)
+            if (playerPrefab == null)
             {
                 Debug.LogError("No player prefab!");
                 return;
             }
-            GameObject player = Instantiate(playerPrefab);
-            player.name = "Player: " + _playerID;
-            player.tag = "ExtPlayer";
-            player.GetComponent<Client.NetworkPlayer>().playerID = _playerID;
-            AddPlayerToConnectedPlayers(_playerID, player);
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            _ = buffer.ReadInt();
+            string playerName = buffer.ReadString();
+            int playerID = buffer.ReadInt();
+            buffer.Dispose();
+            //make player object
+            Player newPlayer = new Player(playerName, playerID);
+            //instantiate new player in game world
+            GameObject playerObject = Instantiate(playerPrefab);
+            //set player atributes
+            playerObject.name = "Player: " + playerName;
+            playerObject.tag = "ExtPlayer";
+            playerObject.GetComponent<Client.NetworkPlayer>().playerID = playerID;
+
+            newPlayer.playerObject = playerObject;
+            AddPlayerToConnectedPlayers(newPlayer);
         }
 
-        internal void AddPlayerToConnectedPlayers(int _playerID, GameObject _playerObject)
+        internal void AddPlayerToConnectedPlayers(Player _player)
         {
-            if (!ConnectedPlayers.ContainsKey(_playerID))
+            if (!ConnectedPlayers.ContainsKey(_player.playerID))
             {
-                ConnectedPlayers.Add(_playerID, _playerObject);
+                ConnectedPlayers.Add(_player.playerID, _player);
                 NumberConnectedPlayers++;
             }
         }
 
-        internal void RemovePlayerFromConnectedPlayers(int _playerID)
+        public void RemovePlayerFromConnectedPlayers(int _playerID)
         {
             if (ConnectedPlayers.ContainsKey(_playerID))
             {
+                Destroy(ConnectedPlayers[_playerID].playerObject);
                 ConnectedPlayers.Remove(_playerID);
                 NumberConnectedPlayers--;
             }
         }
 
-        internal GameObject[] GetConnectedPlayers()
+        [System.Serializable]
+        public class Player
         {
-            return ConnectedPlayers.Values.ToArray();
+            public string playerName;
+            public int playerID;
+            public int teamNum;
+            internal GameObject playerObject;
+            public Player(string pName, int pID)
+            {
+                playerName = pName;
+                playerID = pID;
+            }
         }
     }
 }

@@ -76,6 +76,7 @@ namespace Jekal.Objects
             // Send Game Over message
             byteBuffer.Clear();
             byteBuffer.Write((int)GameMessage.Messages.GAMEEND);
+            byteBuffer.Write((GetTeam(0).Count() == 0) ? 0 : 1);
             // TODO: What else in GAMEEND?
             SendMessageToGame(byteBuffer);
 

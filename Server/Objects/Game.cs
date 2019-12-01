@@ -40,15 +40,23 @@ namespace Jekal.Objects
             {
                 _teams.Add(new Team(i));
             }
+
+            // Start update timer to allow free-roam
+            _updateTimer = new Timer(SendUpdate, null, 0, 100); // Update 10 times a second
         }
 
         public Task Start()
         {
+            var byteBuffer = new ByteBuffer();
+
             // Sart Game Timers
             _gameTime = Convert.ToInt32(_jekal.Settings["gameTime"]) * 60;  // Game time in seconds
             _gameTimer = new Timer(GameTimeCheck, null, 0, 1000);
-            _updateTimer = new Timer(SendUpdate, null, 0, 100); // Update 10 times a second
             _gameStarted = true;
+
+            byteBuffer.Write((int)GameMessage.Messages.GAMESTART);
+            byteBuffer.Write(_gameTime);
+            SendMessageToGame(byteBuffer);
 
             // While game has time on it.
             while (_gameStarted)
@@ -66,26 +74,35 @@ namespace Jekal.Objects
             }
 
             // Send Game Over message
-            var byteBuffer = new ByteBuffer();
+            byteBuffer.Clear();
             byteBuffer.Write((int)GameMessage.Messages.GAMEEND);
             // TODO: What else in GAMEEND?
-
-            foreach (var p in _players)
-            {
-                try
-                {
-                    if (!p.SendGameMessage(byteBuffer))
-                    {
-                        CloseConnection(p);
-                    }
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine($"GAME: Error communicating with player {p.Name}, closing connection.");
-                }
-            }
+            SendMessageToGame(byteBuffer);
 
             return Task.FromResult(0);
+        }
+
+        public void SendMessageToGame(ByteBuffer buffer)
+        {
+            var msgLock = new object();
+
+            lock (msgLock)
+            {
+                foreach (var p in _players)
+                {
+                    try
+                    {
+                        if (!p.SendGameMessage(buffer))
+                        {
+                            CloseConnection(p);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine($"GAME: Error communicating with player {p.Name}, closing connection.");
+                    }
+                }
+            }  // End lock
         }
 
         public bool HasPlayerSpace()

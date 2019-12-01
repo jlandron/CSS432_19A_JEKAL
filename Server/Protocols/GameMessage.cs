@@ -16,7 +16,7 @@ namespace Jekal.Protocols
             SCORE,
             GAMEEND,
             GAMESTART,
-            GAMEWAIT
+            GAMELEAVE
         }
 
         public ByteBuffer Buffer { get; set; }
@@ -83,7 +83,7 @@ namespace Jekal.Protocols
                     break;
                 case Messages.GAMESTART:
                     break;
-                case Messages.GAMEWAIT:
+                case Messages.GAMELEAVE:
                     break;
                 default:
                     return false;

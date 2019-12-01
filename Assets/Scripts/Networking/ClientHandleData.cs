@@ -48,12 +48,21 @@ namespace NetworkGame.Client
                     Debug.Log("Chat packets setup");
                     break;
                 case ClientTypes.GAME:
-                    Debug.LogError("No game packets made yet");
+                    packets.Add((int)GameMessage.Messages.GAMEJOIN, clientTCP.dataReciever.HandleGameJoinMessage);
+                    packets.Add((int)GameMessage.Messages.TEAMJOIN, clientTCP.dataReciever.HandleTeamJoinMessage);
+                    packets.Add((int)GameMessage.Messages.TEAMSWITCH, clientTCP.dataReciever.HandleTeamSwitchMessage);
+                    packets.Add((int)GameMessage.Messages.UPDATE, clientTCP.dataReciever.HandleUpdateMessage);
+                    packets.Add((int)GameMessage.Messages.TAG, clientTCP.dataReciever.HandleTagMessage);
+                    packets.Add((int)GameMessage.Messages.STATUS, clientTCP.dataReciever.HandleStatusMessage);
+                    packets.Add((int)GameMessage.Messages.SCORE, clientTCP.dataReciever.HandleScoreMessage);
+                    packets.Add((int)GameMessage.Messages.GAMEEND, clientTCP.dataReciever.HandleGameEndMessage);
+                    packets.Add((int)GameMessage.Messages.GAMESTART, clientTCP.dataReciever.HandleGameStartMessage);
+                    packets.Add((int)GameMessage.Messages.GAMEWAIT, clientTCP.dataReciever.HandleGameWaitMessage);
+                    packets.Add((int)GameMessage.Messages.REMOVE, clientTCP.dataReciever.HandleRemoveMessage);
                     break;
                 default:
                     break;
             }
-
         }
         public void HandleData(byte[] data)
         {
@@ -80,7 +89,6 @@ namespace NetworkGame.Client
         }
         private void HandleDataPackets(byte[] data)
         {
-
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             //check packet type

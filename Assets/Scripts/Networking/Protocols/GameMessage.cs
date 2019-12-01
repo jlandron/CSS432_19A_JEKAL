@@ -13,7 +13,8 @@
             SCORE,
             GAMEEND,
             GAMESTART,
-            GAMEWAIT
+            GAMEWAIT,
+            REMOVE
         }
     }
 }

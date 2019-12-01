@@ -89,7 +89,6 @@ namespace NetworkGame.Client
 
         public void SendMovementMessage(int _playerID, Vector3 _position, Quaternion _rotation, float _timeTolerp)
         {
-
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(_playerID);
             //player location

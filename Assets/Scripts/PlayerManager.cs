@@ -55,7 +55,7 @@ namespace NetworkGame
                 HandleJoinTeam(playerToJoinTeamData);
             }
             byte[] playerToRemoveData;
-            if (playersJoiningTeam.TryDequeue(out playerToRemoveData))
+            if (playersToRemove.TryDequeue(out playerToRemoveData))
             {
                 HandleRemovePlayer(playerToRemoveData);
             }

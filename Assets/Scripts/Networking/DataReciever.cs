@@ -150,6 +150,10 @@ namespace NetworkGame.Client
         {
             PlayerManager.Instance.playersJoiningTeam.Enqueue(data);
         }
+        internal void HandleTeamSwitchMessage(byte[] data)
+        {
+            PlayerManager.Instance.playersJoiningTeam.Enqueue(data);
+        }
         internal void HandleUpdateMessage(byte[] data)
         {
             Debug.Log("Not sure why I am reciving this message: Game Update");
@@ -164,19 +168,23 @@ namespace NetworkGame.Client
         }
         internal void HandleScoreMessage(byte[] data)
         {
-            
+            Debug.Log("Score message not implemented");
         }
-        internal void HandleSGameEndMessage(byte[] data)
+        internal void HandleGameEndMessage(byte[] data)
         {
-
+            GameManager.Instance.MyGameState = GameManager.GameState.END;
         }
         internal void HandleGameStartMessage(byte[] data)
         {
-
+            GameManager.Instance.MyGameState = GameManager.GameState.START;
         }
         internal void HandleGameWaitMessage(byte[] data)
         {
-
+            GameManager.Instance.MyGameState = GameManager.GameState.WAIT;
+        }
+        internal void HandleRemoveMessage(byte[] data)
+        {
+            PlayerManager.Instance.playersToRemove.Enqueue(data);
         }
     }
 }

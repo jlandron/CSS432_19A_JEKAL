@@ -8,6 +8,27 @@ namespace NetworkGame
         [SerializeField]
         private int _currentScene;
 
+        [SerializeField]
+        private GameState gameState;
+        public GameState MyGameState { get => gameState; set => gameState = value; }
+
+        public static GameManager Instance { get; private set; }
+        //TODO: DO SOMETHING WITH THIS IN GAME
+        public enum GameState
+        {
+            WAIT = 1,
+            START,
+            PLAYING,
+            END
+        }
+        private void Awake()
+        {
+            if (Instance != null)
+            {
+                return;
+            }
+            Instance = this;
+        }
         private void Start()
         {
             Screen.SetResolution(1920, 1080, false);

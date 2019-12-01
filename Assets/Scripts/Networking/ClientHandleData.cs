@@ -49,6 +49,7 @@ namespace NetworkGame.Client
                     break;
                 case ClientTypes.GAME:
                     packets.Add((int)GameMessage.Messages.GAMEJOIN, clientTCP.dataReciever.HandleGameJoinMessage);
+                    packets.Add((int)GameMessage.Messages.REJECT, clientTCP.dataReciever.HandleGameRejectMessage);
                     packets.Add((int)GameMessage.Messages.TEAMJOIN, clientTCP.dataReciever.HandleTeamJoinMessage);
                     packets.Add((int)GameMessage.Messages.TEAMSWITCH, clientTCP.dataReciever.HandleTeamSwitchMessage);
                     packets.Add((int)GameMessage.Messages.UPDATE, clientTCP.dataReciever.HandleUpdateMessage);
@@ -57,8 +58,7 @@ namespace NetworkGame.Client
                     packets.Add((int)GameMessage.Messages.SCORE, clientTCP.dataReciever.HandleScoreMessage);
                     packets.Add((int)GameMessage.Messages.GAMEEND, clientTCP.dataReciever.HandleGameEndMessage);
                     packets.Add((int)GameMessage.Messages.GAMESTART, clientTCP.dataReciever.HandleGameStartMessage);
-                    packets.Add((int)GameMessage.Messages.GAMEWAIT, clientTCP.dataReciever.HandleGameWaitMessage);
-                    packets.Add((int)GameMessage.Messages.REMOVE, clientTCP.dataReciever.HandleRemoveMessage);
+                    packets.Add((int)GameMessage.Messages.GAMELEAVE, clientTCP.dataReciever.HandleRemoveMessage);
                     break;
                 default:
                     break;

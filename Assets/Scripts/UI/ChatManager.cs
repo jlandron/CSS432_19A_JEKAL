@@ -43,10 +43,46 @@ namespace NetworkGame.UI
             {
                 if (Input.GetKeyDown(KeyCode.Return))
                 {
-                    //TODO : send to network
-                    NetworkManager.Instance.chatClientTCP.dataSender.SendChatMessage(chatBox.text);
-                    //SendMessageToChat(chatBox.text);
+                    string text = chatBox.text;
                     chatBox.text = "";
+                    if(text.StartsWith("/"))
+                    {
+                        string[] tokens = text.Split(' ');
+                        string newText = "";
+                        for (int i = 1; i < tokens.Length; i++)
+                        {
+                            newText += tokens[i] + " ";
+                        }
+                        switch (tokens[0])      
+                        {
+                            case "/t":
+                            case "/T":
+                                for (int i = 1; i < tokens.Length; i++)
+                                {
+                                    newText += tokens[i] + " ";
+                                }
+                                NetworkManager.Instance.chatClientTCP.dataSender.SendTeamChatMessage(newText);
+                                break;
+                            case "/p":
+                            case "/P":
+                                string player = tokens[1];
+                                for (int i = 2; i < tokens.Length; i++)
+                                {
+                                    newText += tokens[i] + " ";
+                                }
+                                NetworkManager.Instance.chatClientTCP.dataSender.SendPrivateChatMessage(newText, player);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        NetworkManager.Instance.chatClientTCP.dataSender.SendChatMessage(chatBox.text);
+                    }
+                   
+                    //SendMessageToChat(chatBox.text);
+                    
                 }
             }
             else

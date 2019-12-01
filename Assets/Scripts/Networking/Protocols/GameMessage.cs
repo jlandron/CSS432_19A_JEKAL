@@ -5,6 +5,7 @@
         public enum Messages
         {
             GAMEJOIN = 1,
+            REJECT,
             TEAMJOIN,
             TEAMSWITCH,
             UPDATE,
@@ -13,8 +14,7 @@
             SCORE,
             GAMEEND,
             GAMESTART,
-            GAMEWAIT,
-            REMOVE
+            GAMELEAVE,
         }
     }
 }

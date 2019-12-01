@@ -1,4 +1,4 @@
-﻿using Common.Protocols;
+﻿using Jekal.Protocols;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -100,10 +100,10 @@ namespace Jekal.Servers
 
                         // Player Validated, create an auth message and a session
                         login.Buffer.Write((int)LoginMessage.Messages.AUTH);
-                        login.Buffer.Write(_game.Chat.GetIP());
-                        login.Buffer.Write(_game.Chat.GetPort());
-                        login.Buffer.Write(_game.Games.GetGameIPAddress());
-                        login.Buffer.Write(_game.Games.GetGamePort());
+                        login.Buffer.Write(_game.GetChatIP());
+                        login.Buffer.Write(_game.GetChatPort());
+                        login.Buffer.Write(_game.GetGameIP());
+                        login.Buffer.Write(_game.GetGamePort());
                         login.Buffer.Write(sessionID);
                     }
                 }

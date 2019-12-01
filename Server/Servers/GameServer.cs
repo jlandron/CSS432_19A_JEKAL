@@ -1,5 +1,4 @@
-﻿using Common.Protocols;
-using Jekal.Objects;
+﻿using Jekal.Protocols;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -12,21 +11,19 @@ namespace Jekal.Servers
     internal class GameServer : IServer
     {
         const int BUFFER_SIZE = 4096;
-        private readonly JekalGame _game;
+        private readonly JekalGame _jekal;
         private readonly IPAddress _ipAddress;
         int nPort = 0;
         List<Task> connections;
-        List<Player> players;
 
-        public GameServer(JekalGame game)
+        public GameServer(JekalGame jekal)
         {
-            _game = game;
-            nPort = Convert.ToInt32(_game.Settings["gameServerPort"]);
-            string serverName = Dns.GetHostName();
-            IPHostEntry hostEntry = Dns.GetHostEntry(serverName);
-            _ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
+            _jekal = jekal;
             connections = new List<Task>();
-            players = new List<Player>();
+
+            nPort = Convert.ToInt32(_jekal.Settings["gameServerPort"]);
+            IPHostEntry hostEntry = Dns.GetHostEntry(Dns.GetHostName());
+            _ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
         }
 
         public async Task<int> StartServer(CancellationToken token)
@@ -48,6 +45,7 @@ namespace Jekal.Servers
                 catch (ObjectDisposedException) when (token.IsCancellationRequested)
                 {
                     Console.WriteLine("GAMESERVER: Stopping Server...");
+                    Task.WaitAll(connections.ToArray());
                 }
                 catch (Exception ex)
                 {
@@ -97,14 +95,15 @@ namespace Jekal.Servers
                 else
                 {
                     Console.WriteLine($"GAMESERVER: JOIN {playerName}; SESSION: {sessionId}");
-                    var player = _game.Players.GetPlayer(playerName);
-                    player.GameSocket = playerConnection;
-                    player.GameStream = player.GameSocket.GetStream();
-
-                    // TODO: Get available game from GameManager
+                    var player = _jekal.Players.GetPlayer(playerName);
+                    var game = _jekal.Games.GetWaitingGame();
+                    player.AssignGameConnection(playerConnection, new AsyncCallback(game.HandleMessage));
+                    player.GameID = game.GameId;
                     // TODO: Get team from game
                     // TODO: Add player to game and team
-                    // TODO: Set listener handler to game handler
+                    game.AddPlayer(player);
+
+                    // TODO: Start game if ready.
                 }
             }
             else
@@ -119,7 +118,7 @@ namespace Jekal.Servers
 
         private bool Authentication(string playerName, int sessionId)
         {
-            if (_game.Players.ValidateSession(playerName, sessionId))
+            if (_jekal.Players.ValidateSession(playerName, sessionId))
             {
                 return true;
             }

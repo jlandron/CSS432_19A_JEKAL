@@ -78,23 +78,9 @@ namespace Jekal.Managers
             return newPlayer;
         }
 
-        public void CloseChat(Player player)
+        public void RemovePlayer(Player player)
         {
-            player.ChatStream.Close();
-            player.ChatSocket.Close();
-
-            if (!player.GameSocket.Connected)
-            {
-                _players.Remove(player.SessionID);
-            }
-        }
-
-        public void CloseGame(Player player)
-        {
-            player.ChatStream.Close();
-            player.GameSocket.Close();
-
-            if (!player.ChatSocket.Connected)
+            if (!player.IsChatConnected() && !player.IsGameConnected())
             {
                 _players.Remove(player.SessionID);
             }

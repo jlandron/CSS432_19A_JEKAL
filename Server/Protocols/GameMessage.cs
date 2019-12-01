@@ -23,6 +23,16 @@ namespace Jekal.Protocols
         public Messages MessageType { get; set; }
         public string Source { get; set; }
         public int SourceId { get; set; }
+        public string Target { get; set; }
+        public int TargetId { get; set; }
+        public float PosX { get; set; }
+        public float PosY { get; set; }
+        public float PosZ { get; set; }
+        public float RotX { get; set; }
+        public float RotY { get; set; }
+        public float RotZ { get; set; }
+        public float RotW { get; set; }
+
 
         public GameMessage()
         {
@@ -52,8 +62,18 @@ namespace Jekal.Protocols
                 case Messages.TEAMSWITCH:
                     break;
                 case Messages.UPDATE:
+                    Source = Buffer.ReadString();
+                    PosX = Buffer.ReadFloat();
+                    PosY = Buffer.ReadFloat();
+                    PosZ = Buffer.ReadFloat();
+                    RotX = Buffer.ReadFloat();
+                    RotY = Buffer.ReadFloat();
+                    RotZ = Buffer.ReadFloat();
+                    RotW = Buffer.ReadFloat();
                     break;
                 case Messages.TAG:
+                    Source = Buffer.ReadString();
+                    Target = Buffer.ReadString();
                     break;
                 case Messages.STATUS:
                     break;

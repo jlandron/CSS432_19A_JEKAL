@@ -30,6 +30,11 @@ namespace Jekal.Objects
             _players.Add(player);
         }
 
+        public void RemovePlayer(Player player)
+        {
+            _players.Remove(player);
+        }
+
         public void SendMessage(ByteBuffer buffer)
         {
             foreach (var p in _players)

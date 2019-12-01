@@ -1,13 +1,12 @@
 ﻿using Jekal.Objects;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 
 namespace Jekal.Managers
 {
     public class PlayerManager
     {
-        private Dictionary<int, Player> _players;
+        private readonly Dictionary<int, Player> _players;
         private int _nextSessionId = 0;
 
         public PlayerManager()
@@ -77,6 +76,19 @@ namespace Jekal.Managers
             };
             _players.Add(newPlayer.SessionID, newPlayer);
             return newPlayer;
+        }
+
+        public Dictionary<int, Player> GetAllPlayers()
+        {
+            return _players;
+        }
+
+        public void RemovePlayer(Player player)
+        {
+            if (!player.IsChatConnected() && !player.IsGameConnected())
+            {
+                _players.Remove(player.SessionID);
+            }
         }
     }
 }

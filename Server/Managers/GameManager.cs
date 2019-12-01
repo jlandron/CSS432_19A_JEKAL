@@ -1,42 +1,44 @@
 ﻿using Jekal.Objects;
-using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.Sockets;
+using System.Linq;
+using System.Threading.Tasks;
+
 
 namespace Jekal.Managers
 {
     public class GameManager
     {
-        private List<Game> games;
-        private Game _game;
+        private readonly List<Game> _games;
+        private readonly List<Task> _gameTasks;
         private readonly JekalGame _jekal;
-        private int _currentPort;
-        private IPAddress _serverIp;
+        private Game _game;
+        private int _gameId = 0;
 
-        public GameManager(JekalGame game)
+        public GameManager(JekalGame jekal)
         {
-            _jekal = game;
-            _currentPort = Convert.ToInt32(_jekal.Settings["gameServerPort"]);
-            string serverName = Dns.GetHostName();
-            IPHostEntry hostEntry = Dns.GetHostEntry(serverName);
-            _serverIp = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
-            games = new List<Game>();
-            games.Add(new Game(_jekal));
-        }
-        public int GetGamePort()
-        {
-            return _currentPort;
-        }
-
-        public string GetGameIPAddress()
-        {
-            return _serverIp.ToString();
+            _jekal = jekal;
+            _games = new List<Game>();
+            _gameTasks = new List<Task>();
         }
 
         public Game GetWaitingGame()
         {
+            if (_game == null || _game.ReadyToStart)
+            {
+                _game = new Game(_jekal, _gameId++);
+                _games.Add(_game);
+            }
             return _game;
+        }
+
+        public Game GetGame(int id)
+        {
+            return _games.First(g => g.GameId == id);
+        }
+
+        public void AddGame(Task gameTask)
+        {
+            _gameTasks.Add(gameTask);
         }
     }
 }

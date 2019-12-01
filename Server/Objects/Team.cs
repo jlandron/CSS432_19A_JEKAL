@@ -1,6 +1,47 @@
-﻿namespace Jekal.Objects
+﻿using System.Collections.Generic;
+
+namespace Jekal.Objects
 {
-    class Team
+    public class Team
     {
+        public int TeamId { get; set; }
+
+        private List<Player> _players;
+        
+
+        public Team(int id)
+        {
+            _players = new List<Player>();
+            TeamId = id;
+        }
+
+        public int Count()
+        {
+            return _players.Count;
+        }
+
+        public List<Player> GetPlayers()
+        {
+            return _players;
+        }
+
+        public void AddPlayer(Player player)
+        {
+            _players.Add(player);
+        }
+
+        public void RemovePlayer(Player player)
+        {
+            _players.Remove(player);
+        }
+
+        public void SendMessage(ByteBuffer buffer)
+        {
+            foreach (var p in _players)
+            {
+                p.SendChatMessage(buffer);
+            }
+
+        }
     }
 }

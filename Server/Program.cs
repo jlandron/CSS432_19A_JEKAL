@@ -44,7 +44,7 @@ namespace Jekal
             gameRunning = true;
             while (gameRunning)
             {
-                Thread.Sleep(250);
+                Thread.Sleep(100);
             }
 
             game.StopGame();

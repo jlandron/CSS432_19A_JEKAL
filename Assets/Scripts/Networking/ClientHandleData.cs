@@ -1,104 +1,106 @@
-﻿using System;
-using System.Collections;
+﻿using Common.Protocols;
 using System.Collections.Generic;
-using Common.Protocols;
+using UnityEngine;
 
-namespace GameClient {
+namespace NetworkGame.Client
+{
     public enum ClientTypes
     {
         LOGIN = 1,
         CHAT,
         GAME,
     }
-    public  class ClientHandleData{
-        
+    public class ClientHandleData
+    {
+
         public ByteBuffer playerBuffer;
-        public delegate void Packet( byte[] data );
-        public Dictionary<int, Packet> packets = new Dictionary<int, Packet>( );
+        public delegate void Packet(byte[] data);
+        public Dictionary<int, Packet> packets;
         private ClientTCP clientTCP;
-        private ClientTypes myType;
 
         public ClientHandleData(ClientTCP clientTCP)
         {
             this.clientTCP = clientTCP;
+            packets = new Dictionary<int, Packet>();
         }
 
-        public void InitPackets(ClientTypes clientType) {
-            myType = clientType;
-            switch (myType)
+        public void InitPackets()
+        {
+
+            switch (clientTCP.Type)
             {
                 case ClientTypes.LOGIN:
+                    packets.Add((int)LoginMessage.Messages.LOGIN, clientTCP.dataReciever.HandleLoginMessage);
                     packets.Add((int)LoginMessage.Messages.AUTH, clientTCP.dataReciever.HandleAuthMessage);
-                    packets.Add((int)LoginMessage.Messages.DOWN, clientTCP.dataReciever.HandleRejectMessage);
                     packets.Add((int)LoginMessage.Messages.REJECT, clientTCP.dataReciever.HandleRejectMessage);
+                    packets.Add((int)LoginMessage.Messages.DOWN, clientTCP.dataReciever.HandleRejectMessage);
+                    Debug.Log("Login packets setup");
                     break;
                 case ClientTypes.CHAT:
                     packets.Add((int)ChatMessage.Messages.JOIN, clientTCP.dataReciever.HandleJoinMessage);
                     packets.Add((int)ChatMessage.Messages.LEAVE, clientTCP.dataReciever.HandleLeaveMessage);
+                    packets.Add((int)ChatMessage.Messages.SYSTEM, clientTCP.dataReciever.HandleSystemChatMessage);
                     packets.Add((int)ChatMessage.Messages.MSG, clientTCP.dataReciever.HandleChatMessage);
-                    packets.Add((int)ChatMessage.Messages.PMSG, clientTCP.dataReciever.HandleChatMessage);
+                    packets.Add((int)ChatMessage.Messages.PMSG, clientTCP.dataReciever.HandlePrivateChatMessage);
+                    packets.Add((int)ChatMessage.Messages.TMSG, clientTCP.dataReciever.HandleTeamChatMessage);
                     packets.Add((int)ChatMessage.Messages.REJECT, clientTCP.dataReciever.HandleChatRejectMessage);
-                    packets.Add((int)ChatMessage.Messages.SYSTEM, clientTCP.dataReciever.HandleChatMessage);
-                    packets.Add((int)ChatMessage.Messages.TMSG, clientTCP.dataReciever.HandleChatMessage);
+                    packets.Add((int)ChatMessage.Messages.CLOSE, clientTCP.dataReciever.HandleCloseMessage);
+                    Debug.Log("Chat packets setup");
                     break;
                 case ClientTypes.GAME:
-
+                    packets.Add((int)GameMessage.Messages.GAMEJOIN, clientTCP.dataReciever.HandleGameJoinMessage);
+                    packets.Add((int)GameMessage.Messages.TEAMJOIN, clientTCP.dataReciever.HandleTeamJoinMessage);
+                    packets.Add((int)GameMessage.Messages.TEAMSWITCH, clientTCP.dataReciever.HandleTeamSwitchMessage);
+                    packets.Add((int)GameMessage.Messages.UPDATE, clientTCP.dataReciever.HandleUpdateMessage);
+                    packets.Add((int)GameMessage.Messages.TAG, clientTCP.dataReciever.HandleTagMessage);
+                    packets.Add((int)GameMessage.Messages.STATUS, clientTCP.dataReciever.HandleStatusMessage);
+                    packets.Add((int)GameMessage.Messages.SCORE, clientTCP.dataReciever.HandleScoreMessage);
+                    packets.Add((int)GameMessage.Messages.GAMEEND, clientTCP.dataReciever.HandleGameEndMessage);
+                    packets.Add((int)GameMessage.Messages.GAMESTART, clientTCP.dataReciever.HandleGameStartMessage);
+                    packets.Add((int)GameMessage.Messages.GAMEWAIT, clientTCP.dataReciever.HandleGameWaitMessage);
+                    packets.Add((int)GameMessage.Messages.REMOVE, clientTCP.dataReciever.HandleRemoveMessage);
                     break;
                 default:
-                    Console.Error.WriteLine("Client type does not exist");
                     break;
             }
-            
         }
-        public void HandleData(byte[] data ) {
-            int pLength = 0;
-            if(playerBuffer == null ) {
-                playerBuffer = new ByteBuffer( );
+        public void HandleData(byte[] data)
+        {
+            if (playerBuffer == null)
+            {
+                playerBuffer = new ByteBuffer();
             }
 
-            playerBuffer.Write( data );
-            if(playerBuffer.Count() == 0 ) {
-                playerBuffer.Clear( );
+            playerBuffer.Write(data);
+            if (playerBuffer.Count() == 0)
+            {
+                playerBuffer.Clear();
                 return;
             }
 
-            if(playerBuffer.Length() >= 4 ) {
-                pLength = playerBuffer.ReadInt( false );
-                if(pLength <= 0 ) {
-                    playerBuffer.Clear( );
-                    return;
-                }
-            }
-            while(pLength > 0 & pLength <= playerBuffer.Length() - 4 ) {
-                if(pLength <= playerBuffer.Length() - 4 ) {
-                    playerBuffer.ReadInt( );
-                    data = playerBuffer.ReadBytes( pLength );
-                    HandleDataPackets( data );
-                }
-                pLength = 0;
-                if(playerBuffer.Length() >= 4 ) {
-                    pLength = playerBuffer.ReadInt( false );
-                    if(pLength <= 0 ) {
-                        playerBuffer.Clear( );
-                        return;
-                    }
-                }
-            }
-            //clear buffer because it is empty
-            if(pLength <= 1 ) {
-                playerBuffer.Clear( );
+            if (data.Length <= 0)
+            {
+                playerBuffer.Clear();
+                return;
             }
 
+            HandleDataPackets(playerBuffer.ToArray());
+            playerBuffer.Clear();
         }
-        private void HandleDataPackets(byte[] data ) {
-            ByteBuffer buffer = new ByteBuffer( );
-            buffer.Write( data );
+        private void HandleDataPackets(byte[] data)
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
             //check packet type
-            int packetID = buffer.ReadInt();
-            buffer.Dispose( );
-            if( packets.TryGetValue( packetID, out Packet packet )){
-                packet.Invoke( data );
+            int packetID = buffer.ReadInt(false);
+            Debug.Log("Client: " + clientTCP.Type + " recieved Packet with ID: " + packetID + " being handled");
+
+            if (packets.TryGetValue(packetID, out Packet packet))
+            {
+                //Debug.Log("invoking: " + packetID);
+                packet.Invoke(buffer.ToArray());
             }
+            buffer.Dispose();
         }
     }
 }

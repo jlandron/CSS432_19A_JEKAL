@@ -1,4 +1,4 @@
-﻿using Common.Protocols;
+﻿using Jekal.Protocols;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -76,7 +76,7 @@ namespace Jekal.Servers
 
             if (login.Parse() && (login.MessageType == LoginMessage.Messages.LOGIN))
             {
-                //Console.WriteLine("LOGINSERVER: Invalid login message received. Closing connection.");
+                login.Buffer.Clear();
                 if (!Authentication(login.Player))
                 {
                     Console.WriteLine($"LOGINSERVER: REJECT {login.Player} - Dupe.");
@@ -85,10 +85,7 @@ namespace Jekal.Servers
                 }
                 else
                 {
-                    //var playerName = login.GetPlayerName();
                     var playerName = login.Player;
-                    // Clear for reuse
-                    login.Buffer.Clear();
 
                     if (!Authentication(playerName))
                     {
@@ -100,12 +97,13 @@ namespace Jekal.Servers
                     {
                         int sessionID = _game.Players.CreateSession(playerName).SessionID;
                         Console.WriteLine($"LOGINSERVER: AUTH {playerName}; SESSION: {sessionID}");
+
                         // Player Validated, create an auth message and a session
                         login.Buffer.Write((int)LoginMessage.Messages.AUTH);
-                        login.Buffer.Write(_game.Chat.GetIP());
-                        login.Buffer.Write(_game.Chat.GetPort());
-                        login.Buffer.Write(_game.Games.GetGameIPAddress());
-                        login.Buffer.Write(_game.Games.GetGamePort());
+                        login.Buffer.Write(_game.GetChatIP());
+                        login.Buffer.Write(_game.GetChatPort());
+                        login.Buffer.Write(_game.GetGameIP());
+                        login.Buffer.Write(_game.GetGamePort());
                         login.Buffer.Write(sessionID);
                     }
                 }
@@ -120,12 +118,6 @@ namespace Jekal.Servers
             netStream.Close();
             playerConnection.Close();
             return Task.FromResult(0);
-        }
-
-        public void StopServer()
-        {
-            // TODO: Remove this from class and interface
-            return;
         }
 
         private bool Authentication(string playerName)

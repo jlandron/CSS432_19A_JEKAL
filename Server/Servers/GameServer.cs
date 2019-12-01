@@ -1,5 +1,7 @@
-﻿using Jekal.Servers.GameServerClasses;
+﻿using Jekal.Objects;
+using Jekal.Protocols;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -9,54 +11,142 @@ namespace Jekal.Servers
 {
     internal class GameServer : IServer
     {
-        private TcpListener serverSocket;
-        private readonly JekalGame _game;
+        const int BUFFER_SIZE = 4096;
+        private readonly JekalGame _jekal;
         private readonly IPAddress _ipAddress;
         int nPort = 0;
-        public HandleGameData gameData;
-        public GameClientManager clientManager;
-        public DataSender dataSender;
-        public DataReciever dataReciever;
+        List<Task> connections;
 
-        //TODO: talk to Ed about integrating this code fully into his server architecture
-        public Task<int> StartServer(CancellationToken token)
+        public GameServer(JekalGame jekal)
         {
-            throw new NotImplementedException();
-        }
-        public GameServer(JekalGame game)
-        {
-            _game = game;
-            nPort = Convert.ToInt32(_game.Settings["gameServerPort"]);
-            serverSocket = new TcpListener(IPAddress.Any, nPort);
-            gameData = new HandleGameData(this); //handles taking in the async mesages and passes them to the correct method in recieve data
-            clientManager = new GameClientManager(this); //holds dictionary of each client connection
-            dataSender = new DataSender(this); //responsible to sending data to clients
-            dataReciever = new DataReciever(this); //responsible to recieving data from clients
-            InitGame(); //start allowing clients to connect
-        }
-        public void InitGame()
-        {
-            Console.WriteLine("Initilizaing Packets");
-            gameData.InitPackets();
-            serverSocket.Start();
-            serverSocket.BeginAcceptTcpClient(new AsyncCallback(OnClientConnect), null);
+            _jekal = jekal;
+            connections = new List<Task>();
+
+            nPort = Convert.ToInt32(_jekal.Settings["gameServerPort"]);
+            IPHostEntry hostEntry = Dns.GetHostEntry(Dns.GetHostName());
+            _ipAddress = Array.FindAll(hostEntry.AddressList, a => a.AddressFamily == AddressFamily.InterNetwork)[0];
         }
 
-        //accept new connections infinitly
-        //TODO: find a way to integrate this async method call with Ed's cancellationToken system
-        private void OnClientConnect(IAsyncResult ar)
+        public async Task<int> StartServer(CancellationToken token)
         {
-            TcpClient client = serverSocket.EndAcceptTcpClient(ar);
-            serverSocket.BeginAcceptTcpClient(new AsyncCallback(OnClientConnect), null);
-            clientManager.CreateNewConnection(client);
+            Console.WriteLine($"GAMESERVER: Starting on {_ipAddress.ToString()}:{nPort}");
+            TcpListener gameListener = new TcpListener(_ipAddress, nPort);
+            token.Register(gameListener.Stop);
+
+            gameListener.Start();
+
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    TcpClient playerConnection = await gameListener.AcceptTcpClientAsync();
+                    Task playerTask = HandleConnection(playerConnection);
+                    connections.Add(playerTask);
+                }
+                catch (ObjectDisposedException) when (token.IsCancellationRequested)
+                {
+                    Console.WriteLine("GAMESERVER: Stopping Server...");
+                    Task.WaitAll(connections.ToArray());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"GAMESERVER: Error handling client connetion: {ex.Message}");
+                }
+            }
+
+            Console.WriteLine("GAMESERVER: Stopped Server...");
+            return 0;
         }
 
-
-        public void StopServer()
+        private Task HandleConnection(TcpClient playerConnection)
         {
-            throw new System.NotImplementedException();
+            Console.WriteLine("GAMESERVER: Incoming Connection");
+            NetworkStream netStream = playerConnection.GetStream();
+
+            var gameMsg = new GameMessage();
+            byte[] inBuffer;
+            inBuffer = new byte[BUFFER_SIZE];
+
+            do
+            {
+                int bytesRead = netStream.Read(inBuffer, 0, inBuffer.Length);
+                byte[] temp = new byte[bytesRead];
+                Array.Copy(inBuffer, temp, bytesRead);
+                gameMsg.Buffer.Write(temp);
+            }
+            while (netStream.DataAvailable);
+
+            if (gameMsg.Parse() && (gameMsg.MessageType == GameMessage.Messages.GAMEJOIN))
+            {
+                var playerName = gameMsg.Source;
+                var sessionId = gameMsg.SourceId;
+
+                // Clear for reuse
+                gameMsg.Buffer.Clear();
+
+                if (!Authentication(playerName, sessionId))
+                {
+                    Console.WriteLine($"GAMESERVER: Reject {playerName} - No Session");
+                    gameMsg.Buffer.Write((int)GameMessage.Messages.REJECT);
+                    gameMsg.Buffer.Write("No session ID.");
+                    netStream.Write(gameMsg.Buffer.ToArray(), 0, gameMsg.Buffer.Count());
+                    netStream.Close();
+                    playerConnection.Close();
+                }
+                else
+                {
+                    Console.WriteLine($"GAMESERVER: JOIN {playerName}; SESSION: {sessionId}");
+                    var player = _jekal.Players.GetPlayer(playerName);
+                    var game = _jekal.Games.GetWaitingGame();
+                    player.AssignGameConnection(playerConnection, new AsyncCallback(game.HandleMessage));
+                    player.GameID = game.GameId;
+                    if (!game.AddPlayer(player))
+                    {
+                        Console.WriteLine("GAMESERVER: Unable to add player to game.");
+                        return Task.FromResult(0);
+                    }
+
+                    Console.WriteLine($"GAMESERVER: GAME: {player.GameID}; TEAMJOIN {playerName}; TEAM: {player.TeamID}");
+                    var buffer = new ByteBuffer();
+                    buffer.Write((int)GameMessage.Messages.TEAMJOIN);
+                    buffer.Write(player.Name);
+                    buffer.Write(player.TeamID);
+                    game.GetTeam(player.TeamID).SendMessage(buffer);
+
+                    if (game.ReadyToStart)
+                    {
+                        var gameTask = game.Start();
+                        _jekal.Games.AddGame(gameTask);
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("GAMESERVER: Expecting chat GAMEJOIN message. Closing connection.");
+                netStream.Close();
+                playerConnection.Close();
+            }
+
+            return Task.FromResult(0);
         }
 
+        private bool Authentication(string playerName, int sessionId)
+        {
+            if (_jekal.Players.ValidateSession(playerName, sessionId))
+            {
+                return true;
+            }
+            return false;
+        }
 
+        public int GetPort()
+        {
+            return nPort;
+        }
+
+        public string GetIP()
+        {
+            return _ipAddress.ToString();
+        }
     }
 }

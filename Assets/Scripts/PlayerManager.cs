@@ -92,10 +92,11 @@ namespace NetworkGame
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             _ = buffer.ReadInt(); //message type
-            UpdateGameTime(buffer.ReadFloat());
+            UpdateGameTime(buffer.ReadInt());
+            int numMessages = buffer.ReadInt();
             try
             {
-                for (int i = 0; i < NumberConnectedPlayers; i++)
+                for (int i = 0; i < numMessages; i++)
                 {
                     int playerID = buffer.ReadInt();
                     Vector3 playerPos = new Vector3(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
@@ -112,7 +113,7 @@ namespace NetworkGame
 
         private void UpdateGameTime(float v)
         {
-            //throw new NotImplementedException();
+            Debug.Log("Need to update game time in UI");
         }
 
         //TODO: add team locations and instantiations
@@ -133,7 +134,15 @@ namespace NetworkGame
             //make player object
             Player newPlayer = new Player(playerName, playerID);
             //instantiate new player in game world
-            GameObject playerObject = Instantiate(playerPrefab);
+            GameObject playerObject;
+            if (startingPositions != null)
+            {
+                playerObject = Instantiate(playerPrefab, startingPositions[playerID % startingPositions.Length].transform.position, Quaternion.identity);
+            }
+            else
+            {
+                playerObject = Instantiate(playerPrefab);
+            }
             //set player atributes
             playerObject.name = "Player: " + playerName;
             playerObject.tag = "ExtPlayer";

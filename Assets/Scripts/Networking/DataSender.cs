@@ -32,6 +32,29 @@ namespace NetworkGame.Client
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
             buffer.Dispose();
         }
+        internal void SendPrivateChatMessage(string message, string targetPlayer)
+        {
+            Debug.Log("Sending chat msg");
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write((int)ChatMessage.Messages.PMSG);
+            buffer.Write(NetworkManager.Instance.PlayerName);
+            buffer.Write(NetworkManager.Instance.PlayerID);
+            buffer.Write(targetPlayer);
+            buffer.Write(message);
+            clientTCP.dataToSend.Enqueue(buffer.ToArray());
+            buffer.Dispose();
+        }
+        internal void SendTeamChatMessage(string message)
+        {
+            Debug.Log("Sending chat msg");
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write((int)ChatMessage.Messages.TMSG);
+            buffer.Write(NetworkManager.Instance.PlayerName);
+            buffer.Write(NetworkManager.Instance.PlayerID);
+            buffer.Write(message);
+            clientTCP.dataToSend.Enqueue(buffer.ToArray());
+            buffer.Dispose();
+        }
 
         /////// Login //////
         public void RequestLogin()
@@ -55,6 +78,7 @@ namespace NetworkGame.Client
         public void SendTagMessage(int playerTagged)
         {
             ByteBuffer buffer = new ByteBuffer();
+            buffer.Write((int)GameMessage.Messages.TAG);
             buffer.Write(NetworkManager.Instance.PlayerID);
             buffer.Write(playerTagged);
             clientTCP.dataToSend.Enqueue(buffer.ToArray());

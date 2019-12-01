@@ -83,6 +83,12 @@ namespace Jekal.Servers
                     login.Buffer.Write((int)LoginMessage.Messages.REJECT);
                     login.Buffer.Write("User name in use.");
                 }
+                else if (login.Player.Length < 3 || login.Player.Contains(" "))
+                {
+                    Console.WriteLine($"LOGINSERVER: REJECT {login.Player} - Name too short or spaces in name.");
+                    login.Buffer.Write((int)LoginMessage.Messages.REJECT);
+                    login.Buffer.Write("Invalid name format, min 3 characters with no spaces");
+                }
                 else
                 {
                     var playerName = login.Player;

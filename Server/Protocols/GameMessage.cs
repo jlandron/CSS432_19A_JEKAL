@@ -105,6 +105,7 @@ namespace Jekal.Protocols
                         player.RotY = Buffer.ReadFloat();
                         player.RotZ = Buffer.ReadFloat();
                         player.RotW = Buffer.ReadFloat();
+                        Players.Add(player);
                     }
                     break;
                 case Messages.SCORE:

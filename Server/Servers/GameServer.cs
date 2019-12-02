@@ -112,9 +112,9 @@ namespace Jekal.Servers
                         Console.WriteLine($"GAMESERVER: GAME: {player.GameID}; TEAMJOIN {playerName}; TEAM: {player.TeamID}");
                         var buffer = new ByteBuffer();
                         buffer.Write((int)GameMessage.Messages.TEAMJOIN);
-                        buffer.Write(player.Name);
+                        buffer.Write(player.SessionID);
                         buffer.Write(player.TeamID);
-                        game.GetTeam(player.TeamID).SendGameMessage(buffer);
+                        game.SendMessageToGame(buffer);
 
                         if (game.ReadyToStart)
                         {

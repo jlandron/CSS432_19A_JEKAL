@@ -37,6 +37,7 @@ namespace Jekal.Protocols
         public float RotY { get; set; }
         public float RotZ { get; set; }
         public float RotW { get; set; }
+        public float Lerp { get; set; }
         public List<Player> Players { get; set; }
         public int PlayerCount { get; set; }
 
@@ -91,6 +92,7 @@ namespace Jekal.Protocols
                     RotY = Buffer.ReadFloat();
                     RotZ = Buffer.ReadFloat();
                     RotW = Buffer.ReadFloat();
+                    Lerp = Buffer.ReadFloat();
                     break;
                 case Messages.TAG:
                     Source = Buffer.ReadString();
@@ -110,6 +112,7 @@ namespace Jekal.Protocols
                         player.RotY = Buffer.ReadFloat();
                         player.RotZ = Buffer.ReadFloat();
                         player.RotW = Buffer.ReadFloat();
+                        player.Lerp = Buffer.ReadFloat();
                         Players.Add(player);
                     }
                     break;

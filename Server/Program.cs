@@ -33,8 +33,6 @@ namespace Jekal
             var game = new JekalGame(settings);
             game.Initialize();
 
-            Console.WriteLine("Starting up Jekal game servers...");
-            
             var gameThread = new Thread(new ThreadStart(game.StartGame));
             var consoleThread = new Thread(new ThreadStart(ConsoleThread));
 

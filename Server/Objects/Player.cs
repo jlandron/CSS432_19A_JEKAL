@@ -19,6 +19,7 @@ namespace Jekal.Objects
         public float RotY { get; set; }
         public float RotZ { get; set; }
         public float RotW { get; set; }
+        public float Lerp { get; set; }
 
 
         // Chat Networking
@@ -171,15 +172,7 @@ namespace Jekal.Objects
             if (!success)
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending chat message, closing connection.");
-                if (_chatStream != null)
-                {
-                    _chatStream.Close();
-                }
-
-                if (_chatSocket != null)
-                {
-                    _chatSocket.Close();
-                }
+                CloseChat(null);
             }
 
             return success;
@@ -191,15 +184,7 @@ namespace Jekal.Objects
             if (!success)
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending game message, closing connection.");
-                if (_gameStream != null)
-                {
-                    _gameStream.Close();
-                }
-
-                if (_gameSocket != null)
-                {
-                    _gameSocket.Close();
-                }
+                CloseGame();
             }
 
             return success;
@@ -229,6 +214,37 @@ namespace Jekal.Objects
                 return false;
             }
             return true;
+        }
+
+        public void CloseChat(ByteBuffer buffer)
+        {
+            if (buffer != null)
+            {
+                SendChatMessage(buffer);
+            }
+
+            if (_chatStream != null)
+            {
+                _chatStream.Close();
+            }
+
+            if (_chatSocket != null)
+            {
+                _chatSocket.Close();
+            }
+        }
+
+        public void CloseGame()
+        {
+            if (_gameStream != null)
+            {
+                _gameStream.Close();
+            }
+
+            if (_gameSocket != null)
+            {
+                _gameSocket.Close();
+            }
         }
     }
 }

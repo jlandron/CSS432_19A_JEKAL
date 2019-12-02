@@ -165,6 +165,7 @@ namespace Jekal.Objects
                     buffer.Write(p.RotY);
                     buffer.Write(p.RotZ);
                     buffer.Write(p.RotW);
+                    buffer.Write(p.Lerp);
                 }
 
                 foreach (var p in _players)
@@ -317,6 +318,7 @@ namespace Jekal.Objects
             player.RotY = msg.RotY;
             player.RotZ = msg.RotZ;
             player.RotW = msg.RotW;
+            player.Lerp = msg.Lerp;
         }
 
         private void CloseConnection(Player player)

@@ -45,6 +45,7 @@ namespace Jekal.Servers
             TcpListener chatListener = new TcpListener(_ipAddress, nPort);
             token.Register(chatListener.Stop);
 
+            // Server running
             chatListener.Start();
             while (!token.IsCancellationRequested)
             {
@@ -65,7 +66,20 @@ namespace Jekal.Servers
                 }
             }
 
-            // TODO: Send chat shutdown message to all players here.
+            // Server shutting down
+            var closeBuffer = new ByteBuffer();
+            closeBuffer.Write((int)ChatMessage.Messages.CLOSE);
+            var closeLock = new object();
+            
+            lock (closeLock)
+            {
+                foreach (var p in _jekal.Players.GetAllPlayers())
+                {
+                    p.Value.CloseChat(closeBuffer);
+                }
+            } // End Lock
+            
+            closeBuffer.Dispose();
             Console.WriteLine("CHATSERVER: Stopped Server...");
             return 0;
         }

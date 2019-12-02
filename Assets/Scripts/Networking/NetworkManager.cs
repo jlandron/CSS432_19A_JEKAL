@@ -135,8 +135,8 @@ namespace NetworkGame.Client
         {
             yield return SceneManager.LoadSceneAsync("Game");
             ShouldKillLogin = true;
-            StartChatClient();
-            //StartGameClient();
+            //StartChatClient();
+            StartGameClient();
         }
 
         private void OnApplicationQuit()

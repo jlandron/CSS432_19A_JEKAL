@@ -113,7 +113,12 @@ namespace NetworkGame.Client
                 ChatRequestSent = true;
                 chatClientTCP.dataSender.RequestJoin();
             }
-
+            if (gameClientTCP != null && gameClientTCP.IsConnected && GameIsLaunched && !GameRequestSent)
+            {
+                GameRequestSent = true;
+                gameClientTCP.dataSender.SendGameJoinRequest();
+            }
+            
             if (ShouldKillLogin)
             {
                 KillLoginTcp();
@@ -205,7 +210,6 @@ namespace NetworkGame.Client
             gameClientTCP = gameObject.AddComponent<ClientTCP>();
             gameClientTCP.SetType(ClientTypes.GAME);
             gameClientTCP.InitNetworking(LoginServerIP, GameServerPort);
-            gameClientTCP.dataSender.SendGameJoinRequest();
         }
 
         internal void KillGameTcp()

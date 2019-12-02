@@ -19,6 +19,7 @@ namespace Jekal.Objects
         public float RotY { get; set; }
         public float RotZ { get; set; }
         public float RotW { get; set; }
+        public float Lerp { get; set; }
 
 
         // Chat Networking

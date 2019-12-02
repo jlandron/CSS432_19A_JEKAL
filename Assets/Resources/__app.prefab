@@ -107,6 +107,6 @@ MonoBehaviour:
   startingPositions:
   - {x: 10, y: 20, z: 10}
   - {x: 80, y: 20, z: 80}
-  playerPrefab: {fileID: 4553292336780590500, guid: d5dda3ffd2ccfba45b5211cd0ff0ae84,
+  playerPrefab: {fileID: 5058931375636001928, guid: 49387678b0fdca7429e9428376e6ab4b,
     type: 3}
   localPlayer: {fileID: 0}

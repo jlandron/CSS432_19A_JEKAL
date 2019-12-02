@@ -126,13 +126,17 @@ namespace NetworkGame.Client
             _ = buffer.ReadInt();
             string playerName = buffer.ReadString();
             int playerID = buffer.ReadInt();
+            buffer.Dispose();
             //Debug.Log("Setting local playerID: " + playerID);
-            NetworkManager.Instance.PlayerID = playerID;
-            NetworkManager.Instance.PlayerName = playerName;
+            lock (NetworkManager.Instance)
+            {
+                NetworkManager.Instance.PlayerID = playerID;
+                NetworkManager.Instance.PlayerName = playerName;
+            }
         }
         internal void HandleGameRejectMessage(byte[] data)
         {
-            Debug.Log("Game rejected");
+            //Debug.Log("Game rejected");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             _ = buffer.ReadInt();
@@ -145,7 +149,7 @@ namespace NetworkGame.Client
         }
         internal void HandleTeamJoinMessage(byte[] data)
         {
-            Debug.Log("Handling team join messages");
+            //Debug.Log("Handling team join messages");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             PlayerManager.Instance.playersToSpawn.Enqueue(buffer.ToArray());
@@ -153,7 +157,7 @@ namespace NetworkGame.Client
         }
         internal void HandleTeamSwitchMessage(byte[] data)
         {
-            Debug.Log("Handling team switch messages");
+            //Debug.Log("Handling team switch messages");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             PlayerManager.Instance.playersSwitchingTeams.Enqueue(buffer.ToArray());
@@ -161,7 +165,7 @@ namespace NetworkGame.Client
         }
         internal void HandleStatusMessage(byte[] data)
         {
-            Debug.Log("updating players");
+            //Debug.Log("updating players");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             PlayerManager.Instance.playersToUpdate.Enqueue(buffer.ToArray());

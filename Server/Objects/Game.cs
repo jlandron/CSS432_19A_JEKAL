@@ -156,6 +156,7 @@ namespace Jekal.Objects
                 var buffer = new ByteBuffer();
                 buffer.Write((int)GameMessage.Messages.STATUS);
                 buffer.Write(_gameTime);
+                
                 foreach (var p in _players)
                 {
                     buffer.Write(p.SessionID);

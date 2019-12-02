@@ -11,7 +11,7 @@ namespace NetworkGame
     {
 
         [SerializeField]
-        public Dictionary<int, Player> ConnectedPlayers { get; private set; }
+        public Dictionary<int, Client.NetworkPlayer> ConnectedPlayers { get; private set; }
         public static PlayerManager Instance { get; private set; }
         public ConcurrentQueue<byte[]> playersToSpawn { get; private set; }
         public ConcurrentQueue<byte[]> playersSwitchingTeams { get; private set; }
@@ -35,7 +35,7 @@ namespace NetworkGame
                 return;
             }
             Instance = this;
-            ConnectedPlayers = new Dictionary<int, Player>();
+            ConnectedPlayers = new Dictionary<int, Client.NetworkPlayer>();
             playersToSpawn = new ConcurrentQueue<byte[]>();
             playersSwitchingTeams = new ConcurrentQueue<byte[]>();
             playersToRemove = new ConcurrentQueue<byte[]>();
@@ -107,7 +107,6 @@ namespace NetworkGame
                     return;
                 }
                 //make player object
-                Player newPlayer = new Player("player", playerID);
                 //instantiate new player in game world
                 GameObject playerObject;
                 if (startingPositions.Length != 0)
@@ -121,10 +120,10 @@ namespace NetworkGame
                 //set player atributes
                 playerObject.name = "Player: " + playerID;
                 playerObject.tag = "ExtPlayer";
-                playerObject.GetComponent<Client.NetworkPlayer>().playerID = playerID;
-                playerObject.GetComponent<Client.NetworkPlayer>().Team = teamNum;
-                newPlayer.playerObject = playerObject;
-                AddPlayerToConnectedPlayers(newPlayer);
+                Client.NetworkPlayer networkPlayer = playerObject.GetComponent<Client.NetworkPlayer>();
+                networkPlayer.playerID = playerID;
+                networkPlayer.Team = teamNum;
+                AddPlayerToConnectedPlayers(networkPlayer);
             }
         }
 
@@ -147,7 +146,6 @@ namespace NetworkGame
             string taggerName = buffer.ReadString();
             int taggerID = buffer.ReadInt();
             int oldTeamID = buffer.ReadInt();
-
             int teamNum = buffer.ReadInt();
             Debug.Log("player: " + playerID + " joined team " + teamNum);
             buffer.Dispose();
@@ -158,26 +156,41 @@ namespace NetworkGame
             }
             else
             {
-                ConnectedPlayers[playerID].playerObject.GetComponent<Client.NetworkPlayer>().Team = teamNum;
+                ConnectedPlayers[playerID].Team = teamNum;
             }
         }
         internal void UpdateGame(byte[] data)
         {
+            Debug.Log("Entering update game");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             _ = buffer.ReadInt(); //message type
             UpdateGameTime(buffer.ReadInt());
-            int numMessages = buffer.ReadInt();
+            //int numMessages = buffer.ReadInt();
             try
             {
-                for (int i = 0; i < numMessages; i++)
+                for (int i = 0; i < NumberConnectedPlayers + 1; i++)
                 {
+                    ByteBuffer byteBuffer = new ByteBuffer();
                     int playerID = buffer.ReadInt();
-                    Vector3 playerPos = new Vector3(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
-                    Quaternion rotation = new Quaternion(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
+                    byteBuffer.Write(buffer.ReadFloat()); //x
+                    byteBuffer.Write(buffer.ReadFloat()); //y
+                    byteBuffer.Write(buffer.ReadFloat()); //z
+                    byteBuffer.Write(buffer.ReadFloat()); //x
+                    byteBuffer.Write(buffer.ReadFloat()); //y
+                    byteBuffer.Write(buffer.ReadFloat()); //z
+                    byteBuffer.Write(buffer.ReadFloat()); //w
+                    byteBuffer.Write(buffer.ReadFloat()); //time
                     if (playerID != NetworkManager.Instance.PlayerID)
                     {
-                        ConnectedPlayers[playerID].playerObject.GetComponent<Client.NetworkPlayer>().ReceiveMovementMessage(playerPos, rotation, buffer.ReadFloat());
+                        //------fix serverside-------
+                        if (!ConnectedPlayers.ContainsKey(playerID))
+                        {
+                            InstantiatePlayer(playerID, 1);
+                        }
+                        //---------------------------
+                        Debug.Log("processing player " + playerID + "'s movement");
+                        ConnectedPlayers[playerID].ReceiveMovementMessage(byteBuffer.ToArray());
                     }
                 }
             }
@@ -191,16 +204,16 @@ namespace NetworkGame
         private void UpdateGameTime(float v)
         {
             //TODO: update game UI
-            Debug.Log("Time left: " + v);
+            //Debug.Log("Time left: " + v);
         }
 
 
 
-        internal void AddPlayerToConnectedPlayers(Player _player)
+        internal void AddPlayerToConnectedPlayers(Client.NetworkPlayer networkPlayer)
         {
-            if (!ConnectedPlayers.ContainsKey(_player.playerID))
+            if (!ConnectedPlayers.ContainsKey(networkPlayer.playerID))
             {
-                ConnectedPlayers.Add(_player.playerID, _player);
+                ConnectedPlayers.Add(networkPlayer.playerID, networkPlayer);
                 NumberConnectedPlayers++;
             }
         }
@@ -209,22 +222,9 @@ namespace NetworkGame
         {
             if (ConnectedPlayers.ContainsKey(_playerID))
             {
-                Destroy(ConnectedPlayers[_playerID].playerObject);
+                Destroy(ConnectedPlayers[_playerID].gameObject);
                 ConnectedPlayers.Remove(_playerID);
                 NumberConnectedPlayers--;
-            }
-        }
-
-        [System.Serializable]
-        public class Player
-        {
-            public string playerName;
-            public int playerID;
-            internal GameObject playerObject;
-            public Player(string pName, int pID)
-            {
-                playerName = pName;
-                playerID = pID;
             }
         }
     }

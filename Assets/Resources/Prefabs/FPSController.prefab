@@ -309,7 +309,7 @@ MonoBehaviour:
   isLocalPlayer: 1
   canSendNetworkMovement: 0
   speed: 0
-  networkSendRate: 10
+  networkSendRate: 5
   timeBetweenMovementStart: 0
   timeBetweenMovementEnd: 0
   isLerpingPosition: 0

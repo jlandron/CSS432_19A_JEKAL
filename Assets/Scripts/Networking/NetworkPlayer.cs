@@ -46,11 +46,11 @@ namespace NetworkGame.Client
 
             if (isLocalPlayer)
             {
+                playerID = NetworkManager.Instance.PlayerID;
                 canSendNetworkMovement = false;
             }
             else
             {
-
                 isLerpingPosition = false;
                 isLerpingRotation = false;
 
@@ -61,14 +61,11 @@ namespace NetworkGame.Client
 
         private void Update()
         {
-            
+
             //process networtk stuff
             if (isLocalPlayer)
             {
-                if (NetworkManager.Instance.gameClientTCP != null)
-                {
-                    UpdatePlayerMovement();
-                }
+                UpdatePlayerMovement();
             }
 
             foreach (MeshRenderer item in meshRenderers)
@@ -76,7 +73,7 @@ namespace NetworkGame.Client
                 item.material = materials[Team % materials.Length];
             }
 
-            if(GameManager.Instance.AllowPlayerInput && Input.GetKeyDown(KeyCode.E))
+            if (GameManager.Instance.AllowPlayerInput && Input.GetKeyDown(KeyCode.E))
             {
                 //TODO: add actual tag message with distance/collision checking
                 NetworkManager.Instance.gameClientTCP.dataSender.SendTagMessage(0);
@@ -103,13 +100,14 @@ namespace NetworkGame.Client
         private void SendNetworkMovement()
         {
             timeBetweenMovementEnd = Time.time;
-            Debug.Log("Sending my movement");
             SendMovementMessage(playerID, transform.position, transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart));
             canSendNetworkMovement = false;
         }
 
+
         public void SendMovementMessage(int _playerID, Vector3 _position, Quaternion _rotation, float _timeTolerp)
         {
+
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(_playerID);
             //player location
@@ -127,14 +125,23 @@ namespace NetworkGame.Client
             buffer.Dispose();
         }
 
-        public void ReceiveMovementMessage(Vector3 pos, Quaternion rot, float timeToLerp)
+
+        public void ReceiveMovementMessage(byte[] data)
         {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            //read position and rotation
+            Vector3 _position = new Vector3(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
+            Quaternion _rotation = new Quaternion(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
+            //read lerp time
+            float _timeToLerp = buffer.ReadFloat();
+            buffer.Dispose();
 
             lastRealPosition = realPosition;
             lastRealRotation = realRotation;
-            realPosition = pos;
-            realRotation = rot;
-            this.timeToLerp = timeToLerp;
+            realPosition = _position;
+            realRotation = _rotation;
+            timeToLerp = _timeToLerp;
 
             if (realPosition != transform.position)
             {

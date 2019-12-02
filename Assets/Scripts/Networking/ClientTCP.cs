@@ -98,7 +98,9 @@ namespace NetworkGame.Client
             }
             catch (Exception e)
             {
-                Debug.LogError(e.Message);
+                Debug.Log(e.Message);
+                _clientSocket.Close();
+                Destroy(this.gameObject);
             }
         }
 
@@ -114,10 +116,7 @@ namespace NetworkGame.Client
         public void Disconnect()
         {
             IsConnected = false;
-            while (!QueueIsEmpty())
-            {
-                ;
-            }
+
             if (_clientSocket.Connected)
             {
                 _clientSocket.Close();

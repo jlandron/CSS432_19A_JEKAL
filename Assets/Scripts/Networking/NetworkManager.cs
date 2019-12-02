@@ -92,7 +92,6 @@ namespace NetworkGame.Client
                 {
 
                 }
-
             }
         }
         private void FixedUpdate()
@@ -149,11 +148,13 @@ namespace NetworkGame.Client
 
             if (gameClientTCP != null)
             {
+                gameClientTCP.dataSender.SendGameLeaveMessage();
                 gameClientTCP.Disconnect();
             }
 
             if (chatClientTCP != null)
             {
+                chatClientTCP.dataSender.SendLeaveMessage();
                 chatClientTCP.Disconnect();
             }
         }

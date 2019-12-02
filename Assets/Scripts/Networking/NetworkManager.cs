@@ -108,19 +108,19 @@ namespace NetworkGame.Client
             if (chatClientTCP != null && chatClientTCP.IsConnected && GameIsLaunched && !ChatRequestSent && ChatIsReady)
             {
                 ChatRequestSent = true;
-                Debug.Log("Sending chat request to server");
+                //Debug.Log("Sending chat request to server");
                 chatClientTCP.dataSender.RequestJoin();
             }
             if (gameClientTCP != null && gameClientTCP.IsConnected && GameIsLaunched && !GameRequestSent && GameIsReady)
             {
                 GameRequestSent = true;
-                Debug.Log("Sending game request to server");
+               //Debug.Log("Sending game request to server");
                 gameClientTCP.dataSender.SendGameJoinRequest();
             }
             if (LoginSuccess && !GameIsLaunched && !GameIsLaunching)
             {
                 GameIsLaunching = true;
-                Debug.Log("Launching game");
+                //Debug.Log("Launching game");
                 LaunchGame();
                 GameIsLaunched = true;
                 Debug.Log("Game is launched");

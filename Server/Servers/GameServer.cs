@@ -63,7 +63,7 @@ namespace Jekal.Servers
             Console.WriteLine("GAMESERVER: Incoming Connection");
             NetworkStream netStream = playerConnection.GetStream();
 
-            var gameMsg = new GameMessage();
+            GameMessage gameMsg = new GameMessage();
             byte[] inBuffer;
             inBuffer = new byte[BUFFER_SIZE];
 
@@ -78,8 +78,8 @@ namespace Jekal.Servers
 
             if (gameMsg.Parse() && (gameMsg.MessageType == GameMessage.Messages.GAMEJOIN))
             {
-                var playerName = gameMsg.Source;
-                var sessionId = gameMsg.SourceId;
+                string playerName = gameMsg.Source;
+                int sessionId = gameMsg.SourceId;
 
                 // Clear for reuse
                 gameMsg.Buffer.Clear();
@@ -95,12 +95,12 @@ namespace Jekal.Servers
                 }
                 else
                 {
-                    var addPlayerLock = new object();
+                    object addPlayerLock = new object();
                     lock (addPlayerLock)
                     {
                         Console.WriteLine($"GAMESERVER: JOIN {playerName}; SESSION: {sessionId}");
-                        var player = _jekal.Players.GetPlayer(playerName);
-                        var game = _jekal.Games.GetWaitingGame();
+                        Player player = _jekal.Players.GetPlayer(playerName);
+                        Game game = _jekal.Games.GetWaitingGame();
                         player.AssignGameConnection(playerConnection, new AsyncCallback(game.HandleMessage));
                         player.GameID = game.GameId;
                         if (!game.AddPlayer(player))
@@ -109,9 +109,9 @@ namespace Jekal.Servers
                             return Task.FromResult(0);
                         }
 
-                        
+
                         Console.WriteLine($"GAMESERVER: GAME: {player.GameID}; TEAMJOIN {playerName}; TEAM: {player.TeamID}");
-                        var buffer = new ByteBuffer();
+                        ByteBuffer buffer = new ByteBuffer();
                         buffer.Write((int)GameMessage.Messages.GAMEJOIN);
                         buffer.Write(player.Name);
                         buffer.Write(player.SessionID);
@@ -124,7 +124,7 @@ namespace Jekal.Servers
 
                         if (game.ReadyToStart)
                         {
-                            var gameTask = game.Start();
+                            Task gameTask = game.Start();
                             _jekal.Games.AddGame(gameTask);
                         }
                     }

@@ -211,6 +211,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 604086555, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
+      propertyPath: startingPositions.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 604086555, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
+      propertyPath: startingPositions.Array.data[0].y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 604086555, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
+      propertyPath: startingPositions.Array.data[1].y
+      value: -2.118068e-39
+      objectReference: {fileID: 0}
+    - target: {fileID: 604086555, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
+      propertyPath: startingPositions.Array.data[1].z
+      value: 4.15e-43
+      objectReference: {fileID: 0}
+    - target: {fileID: 604086555, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
+      propertyPath: startingPositions.Array.data[0].x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2065246878, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
       propertyPath: LoginServerIP
       value: 169.254.173.125
@@ -225,7 +245,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2065246878, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
       propertyPath: loginServerIP
-      value: 169.254.173.125
+      value: 10.15.10.10
       objectReference: {fileID: 0}
     - target: {fileID: 4423804218858519095, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58,
         type: 3}

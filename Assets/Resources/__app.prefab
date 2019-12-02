@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _currentScene: 0
+  gameState: 0
 --- !u!114 &4715162495731654904
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71,8 +72,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fc61904758544c41af1c1f7649aaae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LoginServerIP: thaldin.mynetgear.com
-  LoginServerPort: 4444
+  loginServerIP: 10.15.10.10
+  loginServerPort: 4444
   chatServerIP: 
   chatServerPort: 0
   gameServerIP: 
@@ -88,6 +89,8 @@ MonoBehaviour:
   gameIsLaunched: 0
   chatRequestSent: 0
   gameRequestSent: 0
+  chatIsReady: 0
+  gameIsReady: 0
   errorMessageToPrint: 
 --- !u!114 &604086555
 MonoBehaviour:
@@ -101,6 +104,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 242260f01bb78404e81e8e24728cdc5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingPositions: []
+  startingPositions:
+  - {x: 10, y: 20, z: 10}
+  - {x: 80, y: 20, z: 80}
   playerPrefab: {fileID: 4553292336780590500, guid: d5dda3ffd2ccfba45b5211cd0ff0ae84,
     type: 3}
+  localPlayer: {fileID: 0}

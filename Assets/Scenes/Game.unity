@@ -148,7 +148,7 @@ PrefabInstance:
     - target: {fileID: 5058931375636001933, guid: 49387678b0fdca7429e9428376e6ab4b,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 20.83
+      value: 44.2
       objectReference: {fileID: 0}
     - target: {fileID: 5058931375636001933, guid: 49387678b0fdca7429e9428376e6ab4b,
         type: 3}
@@ -158,7 +158,7 @@ PrefabInstance:
     - target: {fileID: 5058931375636001933, guid: 49387678b0fdca7429e9428376e6ab4b,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 26.61
+      value: 55.8
       objectReference: {fileID: 0}
     - target: {fileID: 5058931375636001933, guid: 49387678b0fdca7429e9428376e6ab4b,
         type: 3}
@@ -828,7 +828,7 @@ PrefabInstance:
     - target: {fileID: 5058931375636001933, guid: 49387678b0fdca7429e9428376e6ab4b,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 32.53
+      value: 51.72
       objectReference: {fileID: 0}
     - target: {fileID: 5058931375636001933, guid: 49387678b0fdca7429e9428376e6ab4b,
         type: 3}
@@ -838,7 +838,7 @@ PrefabInstance:
     - target: {fileID: 5058931375636001933, guid: 49387678b0fdca7429e9428376e6ab4b,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 29.01
+      value: 25.75
       objectReference: {fileID: 0}
     - target: {fileID: 5058931375636001933, guid: 49387678b0fdca7429e9428376e6ab4b,
         type: 3}
@@ -889,10 +889,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2065246878, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
-      propertyPath: LoginServerIP
-      value: thaldin.mynetgear.com
-      objectReference: {fileID: 0}
     - target: {fileID: 4423804218858519095, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58,
         type: 3}
       propertyPath: m_Name
@@ -1160,6 +1156,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: FPSController
+      objectReference: {fileID: 0}
+    - target: {fileID: 4553292336780590500, guid: d5dda3ffd2ccfba45b5211cd0ff0ae84,
+        type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 4553292336781009284, guid: d5dda3ffd2ccfba45b5211cd0ff0ae84,
         type: 3}

@@ -14,53 +14,117 @@ namespace NetworkGame
         public Dictionary<int, Player> ConnectedPlayers { get; private set; }
         public static PlayerManager Instance { get; private set; }
         public ConcurrentQueue<byte[]> playersToSpawn { get; private set; }
-        public ConcurrentQueue<byte[]> playersJoiningTeam { get; private set; }
+        public ConcurrentQueue<byte[]> playersSwitchingTeams { get; private set; }
         public ConcurrentQueue<byte[]> playersToRemove { get; private set; }
         public ConcurrentQueue<byte[]> playersToUpdate { get; private set; }
         public ConcurrentQueue<byte[]> playersTagged { get; private set; }
 
         [Header("Player")]
         [SerializeField]
-        private GameObject[] startingPositions;
+        private Vector3[] startingPositions;
         [SerializeField]
         private GameObject playerPrefab;
         [SerializeField]
         Client.NetworkPlayer localPlayer = null;
         public int NumberConnectedPlayers { get; private set; }
-        // Start is called before the first frame update
+
         void Awake()
         {
             if (Instance != null)
             {
                 return;
             }
+            Instance = this;
             ConnectedPlayers = new Dictionary<int, Player>();
             playersToSpawn = new ConcurrentQueue<byte[]>();
-            playersJoiningTeam = new ConcurrentQueue<byte[]>();
+            playersSwitchingTeams = new ConcurrentQueue<byte[]>();
             playersToRemove = new ConcurrentQueue<byte[]>();
             playersToUpdate = new ConcurrentQueue<byte[]>();
-
             NumberConnectedPlayers = 0;
+            Debug.Log("Player Manager initilized");
         }
 
         // Update is called once per frame
         void Update()
         {
-            byte[] playerToJoinTeamData;
-            if (playersJoiningTeam.TryDequeue(out playerToJoinTeamData))
+            byte[] playerToSpawnData;
+            if (playersToSpawn.TryDequeue(out playerToSpawnData))
             {
-                HandleJoinTeam(playerToJoinTeamData);
+                ByteBuffer buffer = new ByteBuffer();
+                buffer.Write(playerToSpawnData);
+                _ = buffer.ReadInt();
+                int playerID = buffer.ReadInt();
+                int teamNum = buffer.ReadInt();
+                InstantiatePlayer(playerID, teamNum);
+                buffer.Dispose();
             }
             byte[] playerToRemoveData;
             if (playersToRemove.TryDequeue(out playerToRemoveData))
             {
-                HandleRemovePlayer(playerToRemoveData);
+                ByteBuffer buffer = new ByteBuffer();
+                buffer.Write(playerToRemoveData);
+                HandleRemovePlayer(buffer.ToArray());
+                buffer.Dispose();
             }
-
             byte[] updateData;
             if (playersToUpdate.TryDequeue(out updateData))
             {
-                UpdateGame(updateData);
+                ByteBuffer buffer = new ByteBuffer();
+                buffer.Write(updateData);
+                UpdateGame(buffer.ToArray());
+                buffer.Dispose();
+            }
+            byte[] playerSwitchingTeamData;
+            if (playersSwitchingTeams.TryDequeue(out playerSwitchingTeamData))
+            {
+                ByteBuffer buffer = new ByteBuffer();
+                buffer.Write(playerSwitchingTeamData);
+                HandleSwitchTeam(buffer.ToArray());
+                buffer.Dispose();
+            }
+        }
+
+        private void InstantiatePlayer(int playerID, int teamNum)
+        {
+            if (playerID == NetworkManager.Instance.PlayerID)
+            {
+                Debug.Log("setting local player team number");
+                if (localPlayer == null)
+                {
+                    Debug.Log("Finding local player");
+                    GameObject go = GameObject.FindGameObjectWithTag("Player");
+                    localPlayer = go.GetComponent<Client.NetworkPlayer>();
+                }
+                localPlayer.Team = teamNum;
+            }
+            else if (!ConnectedPlayers.ContainsKey(playerID))
+            {
+                Debug.Log("Instantiating player with ID: " + playerID);
+                //add spawning locations for teams, more game information needed
+                if (playerPrefab == null)
+                {
+                    Debug.LogError("No player prefab!");
+                    return;
+                }
+                //make player object
+                Player newPlayer = new Player("player", playerID);
+                //instantiate new player in game world
+                GameObject playerObject;
+                if (startingPositions.Length != 0)
+                {
+                    playerObject = Instantiate(playerPrefab, startingPositions[playerID % startingPositions.Length], Quaternion.identity);
+                }
+                else
+                {
+                    playerObject = Instantiate(playerPrefab);
+                }
+                //set player atributes
+                playerObject.name = "Player: " + playerID;
+                playerObject.tag = "ExtPlayer";
+                playerObject.GetComponent<Client.NetworkPlayer>().playerID = playerID;
+                playerObject.GetComponent<Client.NetworkPlayer>().Team = teamNum;
+                newPlayer.playerObject = playerObject;
+                AddPlayerToConnectedPlayers(newPlayer);
             }
         }
 
@@ -73,37 +137,29 @@ namespace NetworkGame
             RemovePlayerFromConnectedPlayers(playerID);
             byteBuffer.Dispose();
         }
-        private void HandleJoinTeam(byte[] data)
+        private void HandleSwitchTeam(byte[] data)
         {
             Debug.Log("player joining team");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
-            int type = buffer.ReadInt();
+            _ = buffer.ReadInt();
             int playerID = buffer.ReadInt();
-            if (type == (int)GameMessage.Messages.TEAMSWITCH)
-            {
-                string taggerName = buffer.ReadString();
-                int taggerID = buffer.ReadInt();
-                int oldTeamID = buffer.ReadInt();
-                //TODO: do something on localPlayers UI if needed.
-            }
+            string taggerName = buffer.ReadString();
+            int taggerID = buffer.ReadInt();
+            int oldTeamID = buffer.ReadInt();
+
             int teamNum = buffer.ReadInt();
             Debug.Log("player: " + playerID + " joined team " + teamNum);
             buffer.Dispose();
             if (playerID == NetworkManager.Instance.PlayerID)
             {
-                if(localPlayer == null)
-                {
-                    GameObject go = GameObject.FindGameObjectWithTag("Player");
-                    localPlayer = go.GetComponent<Client.NetworkPlayer>();
-                }
                 localPlayer.Team = teamNum;
+                //TODO: do something on localPlayers UI if needed.
             }
-            else if (!ConnectedPlayers.ContainsKey(playerID))
+            else
             {
-                InstatiatePlayer(playerID);
+                ConnectedPlayers[playerID].playerObject.GetComponent<Client.NetworkPlayer>().Team = teamNum;
             }
-            ConnectedPlayers[playerID].playerObject.GetComponent<Client.NetworkPlayer>().Team = teamNum;
         }
         internal void UpdateGame(byte[] data)
         {
@@ -119,7 +175,7 @@ namespace NetworkGame
                     int playerID = buffer.ReadInt();
                     Vector3 playerPos = new Vector3(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
                     Quaternion rotation = new Quaternion(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
-                    if(playerID != NetworkManager.Instance.PlayerID)
+                    if (playerID != NetworkManager.Instance.PlayerID)
                     {
                         ConnectedPlayers[playerID].playerObject.GetComponent<Client.NetworkPlayer>().ReceiveMovementMessage(playerPos, rotation, buffer.ReadFloat());
                     }
@@ -138,36 +194,7 @@ namespace NetworkGame
             Debug.Log("Time left: " + v);
         }
 
-        //TODO: add team locations and instantiations
-        internal void InstatiatePlayer(int playerID)
-        {
-            Debug.Log("Instantiating player with ID: " + playerID);
-            //add spawning locations for teams, more game information needed
-            if (playerPrefab == null)
-            {
-                Debug.LogError("No player prefab!");
-                return;
-            }
-            //make player object
-            Player newPlayer = new Player("player", playerID);
-            //instantiate new player in game world
-            GameObject playerObject;
-            if (startingPositions != null)
-            {
-                playerObject = Instantiate(playerPrefab, startingPositions[playerID % startingPositions.Length].transform.position, Quaternion.identity);
-            }
-            else
-            {
-                playerObject = Instantiate(playerPrefab);
-            }
-            //set player atributes
-            playerObject.name = "Player: " + playerID;
-            playerObject.tag = "ExtPlayer";
-            playerObject.GetComponent<Client.NetworkPlayer>().playerID = playerID;
 
-            newPlayer.playerObject = playerObject;
-            AddPlayerToConnectedPlayers(newPlayer);
-        }
 
         internal void AddPlayerToConnectedPlayers(Player _player)
         {

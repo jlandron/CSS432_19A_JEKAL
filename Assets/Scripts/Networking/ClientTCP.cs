@@ -98,7 +98,7 @@ namespace NetworkGame.Client
 
             _clientSocket.NoDelay = true;
             _myStream = _clientSocket.GetStream();
-            Debug.Log(Type + " Connected to server");
+            //Debug.Log(Type + " Connected to server");
             SetReadyFlag();
             _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE, RecieveCallback, null);
             IsConnected = true;

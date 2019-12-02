@@ -24,7 +24,7 @@ namespace NetworkGame.Client
             _ = buffer.ReadInt();
             buffer.Dispose();
             ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage(playerName, " Disconnected"));
-            Debug.Log("Leave message: " + playerName);
+            //Debug.Log("Leave message: " + playerName);
 
         }
         internal void HandleSystemChatMessage(byte[] data)
@@ -35,7 +35,7 @@ namespace NetworkGame.Client
             string msg = buffer.ReadString();
             buffer.Dispose();
             ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage("System", msg, QueuedMessage.Type.SYSTEM));
-            Debug.Log("System message: " + msg);
+            //Debug.Log("System message: " + msg);
 
         }
         internal void HandleChatMessage(byte[] data)
@@ -47,7 +47,7 @@ namespace NetworkGame.Client
             _ = buffer.ReadInt();
             string msg = buffer.ReadString();
             buffer.Dispose();
-            Debug.Log("Chat message: " + msg);
+            //Debug.Log("Chat message: " + msg);
             ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage(playerName, msg));
         }
         internal void HandlePrivateChatMessage(byte[] data)
@@ -60,7 +60,7 @@ namespace NetworkGame.Client
             _ = buffer.ReadString();
             string msg = buffer.ReadString();
             buffer.Dispose();
-            Debug.Log("Chat message: " + msg);
+            //Debug.Log("Chat message: " + msg);
             ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage(playerName, msg, QueuedMessage.Type.PRIVATE));
         }
         internal void HandleTeamChatMessage(byte[] data)
@@ -72,7 +72,7 @@ namespace NetworkGame.Client
             _ = buffer.ReadInt();
             string msg = buffer.ReadString();
             buffer.Dispose();
-            Debug.Log("Chat message: " + msg);
+            //Debug.Log("Chat message: " + msg);
             ChatManager.Instance.chatMessages.Enqueue(new QueuedMessage(playerName, msg, QueuedMessage.Type.TEAM));
         }
         internal void HandleChatRejectMessage(byte[] data)
@@ -81,13 +81,13 @@ namespace NetworkGame.Client
             buffer.Write(data);
             _ = buffer.ReadInt();
             string msg = buffer.ReadString();
-            Debug.Log("System message: " + msg);
+            //Debug.Log("System message: " + msg);
             buffer.Dispose();
             NetworkManager.Instance.ShouldKillChat = true;
         }
         internal void HandleCloseMessage(byte[] data)
         {
-            Debug.Log("Recieved chat close signal");
+            //Debug.Log("Recieved chat close signal");
             NetworkManager.Instance.ShouldKillChat = true;
         }
         //////// Login server messages ////////
@@ -126,12 +126,13 @@ namespace NetworkGame.Client
             _ = buffer.ReadInt();
             string playerName = buffer.ReadString();
             int playerID = buffer.ReadInt();
+            //Debug.Log("Setting local playerID: " + playerID);
             NetworkManager.Instance.PlayerID = playerID;
             NetworkManager.Instance.PlayerName = playerName;
         }
         internal void HandleGameRejectMessage(byte[] data)
         {
-            Debug.Log("Login rejected");
+            Debug.Log("Game rejected");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             _ = buffer.ReadInt();
@@ -144,16 +145,27 @@ namespace NetworkGame.Client
         }
         internal void HandleTeamJoinMessage(byte[] data)
         {
-            PlayerManager.Instance.playersJoiningTeam.Enqueue(data);
+            Debug.Log("Handling team join messages");
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            PlayerManager.Instance.playersToSpawn.Enqueue(buffer.ToArray());
+            buffer.Dispose();
         }
         internal void HandleTeamSwitchMessage(byte[] data)
         {
-            PlayerManager.Instance.playersJoiningTeam.Enqueue(data);
+            Debug.Log("Handling team switch messages");
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            PlayerManager.Instance.playersSwitchingTeams.Enqueue(buffer.ToArray());
+            buffer.Dispose();
         }
         internal void HandleStatusMessage(byte[] data)
         {
             Debug.Log("updating players");
-            PlayerManager.Instance.playersToUpdate.Enqueue(data);
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            PlayerManager.Instance.playersToUpdate.Enqueue(buffer.ToArray());
+            buffer.Dispose();
         }
         internal void HandleScoreMessage(byte[] data)
         {
@@ -169,7 +181,10 @@ namespace NetworkGame.Client
         }
         internal void HandleRemoveMessage(byte[] data)
         {
-            PlayerManager.Instance.playersToRemove.Enqueue(data);
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            PlayerManager.Instance.playersToRemove.Enqueue(buffer.ToArray());
+            buffer.Dispose();
         }
     }
 }

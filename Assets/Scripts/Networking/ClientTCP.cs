@@ -21,19 +21,27 @@ namespace NetworkGame.Client
         public DataSender dataSender;
         public DataReciever dataReciever;
         public ClientHandleData clientHandleData;
-        public ClientTypes Type { get; private set; }
-        private void Awake()
+        public ClientTypes Type { get; set; }
+        public void CustomAwake()
         {
             IsConnected = false;
             dataSender = new DataSender(this);
             dataReciever = new DataReciever(this);
             clientHandleData = new ClientHandleData(this);
-            dataToSend = new ConcurrentQueue<byte[]>();
-        }
-        public void SetType(ClientTypes type)
-        {
-            Type = type;
             clientHandleData.InitPackets();
+            dataToSend = new ConcurrentQueue<byte[]>();
+            switch (this.Type)
+            {
+                case ClientTypes.LOGIN:
+                    InitNetworking(NetworkManager.Instance.LoginServerIP, NetworkManager.Instance.LoginServerPort);
+                    break;
+                case ClientTypes.CHAT:
+                    InitNetworking(NetworkManager.Instance.LoginServerIP, NetworkManager.Instance.ChatServerPort);
+                    break;
+                case ClientTypes.GAME:
+                    InitNetworking(NetworkManager.Instance.LoginServerIP, NetworkManager.Instance.GameServerPort);
+                    break;
+            }
         }
 
         public void InitNetworking(string serverIP, int serverPort)
@@ -43,7 +51,7 @@ namespace NetworkGame.Client
                 ReceiveBufferSize = BUFFER_SIZE,
                 SendBufferSize = BUFFER_SIZE
             };
-            _recieveBuffer = new byte[BUFFER_SIZE * 2];
+            _recieveBuffer = new byte[BUFFER_SIZE];
             _serverIP = serverIP;
             _serverPort = serverPort;
             _clientSocket.BeginConnect(serverIP, serverPort, new System.AsyncCallback(ClientConnectCallback), _clientSocket);
@@ -54,7 +62,20 @@ namespace NetworkGame.Client
         {
             return dataToSend.IsEmpty;
         }
-
+        public void SetReadyFlag()
+        {
+            switch (this.Type)
+            {
+                case ClientTypes.LOGIN:
+                    break;
+                case ClientTypes.CHAT:
+                    NetworkManager.Instance.ChatIsReady = true;
+                    break;
+                case ClientTypes.GAME:
+                    NetworkManager.Instance.GameIsReady = true;
+                    break;
+            }
+        }
 
         private void ClientConnectCallback(IAsyncResult ar)
         {
@@ -78,31 +99,47 @@ namespace NetworkGame.Client
             _clientSocket.NoDelay = true;
             _myStream = _clientSocket.GetStream();
             Debug.Log(Type + " Connected to server");
-            _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE * 2, RecieveCallback, null);
+            SetReadyFlag();
+            _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE, RecieveCallback, null);
             IsConnected = true;
         }
 
         private void RecieveCallback(IAsyncResult ar)
         {
+            int length = -1;
             try
             {
-                int length = _myStream.EndRead(ar);
+                length = _myStream.EndRead(ar);
                 if (length <= 0)
                 {
                     return;
                 }
-                byte[] newBytes = new byte[length];
-                Array.Copy(_recieveBuffer, newBytes, length);
-                clientHandleData.HandleData(newBytes);
-                Debug.Log("Client: " + Type + " recieved callback and sending to handle data");
-                _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE * 2, RecieveCallback, null);
             }
             catch (Exception e)
             {
                 Debug.Log(e.Message);
-                //_clientSocket.Close();
-                //Destroy(this.gameObject);
             }
+            byte[] newBytes = new byte[length];
+            Array.Copy(_recieveBuffer, newBytes, length);
+            try
+            {
+                clientHandleData.HandleData(newBytes);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+            }
+            try
+            {
+                //Debug.Log("Client: " + Type + " recieved callback and sending to handle data");
+                _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE, RecieveCallback, null);
+            }
+
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+            }
+
         }
 
         private void Update()
@@ -117,8 +154,7 @@ namespace NetworkGame.Client
         public void Disconnect()
         {
             IsConnected = false;
-
-            if (_clientSocket.Connected)
+            if (_clientSocket != null && _clientSocket.Connected)
             {
                 _clientSocket.Close();
             }

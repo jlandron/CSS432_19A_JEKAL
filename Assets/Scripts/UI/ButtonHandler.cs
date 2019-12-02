@@ -15,7 +15,7 @@ namespace NetworkGame.UI
         public void TryLogin()
         {
             string userName = GetComponent<TextInputHandler>()._textToHandle;
-            Debug.Log("Logging on as: " + userName);
+            //Debug.Log("Logging on as: " + userName);
             NetworkManager.Instance.StartLoginClient(userName);
         }
         public void GoToGameOnPress()

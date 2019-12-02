@@ -25,6 +25,7 @@ namespace NetworkGame
         [SerializeField]
         private GameObject playerPrefab;
         [SerializeField]
+        Client.NetworkPlayer localPlayer = null;
         public int NumberConnectedPlayers { get; private set; }
         // Start is called before the first frame update
         void Awake()
@@ -89,7 +90,16 @@ namespace NetworkGame
             int teamNum = buffer.ReadInt();
             Debug.Log("player: " + playerID + " joined team " + teamNum);
             buffer.Dispose();
-            if (!ConnectedPlayers.ContainsKey(playerID) && playerID != NetworkManager.Instance.PlayerID)
+            if (playerID == NetworkManager.Instance.PlayerID)
+            {
+                if(localPlayer == null)
+                {
+                    GameObject go = GameObject.FindGameObjectWithTag("Player");
+                    localPlayer = go.GetComponent<Client.NetworkPlayer>();
+                }
+                localPlayer.Team = teamNum;
+            }
+            else if (!ConnectedPlayers.ContainsKey(playerID))
             {
                 InstatiatePlayer(playerID);
             }
@@ -109,7 +119,10 @@ namespace NetworkGame
                     int playerID = buffer.ReadInt();
                     Vector3 playerPos = new Vector3(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
                     Quaternion rotation = new Quaternion(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
-                    ConnectedPlayers[playerID].playerObject.GetComponent<Client.NetworkPlayer>().ReceiveMovementMessage(playerPos, rotation, buffer.ReadFloat());
+                    if(playerID != NetworkManager.Instance.PlayerID)
+                    {
+                        ConnectedPlayers[playerID].playerObject.GetComponent<Client.NetworkPlayer>().ReceiveMovementMessage(playerPos, rotation, buffer.ReadFloat());
+                    }
                 }
             }
             catch (Exception e)
@@ -128,6 +141,7 @@ namespace NetworkGame
         //TODO: add team locations and instantiations
         internal void InstatiatePlayer(int playerID)
         {
+            Debug.Log("Instantiating player with ID: " + playerID);
             //add spawning locations for teams, more game information needed
             if (playerPrefab == null)
             {

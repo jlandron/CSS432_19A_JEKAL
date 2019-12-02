@@ -309,7 +309,7 @@ MonoBehaviour:
   isLocalPlayer: 1
   canSendNetworkMovement: 0
   speed: 0
-  networkSendRate: 5
+  networkSendRate: 10
   timeBetweenMovementStart: 0
   timeBetweenMovementEnd: 0
   isLerpingPosition: 0
@@ -320,6 +320,7 @@ MonoBehaviour:
   lastRealRotation: {x: 0, y: 0, z: 0, w: 0}
   timeStartedLerping: 0
   timeToLerp: 0
+  team: 0
   meshRenderers:
   - {fileID: 4553292336923696772}
   - {fileID: 4553292338717624669}

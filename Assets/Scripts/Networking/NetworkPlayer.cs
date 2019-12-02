@@ -15,7 +15,7 @@ namespace NetworkGame.Client
         [Header("Player Movement Properties")]
         public bool canSendNetworkMovement;
         public float speed;
-        public float networkSendRate = 5;
+        public float networkSendRate = 10;
         public float timeBetweenMovementStart;
         public float timeBetweenMovementEnd;
 
@@ -103,6 +103,7 @@ namespace NetworkGame.Client
         private void SendNetworkMovement()
         {
             timeBetweenMovementEnd = Time.time;
+            Debug.Log("Sending my movement");
             SendMovementMessage(playerID, transform.position, transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart));
             canSendNetworkMovement = false;
         }

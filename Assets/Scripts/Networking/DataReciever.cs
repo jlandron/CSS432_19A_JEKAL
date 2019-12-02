@@ -152,6 +152,7 @@ namespace NetworkGame.Client
         }
         internal void HandleStatusMessage(byte[] data)
         {
+            Debug.Log("updating players");
             PlayerManager.Instance.playersToUpdate.Enqueue(data);
         }
         internal void HandleScoreMessage(byte[] data)

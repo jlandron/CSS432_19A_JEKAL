@@ -13,7 +13,7 @@ namespace NetworkGame
         public GameState MyGameState { get => gameState; set => gameState = value; }
 
         public static GameManager Instance { get; private set; }
-        public bool AllowPlayerInput { get; internal set; } = true;
+        public bool AllowPlayerInput { get; internal set; }
 
         //TODO: DO SOMETHING WITH THIS IN GAME
         public enum GameState
@@ -25,6 +25,7 @@ namespace NetworkGame
         }
         private void Awake()
         {
+            AllowPlayerInput = true;
             if (Instance != null)
             {
                 return;
@@ -44,12 +45,14 @@ namespace NetworkGame
             {
                 SceneManager.LoadSceneAsync(2);
             }
-
+#endif
         }
+#if UNITY_EDITOR
         void LateUpdate()
         {
             Cursor.visible = true;
         }
 #endif
+
     }
 }

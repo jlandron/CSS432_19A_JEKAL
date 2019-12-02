@@ -94,7 +94,7 @@ namespace NetworkGame.Client
 
             if (packets.TryGetValue(packetID, out Packet packet))
             {
-                //Debug.Log("invoking: " + packetID);
+                Debug.Log("invoking: " + packetID);
                 packet.Invoke(buffer.ToArray());
             }
             buffer.Dispose();

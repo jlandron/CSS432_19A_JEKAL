@@ -16,7 +16,7 @@ namespace NetworkGame.Client
         private string _serverIP;
         private int _serverPort;
 
-        public bool IsConnected { get; set; } = false;
+        public bool IsConnected { get; set; }
 
         public DataSender dataSender;
         public DataReciever dataReciever;
@@ -24,6 +24,7 @@ namespace NetworkGame.Client
         public ClientTypes Type { get; private set; }
         private void Awake()
         {
+            IsConnected = false;
             dataSender = new DataSender(this);
             dataReciever = new DataReciever(this);
             clientHandleData = new ClientHandleData(this);
@@ -99,8 +100,8 @@ namespace NetworkGame.Client
             catch (Exception e)
             {
                 Debug.Log(e.Message);
-                _clientSocket.Close();
-                Destroy(this.gameObject);
+                //_clientSocket.Close();
+                //Destroy(this.gameObject);
             }
         }
 

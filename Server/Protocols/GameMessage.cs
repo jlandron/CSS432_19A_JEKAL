@@ -26,6 +26,7 @@ namespace Jekal.Protocols
         public int SourceId { get; set; }
         public string Target { get; set; }
         public int TargetId { get; set; }
+        public string Message { get; set; }
         public int CurrentTeamId { get; set; }
         public int NewTeamId { get; set; }
         public int GameTime { get; set; }
@@ -67,18 +68,22 @@ namespace Jekal.Protocols
                     Source = Buffer.ReadString();
                     SourceId = Buffer.ReadInt();
                     break;
+                case Messages.REJECT:
+                    Message = Buffer.ReadString();
+                    break;
                 case Messages.TEAMJOIN:
-                    Source = Buffer.ReadString();
+                    SourceId = Buffer.ReadInt();
                     CurrentTeamId = Buffer.ReadInt();
                     break;
                 case Messages.TEAMSWITCH:
-                    Source = Buffer.ReadString();
+                    SourceId = Buffer.ReadInt();
                     Target = Buffer.ReadString();
+                    TargetId = Buffer.ReadInt();
                     CurrentTeamId = Buffer.ReadInt();
                     NewTeamId = Buffer.ReadInt();
                     break;
                 case Messages.UPDATE:
-                    Source = Buffer.ReadString();
+                    SourceId = Buffer.ReadInt();
                     PosX = Buffer.ReadFloat();
                     PosY = Buffer.ReadFloat();
                     PosZ = Buffer.ReadFloat();

@@ -27,7 +27,16 @@ namespace Jekal.Managers
             }
 
             return _players.First(p => p.Value.Name.Equals(playerName, System.StringComparison.InvariantCultureIgnoreCase)).Value;
+        }
 
+        public Player GetPlayer(int playerId)
+        {
+            if (!_players.ContainsKey(playerId))
+            {
+                return null;
+            }
+
+            return _players[playerId];
         }
 
         public bool PlayerExists(string playerName)

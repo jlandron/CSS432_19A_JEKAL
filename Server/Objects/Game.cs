@@ -240,6 +240,9 @@ namespace Jekal.Objects
                         case GameMessage.Messages.UPDATE:
                             UpdatePlayer(gameMsg);
                             break;
+                        case GameMessage.Messages.GAMELEAVE:
+                            PlayerLeaving(gameMsg);
+                            break;
                         default:
                             // Drop, invalid message
                             return;
@@ -252,18 +255,42 @@ namespace Jekal.Objects
                     Console.WriteLine($"GAME ERROR: {ex.Message}");
                     CloseConnection(player);
                 }
+
+                foreach (var p in _closedConnections)
+                {
+                    _jekal.Players.RemovePlayer(p);
+                }
+
+                var byteBuffer = new ByteBuffer();
+                foreach (var p in _closedConnections)
+                {
+                    byteBuffer.Write((int)GameMessage.Messages.GAMELEAVE);
+                    byteBuffer.Write(p.Name);
+                    byteBuffer.Write(p.SessionID);
+                    SendMessageToGame(byteBuffer);
+                    byteBuffer.Clear();
+                }
+                byteBuffer.Dispose();
+                _closedConnections.Clear();
             } // End Lock
+        }
+
+        private void PlayerLeaving(GameMessage gameMessage)
+        {
+            var player = _jekal.Players.GetPlayer(gameMessage.SourceId);
+            CloseConnection(player);
         }
 
         private void PlayerTag(GameMessage msg)
         {
-            var player = _jekal.Players.GetPlayer(msg.Source);
-            var target = _jekal.Players.GetPlayer(msg.Target);
+            var player = _jekal.Players.GetPlayer(msg.SourceId);
+            var target = _jekal.Players.GetPlayer(msg.TargetId);
 
             var buffer = new ByteBuffer();
             buffer.Write((int)GameMessage.Messages.TEAMSWITCH);
-            buffer.Write(target.Name);
+            buffer.Write(target.SessionID);
             buffer.Write(player.Name);
+            buffer.Write(player.SessionID);
             buffer.Write(target.TeamID);
             buffer.Write(player.TeamID);
 
@@ -282,7 +309,7 @@ namespace Jekal.Objects
 
         public void UpdatePlayer(GameMessage msg)
         {
-            var player = _jekal.Players.GetPlayer(msg.Source);
+            var player = _jekal.Players.GetPlayer(msg.SourceId);
             player.PosX = msg.PosX;
             player.PosY = msg.PosY;
             player.PosZ = msg.PosZ;

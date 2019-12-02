@@ -75,6 +75,15 @@ namespace NetworkGame.Client
         }
 
         /////// Game ////////
+        public void SendGameJoinRequest()
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write((int)GameMessage.Messages.GAMEJOIN);
+            buffer.Write(NetworkManager.Instance.PlayerName);
+            buffer.Write(NetworkManager.Instance.PlayerID);
+            clientTCP.dataToSend.Enqueue(buffer.ToArray());
+            buffer.Dispose();
+        }
         public void SendTransformMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();

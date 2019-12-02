@@ -205,6 +205,7 @@ namespace NetworkGame.Client
             gameClientTCP = gameObject.AddComponent<ClientTCP>();
             gameClientTCP.SetType(ClientTypes.GAME);
             gameClientTCP.InitNetworking(LoginServerIP, GameServerPort);
+            gameClientTCP.dataSender.SendGameJoinRequest();
         }
 
         internal void KillGameTcp()

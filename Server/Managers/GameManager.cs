@@ -36,6 +36,11 @@ namespace Jekal.Managers
             return _games.First(g => g.GameId == id);
         }
 
+        public List<Game> GetAllGames()
+        {
+            return _games;
+        }
+
         public void AddGame(Task gameTask)
         {
             _gameTasks.Add(gameTask);

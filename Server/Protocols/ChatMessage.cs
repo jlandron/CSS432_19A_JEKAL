@@ -9,7 +9,6 @@ namespace Jekal.Protocols
         public string Destination { get; set; }
         public string Message { get; set; }
         public Messages MessageType { get; set; }
-
         public ByteBuffer Buffer { get; set; }
 
         public enum Messages
@@ -71,8 +70,6 @@ namespace Jekal.Protocols
                     Message = Buffer.ReadString();
                     break;
                 case Messages.CLOSE:
-                    Source = Buffer.ReadString();
-                    SourceId = Buffer.ReadInt();
                     break;
                 default:
                     return false;

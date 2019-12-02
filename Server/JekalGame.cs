@@ -1,5 +1,6 @@
 ﻿using Jekal.Servers;
 using Jekal.Managers;
+using System;
 using System.Collections.Specialized;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ namespace Jekal
 
         public void Initialize()
         {
+            Console.WriteLine("JEKALGAME: Initializing Servers...");
             source = new CancellationTokenSource();
             loginServer = new LoginServer(this);
             chatServer = new ChatServer(this);
@@ -36,12 +38,29 @@ namespace Jekal
 
         public void StartGame()
         {
+            Console.WriteLine("JEKALGAME: Starting Jekal servers...");
             var token = source.Token;
             var loginTask = loginServer.StartServer(token);
             var chatTask = chatServer.StartServer(token);
             var gameTask = gameServer.StartServer(token);
 
             Task.WaitAll(loginTask, chatTask, gameTask);
+
+            Console.WriteLine("JEKALGAME: Stopping games in progress...");
+
+            foreach (var g in Games.GetAllGames())
+            {
+                g.StopGame();
+            }
+
+            Console.WriteLine("JEKALGAME: Cleaning up player list...");
+            foreach (var p in Players.GetAllPlayers())
+            {
+                p.Value.CloseChat(null);
+                p.Value.CloseGame();
+            }
+
+            Console.WriteLine("JEKALGAME: Game Stopped.");
         }
 
         public string GetChatIP()

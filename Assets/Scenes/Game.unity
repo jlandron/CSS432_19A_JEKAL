@@ -140,6 +140,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 5058931375636001929, guid: 49387678b0fdca7429e9428376e6ab4b,
+        type: 3}
+      propertyPath: team
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5058931375636001933, guid: 49387678b0fdca7429e9428376e6ab4b,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -509,6 +514,10 @@ MonoBehaviour:
     type: 3}
   chatBox: {fileID: 491569396}
   localPlayer: {fileID: 190810918}
+  regularMessageColor: {r: 0.93725497, g: 0.93725497, b: 0.93725497, a: 1}
+  systemMessageColor: {r: 0, g: 1, b: 0, a: 1}
+  privateMessageColor: {r: 1, g: 0, b: 0, a: 1}
+  teamMessageColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1 &1034851134
 GameObject:
   m_ObjectHideFlags: 0
@@ -736,6 +745,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Enemy (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5058931375636001929, guid: 49387678b0fdca7429e9428376e6ab4b,
+        type: 3}
+      propertyPath: team
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5058931375636001933, guid: 49387678b0fdca7429e9428376e6ab4b,
         type: 3}
@@ -1128,6 +1142,36 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4553292336923696772, guid: d5dda3ffd2ccfba45b5211cd0ff0ae84,
+        type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4553292336923696772, guid: d5dda3ffd2ccfba45b5211cd0ff0ae84,
+        type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: d51551177f747d54fa43d66246fc8fb7, type: 2}
+    - target: {fileID: 4553292336923696772, guid: d5dda3ffd2ccfba45b5211cd0ff0ae84,
+        type: 3}
+      propertyPath: m_Materials.Array.data[2]
+      value: 
+      objectReference: {fileID: 2100000, guid: 1782e4487054e0f40849cc95a5643e02, type: 2}
+    - target: {fileID: 4553292336923696772, guid: d5dda3ffd2ccfba45b5211cd0ff0ae84,
+        type: 3}
+      propertyPath: m_Materials.Array.data[3]
+      value: 
+      objectReference: {fileID: 2100000, guid: ee523a6d3ce53be48b67467a43c4cc72, type: 2}
+    - target: {fileID: 4553292336923696772, guid: d5dda3ffd2ccfba45b5211cd0ff0ae84,
+        type: 3}
+      propertyPath: m_Materials.Array.data[4]
+      value: 
+      objectReference: {fileID: 2100000, guid: c4dd6822ae4f93d4193ccb060e67a846, type: 2}
+    - target: {fileID: 4553292336923696772, guid: d5dda3ffd2ccfba45b5211cd0ff0ae84,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: c4dd6822ae4f93d4193ccb060e67a846, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d5dda3ffd2ccfba45b5211cd0ff0ae84, type: 3}
 --- !u!1001 &5058931373967087490
@@ -1137,10 +1181,20 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5058931374903431464, guid: 49387678b0fdca7429e9428376e6ab4b,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ee523a6d3ce53be48b67467a43c4cc72, type: 2}
     - target: {fileID: 5058931375636001928, guid: 49387678b0fdca7429e9428376e6ab4b,
         type: 3}
       propertyPath: m_Name
       value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 5058931375636001929, guid: 49387678b0fdca7429e9428376e6ab4b,
+        type: 3}
+      propertyPath: team
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5058931375636001933, guid: 49387678b0fdca7429e9428376e6ab4b,
         type: 3}
@@ -1197,6 +1251,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5058931375636001935, guid: 49387678b0fdca7429e9428376e6ab4b,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ee523a6d3ce53be48b67467a43c4cc72, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 49387678b0fdca7429e9428376e6ab4b, type: 3}
 --- !u!1001 &5706879398659722809

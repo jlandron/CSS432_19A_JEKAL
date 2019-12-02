@@ -78,14 +78,22 @@ namespace NetworkGame
         }
         private void HandleJoinTeam(byte[] data)
         {
+            
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
-            _ = buffer.ReadInt();
-            _ = buffer.ReadString();
+            int type = buffer.ReadInt();
             int playerID = buffer.ReadInt();
+            if (type == (int)GameMessage.Messages.TEAMSWITCH)
+            {
+                string taggerName = buffer.ReadString();
+                int taggerID = buffer.ReadInt();
+                int oldTeamID = buffer.ReadInt();
+                //TODO: do something on localPlayers UI if needed.
+            }
             int teamNum = buffer.ReadInt();
+            Debug.Log("player: " + playerID + " joined team " + teamNum);
             buffer.Dispose();
-            ConnectedPlayers[playerID].teamNum = teamNum;
+            ConnectedPlayers[playerID].playerObject.GetComponent<Client.NetworkPlayer>().Team = teamNum;
         }
         internal void UpdateGame(byte[] data)
         {
@@ -104,16 +112,17 @@ namespace NetworkGame
                     ConnectedPlayers[playerID].playerObject.GetComponent<Client.NetworkPlayer>().ReceiveMovementMessage(playerPos, rotation, buffer.ReadFloat());
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                Debug.Log(e.Message);
             }
             buffer.Dispose();
         }
 
         private void UpdateGameTime(float v)
         {
-            Debug.Log("Need to update game time in UI");
+            //TODO: update game UI
+            Debug.Log("Time left: " + v);
         }
 
         //TODO: add team locations and instantiations
@@ -176,7 +185,6 @@ namespace NetworkGame
         {
             public string playerName;
             public int playerID;
-            public int teamNum;
             internal GameObject playerObject;
             public Player(string pName, int pID)
             {

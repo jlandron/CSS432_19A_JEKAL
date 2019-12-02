@@ -55,6 +55,14 @@ namespace NetworkGame.Client
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
             buffer.Dispose();
         }
+        internal void SendLeaveMessage()
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write((int)ChatMessage.Messages.LEAVE);
+            buffer.Write(NetworkManager.Instance.PlayerName);
+            buffer.Write(NetworkManager.Instance.PlayerID);
+            clientTCP.dataToSend.Enqueue(buffer.ToArray());
+        }
 
         /////// Login //////
         public void RequestLogin()
@@ -81,6 +89,15 @@ namespace NetworkGame.Client
             buffer.Write((int)GameMessage.Messages.TAG);
             buffer.Write(NetworkManager.Instance.PlayerID);
             buffer.Write(playerTagged);
+            clientTCP.dataToSend.Enqueue(buffer.ToArray());
+        }
+
+        public void SendGameLeaveMessage()
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write((int)GameMessage.Messages.GAMELEAVE);
+            buffer.Write(NetworkManager.Instance.PlayerName);
+            buffer.Write(NetworkManager.Instance.PlayerID);
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
         }
     }

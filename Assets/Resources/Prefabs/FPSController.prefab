@@ -320,6 +320,14 @@ MonoBehaviour:
   lastRealRotation: {x: 0, y: 0, z: 0, w: 0}
   timeStartedLerping: 0
   timeToLerp: 0
+  meshRenderers:
+  - {fileID: 4553292336923696772}
+  - {fileID: 4553292338717624669}
+  materials:
+  - {fileID: 2100000, guid: d51551177f747d54fa43d66246fc8fb7, type: 2}
+  - {fileID: 2100000, guid: 1782e4487054e0f40849cc95a5643e02, type: 2}
+  - {fileID: 2100000, guid: ee523a6d3ce53be48b67467a43c4cc72, type: 2}
+  - {fileID: 2100000, guid: c4dd6822ae4f93d4193ccb060e67a846, type: 2}
 --- !u!1 &4553292336780590502
 GameObject:
   m_ObjectHideFlags: 0

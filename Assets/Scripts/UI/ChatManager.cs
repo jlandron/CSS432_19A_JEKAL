@@ -25,6 +25,16 @@ namespace NetworkGame.UI
         [SerializeField]
         GameObject localPlayer;
 
+        [Header("Chat colors")]
+        [SerializeField]
+        private Color regularMessageColor = Color.white;
+        [SerializeField]
+        private Color systemMessageColor = Color.green;
+        [SerializeField]
+        private Color privateMessageColor = Color.red;
+        [SerializeField]
+        private Color teamMessageColor = Color.yellow;
+
         public static ChatManager Instance { get; private set; }
         private void Awake()
         {
@@ -47,13 +57,11 @@ namespace NetworkGame.UI
                     chatBox.text = "";
                     if(text.StartsWith("/"))
                     {
+                        Debug.Log("Parsing special message");
                         string[] tokens = text.Split(' ');
                         string newText = "";
-                        for (int i = 1; i < tokens.Length; i++)
-                        {
-                            newText += tokens[i] + " ";
-                        }
-                        switch (tokens[0])      
+                        
+                        switch (tokens[0])  
                         {
                             case "/t":
                             case "/T":
@@ -61,6 +69,7 @@ namespace NetworkGame.UI
                                 {
                                     newText += tokens[i] + " ";
                                 }
+                                Debug.Log(newText);
                                 NetworkManager.Instance.chatClientTCP.dataSender.SendTeamChatMessage(newText);
                                 break;
                             case "/p":
@@ -78,7 +87,7 @@ namespace NetworkGame.UI
                     }
                     else
                     {
-                        NetworkManager.Instance.chatClientTCP.dataSender.SendChatMessage(chatBox.text);
+                        NetworkManager.Instance.chatClientTCP.dataSender.SendChatMessage(text);
                     }
                    
                     //SendMessageToChat(chatBox.text);
@@ -99,16 +108,16 @@ namespace NetworkGame.UI
                 switch (msg.type)
                 {
                     case QueuedMessage.Type.NULL:
-                        SendMessageToChat(msg.playerName, msg.message, Color.white);
+                        SendMessageToChat(msg.playerName, msg.message, regularMessageColor);
                         break;
                     case QueuedMessage.Type.TEAM:
-                        SendMessageToChat(msg.playerName, msg.message, Color.yellow);
+                        SendMessageToChat(msg.playerName, msg.message, teamMessageColor);
                         break;
                     case QueuedMessage.Type.PRIVATE:
-                        SendMessageToChat(msg.playerName, msg.message, Color.red);
+                        SendMessageToChat(msg.playerName, msg.message, privateMessageColor);
                         break;
                     case QueuedMessage.Type.SYSTEM:
-                        SendMessageToChat(msg.playerName, msg.message, Color.green);
+                        SendMessageToChat(msg.playerName, msg.message, systemMessageColor);
                         break;
                     default:
                         break;
@@ -116,12 +125,14 @@ namespace NetworkGame.UI
             }
             if (chatBox.isFocused)
             {
-                localPlayer.GetComponent<FirstPersonController>().enabled = false;
+                GameManager.Instance.AllowPlayerInput = false;
             }
             else
             {
-                localPlayer.GetComponent<FirstPersonController>().enabled = true;
+                GameManager.Instance.AllowPlayerInput = true;
             }
+            localPlayer.GetComponent<FirstPersonController>().enabled = GameManager.Instance.AllowPlayerInput;
+            localPlayer.GetComponent<CharacterController>().enabled = GameManager.Instance.AllowPlayerInput;
         }
 
         public void SendMessageToChat(string text)

@@ -49,6 +49,10 @@ namespace NetworkGame.Client
             //Debug.Log("Client " + Type + " started");
         }
 
+        public bool QueueIsEmpty()
+        {
+            return dataToSend.IsEmpty;
+        }
 
 
         private void ClientConnectCallback(IAsyncResult ar)
@@ -110,6 +114,10 @@ namespace NetworkGame.Client
         public void Disconnect()
         {
             IsConnected = false;
+            while (!QueueIsEmpty())
+            {
+                ;
+            }
             if (_clientSocket.Connected)
             {
                 _clientSocket.Close();

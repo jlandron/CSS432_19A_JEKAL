@@ -1,4 +1,5 @@
 ﻿using NetworkGame.UI;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -65,11 +66,11 @@ namespace NetworkGame.Client
                 return;
             }
             Instance = this;
-            if(LoginServerIP == null)
+            if (LoginServerIP == null)
             {
                 Debug.LogError("Login IP not set");
             }
-            if(LoginServerPort == -1)
+            if (LoginServerPort == -1)
             {
                 Debug.LogError("Login port not set");
             }
@@ -82,8 +83,16 @@ namespace NetworkGame.Client
             }
             if (Canvas != null && errorMessageToPrint != "")
             {
-                Canvas.GetComponent<PrintMessageToTextbox>().loginErrors.Enqueue(errorMessageToPrint);
-                errorMessageToPrint = "";
+                try
+                {
+                    Canvas.GetComponent<PrintMessageToTextbox>().loginErrors.Enqueue(errorMessageToPrint);
+                    errorMessageToPrint = "";
+                }
+                catch (Exception)
+                {
+
+                }
+
             }
         }
         private void FixedUpdate()
@@ -127,7 +136,7 @@ namespace NetworkGame.Client
         {
             yield return SceneManager.LoadSceneAsync("Game");
             ShouldKillLogin = true;
-            StartChatClient();
+            //StartChatClient();
             //StartGameClient();
         }
 
@@ -161,6 +170,7 @@ namespace NetworkGame.Client
         }
         internal void KillLoginTcp()
         {
+            loginClientTCP.Disconnect();
             Destroy(loginClientTCP);
             loginClientTCP = null;
             LoginSuccess = false;
@@ -178,6 +188,8 @@ namespace NetworkGame.Client
         }
         internal void KillChatTcp()
         {
+            chatClientTCP.dataSender.SendLeaveMessage();
+            chatClientTCP.Disconnect();
             Destroy(chatClientTCP);
             chatClientTCP = null;
             ChatRequestSent = false;
@@ -196,6 +208,8 @@ namespace NetworkGame.Client
 
         internal void KillGameTcp()
         {
+            gameClientTCP.dataSender.SendGameLeaveMessage();
+            gameClientTCP.Disconnect();
             Destroy(gameClientTCP);
             gameClientTCP = null;
             GameIsLaunched = false;

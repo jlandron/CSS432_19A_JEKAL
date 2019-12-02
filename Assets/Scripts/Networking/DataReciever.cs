@@ -16,10 +16,6 @@ namespace NetworkGame.Client
 
         /////// Chat server messages ////////
 
-        internal void HandleJoinMessage(byte[] data)
-        {
-            Debug.Log("Not sure why I am reciving this message: Chat JOIN");
-        }
         internal void HandleLeaveMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
@@ -89,19 +85,14 @@ namespace NetworkGame.Client
             Debug.Log("System message: " + msg);
             buffer.Dispose();
             NetworkManager.Instance.ShouldKillChat = true;
-            NetworkManager.Instance.ChatRequestSent = false;
         }
         internal void HandleCloseMessage(byte[] data)
         {
             Debug.Log("Recieved chat close signal");
-            NetworkManager.Instance.chatClientTCP.Disconnect();
-            NetworkManager.Instance.ChatRequestSent = false;
+            NetworkManager.Instance.ShouldKillChat = true;
         }
         //////// Login server messages ////////
-        internal void HandleLoginMessage(byte[] data)
-        {
-            Debug.Log("Not sure why I am reciving this message: Login request");
-        }
+
         internal void HandleAuthMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
@@ -154,14 +145,6 @@ namespace NetworkGame.Client
         {
             PlayerManager.Instance.playersJoiningTeam.Enqueue(data);
         }
-        internal void HandleUpdateMessage(byte[] data)
-        {
-            Debug.Log("Not sure why I am reciving this message: Game Update");
-        }
-        internal void HandleTagMessage(byte[] data)
-        {
-            Debug.Log("Not sure why I am reciving this message: Game Tag");
-        }
         internal void HandleStatusMessage(byte[] data)
         {
             PlayerManager.Instance.playersToUpdate.Enqueue(data);
@@ -177,10 +160,6 @@ namespace NetworkGame.Client
         internal void HandleGameStartMessage(byte[] data)
         {
             GameManager.Instance.MyGameState = GameManager.GameState.START;
-        }
-        internal void HandleGameWaitMessage(byte[] data)
-        {
-            GameManager.Instance.MyGameState = GameManager.GameState.WAIT;
         }
         internal void HandleRemoveMessage(byte[] data)
         {

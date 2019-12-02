@@ -30,6 +30,17 @@ namespace NetworkGame.Client
         public float timeToLerp;
 
 
+        [Header("Team information")]
+        [SerializeField]
+        private int team;
+
+        [SerializeField]
+        MeshRenderer[] meshRenderers;
+        [SerializeField]
+        Material[] materials;
+
+        public int Team { get => team; set => team = value; }
+
         private void Start()
         {
 
@@ -50,6 +61,8 @@ namespace NetworkGame.Client
 
         private void Update()
         {
+            
+            //process networtk stuff
             if (isLocalPlayer)
             {
                 if (NetworkManager.Instance.gameClientTCP != null)
@@ -57,9 +70,16 @@ namespace NetworkGame.Client
                     UpdatePlayerMovement();
                 }
             }
-            else
+
+            foreach (MeshRenderer item in meshRenderers)
             {
-                return;
+                item.material = materials[Team % materials.Length];
+            }
+
+            if(GameManager.Instance.AllowPlayerInput && Input.GetKeyDown(KeyCode.E))
+            {
+                //TODO: add actual tag message with distance/collision checking
+                NetworkManager.Instance.gameClientTCP.dataSender.SendTagMessage(0);
             }
         }
 

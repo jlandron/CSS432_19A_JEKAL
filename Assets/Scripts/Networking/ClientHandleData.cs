@@ -30,14 +30,12 @@ namespace NetworkGame.Client
             switch (clientTCP.Type)
             {
                 case ClientTypes.LOGIN:
-                    packets.Add((int)LoginMessage.Messages.LOGIN, clientTCP.dataReciever.HandleLoginMessage);
                     packets.Add((int)LoginMessage.Messages.AUTH, clientTCP.dataReciever.HandleAuthMessage);
                     packets.Add((int)LoginMessage.Messages.REJECT, clientTCP.dataReciever.HandleRejectMessage);
                     packets.Add((int)LoginMessage.Messages.DOWN, clientTCP.dataReciever.HandleRejectMessage);
                     Debug.Log("Login packets setup");
                     break;
                 case ClientTypes.CHAT:
-                    packets.Add((int)ChatMessage.Messages.JOIN, clientTCP.dataReciever.HandleJoinMessage);
                     packets.Add((int)ChatMessage.Messages.LEAVE, clientTCP.dataReciever.HandleLeaveMessage);
                     packets.Add((int)ChatMessage.Messages.SYSTEM, clientTCP.dataReciever.HandleSystemChatMessage);
                     packets.Add((int)ChatMessage.Messages.MSG, clientTCP.dataReciever.HandleChatMessage);
@@ -52,8 +50,6 @@ namespace NetworkGame.Client
                     packets.Add((int)GameMessage.Messages.REJECT, clientTCP.dataReciever.HandleGameRejectMessage);
                     packets.Add((int)GameMessage.Messages.TEAMJOIN, clientTCP.dataReciever.HandleTeamJoinMessage);
                     packets.Add((int)GameMessage.Messages.TEAMSWITCH, clientTCP.dataReciever.HandleTeamSwitchMessage);
-                    packets.Add((int)GameMessage.Messages.UPDATE, clientTCP.dataReciever.HandleUpdateMessage);
-                    packets.Add((int)GameMessage.Messages.TAG, clientTCP.dataReciever.HandleTagMessage);
                     packets.Add((int)GameMessage.Messages.STATUS, clientTCP.dataReciever.HandleStatusMessage);
                     packets.Add((int)GameMessage.Messages.SCORE, clientTCP.dataReciever.HandleScoreMessage);
                     packets.Add((int)GameMessage.Messages.GAMEEND, clientTCP.dataReciever.HandleGameEndMessage);
@@ -61,6 +57,7 @@ namespace NetworkGame.Client
                     packets.Add((int)GameMessage.Messages.GAMELEAVE, clientTCP.dataReciever.HandleRemoveMessage);
                     break;
                 default:
+                    Debug.LogError("Incorrect connection attempted");
                     break;
             }
         }

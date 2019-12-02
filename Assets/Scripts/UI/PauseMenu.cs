@@ -20,7 +20,7 @@ namespace NetworkGame.UI {
         void Update()
         {
 
-            if (Input.GetKeyDown(KeyCode.P))
+            if (Input.GetKeyDown(KeyCode.Escape) && GameManager.Instance.AllowPlayerInput)
             {
                 if (!_isPaused)
                 {

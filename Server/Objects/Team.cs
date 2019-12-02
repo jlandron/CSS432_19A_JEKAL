@@ -35,11 +35,19 @@ namespace Jekal.Objects
             _players.Remove(player);
         }
 
-        public void SendMessage(ByteBuffer buffer)
+        public void SendChatMessage(ByteBuffer buffer)
         {
             foreach (var p in _players)
             {
                 p.SendChatMessage(buffer);
+            }
+
+        }
+        public void SendGameMessage(ByteBuffer buffer)
+        {
+            foreach (var p in _players)
+            {
+                p.SendGameMessage(buffer);
             }
 
         }

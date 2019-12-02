@@ -172,7 +172,7 @@ namespace Jekal.Objects
             if (!success)
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending chat message, closing connection.");
-                CloseChat(null);
+                //CloseChat(null);
             }
 
             return success;
@@ -184,7 +184,7 @@ namespace Jekal.Objects
             if (!success)
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending game message, closing connection.");
-                CloseGame();
+                //CloseGame();
             }
 
             return success;
@@ -194,15 +194,15 @@ namespace Jekal.Objects
         {
             try
             {
-                if (client == null || !client.Connected)
-                {
-                    return false;
-                }
+                //if (client == null || !client.Connected)
+                //{
+                //    return false;
+                //}
 
-                if (stream == null || !stream.CanWrite)
-                {
-                    return false;
-                }
+                //if (stream == null || !stream.CanWrite)
+                //{
+                //    return false;
+                //}
 
                 stream.Write(buffer.ToArray(), 0, buffer.Count());
                 stream.Flush();
@@ -218,10 +218,10 @@ namespace Jekal.Objects
 
         public void CloseChat(ByteBuffer buffer)
         {
-            if (buffer != null)
-            {
-                SendChatMessage(buffer);
-            }
+            //if (buffer != null)
+            //{
+            //    SendChatMessage(buffer);
+            //}
 
             if (_chatStream != null)
             {

@@ -1,6 +1,7 @@
 ﻿using Jekal.Protocols;
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ namespace Jekal.Objects
 {
     public class Game
     {
+        private readonly object _gameLock = new object();
+
         private Timer _gameTimer = null;
         private Timer _updateTimer = null;
         private ScoreBoard _scoreBoard;
@@ -53,6 +56,7 @@ namespace Jekal.Objects
             _gameTime = Convert.ToInt32(_jekal.Settings["gameTime"]) * 60;  // Game time in seconds
             _gameTimer = new Timer(GameTimeCheck, null, 0, 1000);
             _gameStarted = true;
+            //_updateTimer = new Timer(SendUpdate, null, 0, 100); // Update 10 times a second
 
             byteBuffer.Write((int)GameMessage.Messages.GAMESTART);
             byteBuffer.Write(_gameTime);
@@ -61,8 +65,7 @@ namespace Jekal.Objects
             // While game has time on it.
             while (_gameStarted)
             {
-                var teamCheckLock = new object();
-                lock (teamCheckLock)
+                lock (_gameLock)
                 {
                     // If one team is max or 0, someone has won
                     if (GetTeam(0).Count() == 0 || GetTeam(0).Count() == _maxPlayers)
@@ -85,9 +88,7 @@ namespace Jekal.Objects
 
         public void SendMessageToGame(ByteBuffer buffer)
         {
-            var msgLock = new object();
-
-            lock (msgLock)
+            lock (_gameLock)
             {
                 foreach (var p in _players)
                 {
@@ -113,44 +114,44 @@ namespace Jekal.Objects
 
         public bool AddPlayer(Player player)
         {
-            // If game full, return false
-            if (_players.Count >= _maxPlayers)
+            lock (_gameLock)
             {
-                return false;
-            }
-
-            // Find team with lowest count
-            Team team = null;
-            foreach (var t in _teams)
-            {
-                if (team == null || t.Count() < team.Count())
+                // If game full, return false
+                if (_players.Count >= _maxPlayers)
                 {
-                    team = t;
+                    return false;
+                }
+
+                // Find team with lowest count
+                Team team = null;
+                foreach (var t in _teams)
+                {
+                    if (team == null || t.Count() < team.Count())
+                    {
+                        team = t;
+                    }
+                }
+
+                // Assign player game and team ids
+                player.TeamID = team.TeamId;
+                player.GameID = GameId;
+
+                // Add player to team and game
+                team.AddPlayer(player);
+                _players.Add(player);
+
+                // Check if game is ready to start
+                if (_players.Count == _maxPlayers)
+                {
+                    ReadyToStart = true;
                 }
             }
-
-            // Assign player game and team ids
-            player.TeamID = team.TeamId;
-            player.GameID = GameId;
-
-            // Add player to team and game
-            team.AddPlayer(player);
-            _players.Add(player);
-
-            // Check if game is ready to start
-            if (_players.Count == _maxPlayers)
-            {
-                ReadyToStart = true;
-            }
-
             return true;
         }
 
         private void SendUpdate(object stateInfo)
         {
-            object updateLock = new object();
-
-            lock (updateLock)
+            lock (_gameLock)
             {
                 var buffer = new ByteBuffer();
                 buffer.Write((int)GameMessage.Messages.STATUS);
@@ -175,6 +176,8 @@ namespace Jekal.Objects
                         CloseConnection(p);
                     }
                 }
+
+                CleanUpConnections();
             }  // End lock
         }
 
@@ -205,9 +208,8 @@ namespace Jekal.Objects
 
         public void HandleMessage(IAsyncResult ar)
         {
-            object gameLock = new object();
             var player = (Player)ar.AsyncState;
-            lock(gameLock)
+            lock(_gameLock)
             {
                 try
                 {
@@ -257,9 +259,19 @@ namespace Jekal.Objects
                     CloseConnection(player);
                 }
 
+                CleanUpConnections();
+
+            } // End Lock
+        }
+
+        private void CleanUpConnections()
+        {
+            lock (_gameLock)
+            {
                 foreach (var p in _closedConnections)
                 {
                     _jekal.Players.RemovePlayer(p);
+                    _players.Remove(p);
                 }
 
                 var byteBuffer = new ByteBuffer();
@@ -273,7 +285,7 @@ namespace Jekal.Objects
                 }
                 byteBuffer.Dispose();
                 _closedConnections.Clear();
-            } // End Lock
+            }
         }
 
         private void PlayerLeaving(GameMessage gameMessage)
@@ -298,8 +310,7 @@ namespace Jekal.Objects
             var oldTeam = GetTeam(target.TeamID);
             var newTeam = GetTeam(player.TeamID);
 
-            object tagLock = new object();
-            lock (tagLock)
+            lock (_gameLock)
             {
                 oldTeam.RemovePlayer(target);
                 target.TeamID = player.TeamID;
@@ -324,9 +335,10 @@ namespace Jekal.Objects
         private void CloseConnection(Player player)
         {
             Console.WriteLine($"GAME: Error communicating to {player.Name}.  Closing game connection.");
-            _players.Remove(player);
-            _jekal.Players.RemovePlayer(player);
-            _closedConnections.Add(player);
+            lock (_gameLock)
+            {
+                _closedConnections.Add(player);
+            }
         }
 
         public Team GetTeam(int id)

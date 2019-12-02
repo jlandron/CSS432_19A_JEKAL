@@ -209,11 +209,6 @@ namespace Jekal.Servers
                     _jekal.Players.RemovePlayer(p);
                 }
 
-                foreach (var p in closedConnections)
-                {
-                    SendSystemMessage($"[{p.Name}] has left the chat.");
-                }
-
                 closedConnections.Clear();
             } // End lock
         }
@@ -268,7 +263,7 @@ namespace Jekal.Servers
             byteBuffer.Write(player.Name);
             byteBuffer.Write(player.SessionID);
             byteBuffer.Write(chatMessage.Message);
-            team.SendMessage(byteBuffer);
+            team.SendChatMessage(byteBuffer);
             byteBuffer.Dispose();
         }
 
@@ -286,19 +281,6 @@ namespace Jekal.Servers
                 }
             }
             byteBuffer.Dispose();
-        }
-
-        private void CheckClosedConnections()
-        {
-            if (closedConnections.Count > 0)
-            {
-                foreach (var p in closedConnections)
-                {
-                    SendSystemMessage($"[{p.Name}] has left chat.");
-                }
-
-                closedConnections.Clear();
-            }
         }
 
         private void CloseConnection(Player player)

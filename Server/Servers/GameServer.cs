@@ -50,7 +50,7 @@ namespace Jekal.Servers
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"GAMESERVER: Error handling client connetion: {ex.Message}");
+                    Console.WriteLine($"GAMESERVER: Error handling client connection: {ex.Message}");
                 }
             }
 
@@ -95,34 +95,38 @@ namespace Jekal.Servers
                 }
                 else
                 {
-                    Console.WriteLine($"GAMESERVER: JOIN {playerName}; SESSION: {sessionId}");
-                    var player = _jekal.Players.GetPlayer(playerName);
-                    var game = _jekal.Games.GetWaitingGame();
-                    player.AssignGameConnection(playerConnection, new AsyncCallback(game.HandleMessage));
-                    player.GameID = game.GameId;
-                    if (!game.AddPlayer(player))
+                    var addPlayerLock = new object();
+                    lock (addPlayerLock)
                     {
-                        Console.WriteLine("GAMESERVER: Unable to add player to game.");
-                        return Task.FromResult(0);
-                    }
+                        Console.WriteLine($"GAMESERVER: JOIN {playerName}; SESSION: {sessionId}");
+                        var player = _jekal.Players.GetPlayer(playerName);
+                        var game = _jekal.Games.GetWaitingGame();
+                        player.AssignGameConnection(playerConnection, new AsyncCallback(game.HandleMessage));
+                        player.GameID = game.GameId;
+                        if (!game.AddPlayer(player))
+                        {
+                            Console.WriteLine("GAMESERVER: Unable to add player to game.");
+                            return Task.FromResult(0);
+                        }
 
-                    Console.WriteLine($"GAMESERVER: GAME: {player.GameID}; TEAMJOIN {playerName}; TEAM: {player.TeamID}");
-                    var buffer = new ByteBuffer();
-                    buffer.Write((int)GameMessage.Messages.TEAMJOIN);
-                    buffer.Write(player.Name);
-                    buffer.Write(player.TeamID);
-                    game.GetTeam(player.TeamID).SendMessage(buffer);
+                        Console.WriteLine($"GAMESERVER: GAME: {player.GameID}; TEAMJOIN {playerName}; TEAM: {player.TeamID}");
+                        var buffer = new ByteBuffer();
+                        buffer.Write((int)GameMessage.Messages.TEAMJOIN);
+                        buffer.Write(player.Name);
+                        buffer.Write(player.TeamID);
+                        game.GetTeam(player.TeamID).SendGameMessage(buffer);
 
-                    if (game.ReadyToStart)
-                    {
-                        var gameTask = game.Start();
-                        _jekal.Games.AddGame(gameTask);
+                        if (game.ReadyToStart)
+                        {
+                            var gameTask = game.Start();
+                            _jekal.Games.AddGame(gameTask);
+                        }
                     }
                 }
             }
             else
             {
-                Console.WriteLine("GAMESERVER: Expecting chat GAMEJOIN message. Closing connection.");
+                Console.WriteLine("GAMESERVER: Expecting GAMEJOIN message. Closing connection.");
                 netStream.Close();
                 playerConnection.Close();
             }

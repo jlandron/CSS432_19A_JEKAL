@@ -62,6 +62,7 @@
     <Compile Include="Servers\GameServer.cs" />
     <Compile Include="Servers\IServer.cs" />
     <Compile Include="Servers\LoginServer.cs" />
+    <Compile Include="Servers\TcpServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

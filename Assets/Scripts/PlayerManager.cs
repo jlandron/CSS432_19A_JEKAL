@@ -1,4 +1,5 @@
 ﻿using Common.Protocols;
+using NetworkGame.Client;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -44,11 +45,6 @@ namespace NetworkGame
         // Update is called once per frame
         void Update()
         {
-            byte[] playerToSpawnData;
-            if (playersToSpawn.TryDequeue(out playerToSpawnData))
-            {
-                InstatiatePlayer(playerToSpawnData);
-            }
             byte[] playerToJoinTeamData;
             if (playersJoiningTeam.TryDequeue(out playerToJoinTeamData))
             {
@@ -78,7 +74,7 @@ namespace NetworkGame
         }
         private void HandleJoinTeam(byte[] data)
         {
-            
+            Debug.Log("player joining team");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             int type = buffer.ReadInt();
@@ -93,6 +89,10 @@ namespace NetworkGame
             int teamNum = buffer.ReadInt();
             Debug.Log("player: " + playerID + " joined team " + teamNum);
             buffer.Dispose();
+            if (!ConnectedPlayers.ContainsKey(playerID) && playerID != NetworkManager.Instance.PlayerID)
+            {
+                InstatiatePlayer(playerID);
+            }
             ConnectedPlayers[playerID].playerObject.GetComponent<Client.NetworkPlayer>().Team = teamNum;
         }
         internal void UpdateGame(byte[] data)
@@ -126,7 +126,7 @@ namespace NetworkGame
         }
 
         //TODO: add team locations and instantiations
-        internal void InstatiatePlayer(byte[] data)
+        internal void InstatiatePlayer(int playerID)
         {
             //add spawning locations for teams, more game information needed
             if (playerPrefab == null)
@@ -134,14 +134,8 @@ namespace NetworkGame
                 Debug.LogError("No player prefab!");
                 return;
             }
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            _ = buffer.ReadInt();
-            string playerName = buffer.ReadString();
-            int playerID = buffer.ReadInt();
-            buffer.Dispose();
             //make player object
-            Player newPlayer = new Player(playerName, playerID);
+            Player newPlayer = new Player("player", playerID);
             //instantiate new player in game world
             GameObject playerObject;
             if (startingPositions != null)
@@ -153,7 +147,7 @@ namespace NetworkGame
                 playerObject = Instantiate(playerPrefab);
             }
             //set player atributes
-            playerObject.name = "Player: " + playerName;
+            playerObject.name = "Player: " + playerID;
             playerObject.tag = "ExtPlayer";
             playerObject.GetComponent<Client.NetworkPlayer>().playerID = playerID;
 

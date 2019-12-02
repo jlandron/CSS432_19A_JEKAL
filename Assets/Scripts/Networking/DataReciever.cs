@@ -15,7 +15,6 @@ namespace NetworkGame.Client
         }
 
         /////// Chat server messages ////////
-
         internal void HandleLeaveMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
@@ -122,7 +121,13 @@ namespace NetworkGame.Client
         /////// Game server messages ///////
         internal void HandleGameJoinMessage(byte[] data)
         {
-            PlayerManager.Instance.playersToSpawn.Enqueue(data);
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            _ = buffer.ReadInt();
+            string playerName = buffer.ReadString();
+            int playerID = buffer.ReadInt();
+            NetworkManager.Instance.PlayerID = playerID;
+            NetworkManager.Instance.PlayerName = playerName;
         }
         internal void HandleGameRejectMessage(byte[] data)
         {

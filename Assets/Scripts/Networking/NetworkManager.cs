@@ -49,8 +49,8 @@ namespace NetworkGame.Client
         private bool gameRequestSent = false;
 
         public int NumberConnectedPlayers { get; private set; }
-        public int PlayerID { get; private set; }
-        public string PlayerName { get; private set; }
+        public int PlayerID { get; set; }
+        public string PlayerName { get; set; }
 
 
         public string errorMessageToPrint = "";

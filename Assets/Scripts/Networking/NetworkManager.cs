@@ -165,8 +165,9 @@ namespace NetworkGame.Client
                 chatClientTCP.Disconnect();
             }
         }
-        public void StartLoginClient(string playerName)
+        public void StartLoginClient(string playerName, string serverIP)
         {
+            ServerIP = serverIP;
             if (loginClientTCP != null)
             {
                 KillLoginTcp();

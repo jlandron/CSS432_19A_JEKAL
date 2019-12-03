@@ -45,9 +45,7 @@ namespace Jekal.Protocols
                     Player = Buffer.ReadString();
                     break;
                 case Messages.AUTH:
-                    ChatIP = Buffer.ReadString();
                     ChatPort = Buffer.ReadInt();
-                    GameIP = Buffer.ReadString();
                     GamePort = Buffer.ReadInt();
                     SessionID = Buffer.ReadInt();
                     break;

@@ -4,11 +4,17 @@ namespace NetworkGame.UI
 {
     public class TextInputHandler : MonoBehaviour
     {
-        public string _textToHandle;
+        public string _userName;
+        public string _serverIP;
 
-        public void HandleText(string userName)
+        public void ServerIP(string s)
         {
-            _textToHandle = userName;
+            _serverIP = s;
         }
+        public void UserName(string s)
+        {
+            _userName = s;
+        }
+
     }
 }

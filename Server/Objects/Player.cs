@@ -26,11 +26,13 @@ namespace Jekal.Objects
         private TcpClient _chatSocket;
         private NetworkStream _chatStream;
         private byte[] _chatBuffer;
+        public bool ChatEnabled = false;
 
         // Game Networking
         private TcpClient _gameSocket;
         private NetworkStream _gameStream;
         private byte[] _gameBuffer;
+        public bool GameEnabled = false;
 
         public Player()
         {
@@ -75,6 +77,7 @@ namespace Jekal.Objects
             _chatSocket = connection;
             _chatStream = connection.GetStream();
             _chatStream.BeginRead(_chatBuffer, 0, BUFFER_SIZE, callback, this);
+            ChatEnabled = true;
         }
 
         public void AssignGameConnection(TcpClient connection, AsyncCallback callback)
@@ -82,6 +85,7 @@ namespace Jekal.Objects
             _gameSocket = connection;
             _gameStream = connection.GetStream();
             _gameStream.BeginRead(_gameBuffer, 0, BUFFER_SIZE, callback, this);
+            GameEnabled = true;
         }
 
         public int EndReadChat(IAsyncResult ar)
@@ -168,11 +172,16 @@ namespace Jekal.Objects
 
         public bool SendChatMessage(ByteBuffer buffer)
         {
+            if (!ChatEnabled)
+            {
+                return false;
+            }
+
             var success = SendMessage(_chatSocket, _chatStream, buffer);
             if (!success)
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending chat message, closing connection.");
-                //CloseChat(null);
+                ChatEnabled = false;
             }
 
             return success;
@@ -180,11 +189,16 @@ namespace Jekal.Objects
 
         public bool SendGameMessage(ByteBuffer buffer)
         {
+            if (!GameEnabled)
+            {
+                return false;
+            }
+
             var success = SendMessage(_gameSocket, _gameStream, buffer);
             if (!success)
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending game message, closing connection.");
-                //CloseGame();
+                GameEnabled = false;
             }
 
             return success;
@@ -194,16 +208,6 @@ namespace Jekal.Objects
         {
             try
             {
-                //if (client == null || !client.Connected)
-                //{
-                //    return false;
-                //}
-
-                //if (stream == null || !stream.CanWrite)
-                //{
-                //    return false;
-                //}
-
                 stream.Write(buffer.ToArray(), 0, buffer.Count());
                 stream.Flush();
             }
@@ -216,13 +220,8 @@ namespace Jekal.Objects
             return true;
         }
 
-        public void CloseChat(ByteBuffer buffer)
+        public void CloseChat(ByteBuffer buffer = null)
         {
-            //if (buffer != null)
-            //{
-            //    SendChatMessage(buffer);
-            //}
-
             if (_chatStream != null)
             {
                 _chatStream.Close();

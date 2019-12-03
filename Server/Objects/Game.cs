@@ -99,6 +99,7 @@ namespace Jekal.Objects
             {
                 foreach (var p in _players)
                 {
+                    Console.WriteLine($" *** Sending to {p.Name} : {buffer.ReadInt(false)}");
                     try
                     {
                         if (!p.SendGameMessage(buffer))
@@ -163,7 +164,8 @@ namespace Jekal.Objects
                 var buffer = new ByteBuffer();
                 buffer.Write((int)GameMessage.Messages.STATUS);
                 buffer.Write(_gameTime);
-                
+                buffer.Write(_players.Count);
+
                 foreach (var p in _players)
                 {
                     buffer.Write(p.SessionID);
@@ -175,6 +177,7 @@ namespace Jekal.Objects
                     buffer.Write(p.RotZ);
                     buffer.Write(p.RotW);
                     buffer.Write(p.Lerp);
+                    buffer.Write(p.TeamID);
                 }
 
                 foreach (var p in _players)

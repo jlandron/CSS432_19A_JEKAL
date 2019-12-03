@@ -96,10 +96,10 @@ namespace NetworkGame.UI
             }
             else
             {
-                if (!chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))
-                {
-                    chatBox.ActivateInputField();
-                }
+                //if (!chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))
+                //{
+                //    chatBox.ActivateInputField();
+                //}
             }
             QueuedMessage msg;
             if (chatMessages.TryDequeue(out msg))

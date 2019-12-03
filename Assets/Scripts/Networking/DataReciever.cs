@@ -93,7 +93,6 @@ namespace NetworkGame.Client
         }
 
         //////// Login server messages ////////
-
         internal void HandleAuthMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
@@ -174,7 +173,7 @@ namespace NetworkGame.Client
         }
         internal void HandleStatusMessage(byte[] data)
         {
-            //Debug.Log("updating players");
+            Debug.Log("updating players");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             PlayerManager.Instance.playersToUpdate.Enqueue(buffer.ToArray());
@@ -203,7 +202,6 @@ namespace NetworkGame.Client
 
         internal void HandleTeamListMessage(byte[] data)
         {
-            
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             _ = buffer.ReadInt();
@@ -211,7 +209,6 @@ namespace NetworkGame.Client
             for (int i = 0; i < numPlayersInGame; i++)
             {
                 Debug.Log("Handle teamList");
-                
                 int playerID = buffer.ReadInt();
                 int teamNum = buffer.ReadInt();
                 ByteBuffer playerInst = new ByteBuffer();
@@ -221,7 +218,6 @@ namespace NetworkGame.Client
                 playerInst.Dispose();
             }
             buffer.Dispose();
-
         }
 
     }

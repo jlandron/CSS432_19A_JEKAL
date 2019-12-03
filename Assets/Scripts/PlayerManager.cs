@@ -87,10 +87,10 @@ namespace NetworkGame
         {
             if (playerID == NetworkManager.Instance.PlayerID)
             {
-                Debug.Log("setting local player team number");
+                //Debug.Log("setting local player team number");
                 if (localPlayer == null)
                 {
-                    Debug.Log("Finding local player");
+                    //Debug.Log("Finding local player");
                     GameObject go = GameObject.FindGameObjectWithTag("Player");
                     localPlayer = go.GetComponent<Client.NetworkPlayer>();
                 }
@@ -160,15 +160,15 @@ namespace NetworkGame
         }
         internal void UpdateGame(byte[] data)
         {
-            Debug.Log("Entering update game");
+            //Debug.Log("Entering update game");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             _ = buffer.ReadInt(); //message type
             UpdateGameTime(buffer.ReadInt());
-            //int numMessages = buffer.ReadInt();
+            int numMessages = buffer.ReadInt();
             try
             {
-                for (int i = 0; i < NumberConnectedPlayers + 1; i++)
+                for (int i = 0; i < numMessages; i++)
                 {
                     ByteBuffer byteBuffer = new ByteBuffer();
                     int playerID = buffer.ReadInt();
@@ -180,23 +180,22 @@ namespace NetworkGame
                     byteBuffer.Write(buffer.ReadFloat()); //z
                     byteBuffer.Write(buffer.ReadFloat()); //w
                     byteBuffer.Write(buffer.ReadFloat()); //time
+                    int teamNum = buffer.ReadInt();
+                    byteBuffer.Write(teamNum);
                     if (playerID != NetworkManager.Instance.PlayerID)
                     {
-                        //------fix serverside-------
-                        //if (!ConnectedPlayers.ContainsKey(playerID))
-                        //{
-                        //    InstantiatePlayer(playerID, 1);
-                        //}
-                        //---------------------------
-                        //Debug.Log("processing player " + playerID + "'s movement");
+
+                        if (!ConnectedPlayers.ContainsKey(playerID))
+                        {
+                            Debug.Log("Player " + playerID + " not in game, Instantiating.");
+                            InstantiatePlayer(playerID, teamNum);
+                        }
+                        Debug.Log("processing player " + playerID + "'s movement");
                         if (ConnectedPlayers.ContainsKey(playerID))
                         {
-                            ConnectedPlayers[playerID].ReceiveMovementMessage(byteBuffer.ToArray());
+                            ConnectedPlayers[playerID].ReceiveStatusMessage(byteBuffer.ToArray());
                         }
-                        else
-                        {
-                            Debug.Log("Player " + playerID + " is not instantiated!");
-                        }
+
                     }
                 }
             }

@@ -180,7 +180,6 @@ namespace NetworkGame.Client
             PlayerName = playerName;
             loginClientTCP.CustomAwake();
         }
-        
         public void StartChatClient()
         {
             if (chatClientTCP != null)

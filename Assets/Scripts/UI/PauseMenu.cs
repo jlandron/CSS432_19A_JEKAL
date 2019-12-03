@@ -20,7 +20,7 @@ namespace NetworkGame.UI {
         void Update()
         {
 
-            if (Input.GetKeyDown(KeyCode.Escape) && GameManager.Instance.AllowPlayerInput)
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
                 if (!_isPaused)
                 {
@@ -31,10 +31,6 @@ namespace NetworkGame.UI {
                     ActivateObjects(false);
                 }
             }
-            if (_isPaused)
-            {
-                
-            }
         }
         internal void ActivateObjects(bool active)
         {
@@ -42,6 +38,7 @@ namespace NetworkGame.UI {
             {
                 child.gameObject.SetActive(active);
             }
+            GameManager.Instance.AllowPlayerInput = !active;
             _isPaused = active;
         }
 

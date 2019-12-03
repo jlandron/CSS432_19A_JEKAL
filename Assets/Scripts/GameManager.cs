@@ -14,6 +14,7 @@ namespace NetworkGame
 
         public static GameManager Instance { get; private set; }
         public bool AllowPlayerInput { get; internal set; }
+        private bool preloaded = false;
 
         //TODO: DO SOMETHING WITH THIS IN GAME
         public enum GameState
@@ -35,17 +36,16 @@ namespace NetworkGame
         private void Start()
         {
             Screen.SetResolution(1920, 1080, false);
+        }
+        private void Update()
+        {
             _currentScene = SceneManager.GetActiveScene().buildIndex;
-            if (_currentScene == 0)
+
+            if (_currentScene == 0 && !preloaded)
             {
-                SceneManager.LoadSceneAsync(1);
+                preloaded = true;
+                SceneManager.LoadScene(1);
             }
-#if UNITY_EDITOR
-            else
-            {
-                SceneManager.LoadSceneAsync(2);
-            }
-#endif
         }
 #if UNITY_EDITOR
         void LateUpdate()

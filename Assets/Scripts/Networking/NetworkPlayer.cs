@@ -72,11 +72,18 @@ namespace NetworkGame.Client
             {
                 item.material = materials[Team % materials.Length];
             }
-
+        }
+        private void OnTriggerStay(Collider other)
+        {
             if (GameManager.Instance.AllowPlayerInput && Input.GetKeyDown(KeyCode.E))
             {
                 //TODO: add actual tag message with distance/collision checking
-                NetworkManager.Instance.gameClientTCP.dataSender.SendTagMessage(0);
+                if (other.CompareTag("ExtPlayer"))
+                {
+                    int playerTagged = other.gameObject.GetComponent<NetworkPlayer>().playerID;
+                    Debug.Log("Tagged player " + playerTagged + "!");
+                    NetworkManager.Instance.gameClientTCP.dataSender.SendTagMessage(playerTagged);
+                }
             }
         }
 
@@ -100,12 +107,12 @@ namespace NetworkGame.Client
         private void SendNetworkMovement()
         {
             timeBetweenMovementEnd = Time.time;
-            SendMovementMessage(playerID, transform.position, transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart));
+            SendUpdateMessage(playerID, transform.position, transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart));
             canSendNetworkMovement = false;
         }
 
 
-        public void SendMovementMessage(int _playerID, Vector3 _position, Quaternion _rotation, float _timeTolerp)
+        public void SendUpdateMessage(int _playerID, Vector3 _position, Quaternion _rotation, float _timeTolerp)
         {
 
             ByteBuffer buffer = new ByteBuffer();
@@ -121,12 +128,13 @@ namespace NetworkGame.Client
             buffer.Write(_rotation.w);
             //time information
             buffer.Write(_timeTolerp);
+            buffer.Write(Team);
             NetworkManager.Instance.gameClientTCP.dataSender.SendTransformMessage(buffer.ToArray());
             buffer.Dispose();
         }
 
 
-        public void ReceiveMovementMessage(byte[] data)
+        public void ReceiveStatusMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
@@ -135,6 +143,7 @@ namespace NetworkGame.Client
             Quaternion _rotation = new Quaternion(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
             //read lerp time
             float _timeToLerp = buffer.ReadFloat();
+            Team = buffer.ReadInt();
             buffer.Dispose();
 
             lastRealPosition = realPosition;

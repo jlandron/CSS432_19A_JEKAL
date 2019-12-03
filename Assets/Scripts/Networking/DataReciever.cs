@@ -98,11 +98,9 @@ namespace NetworkGame.Client
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             _ = buffer.ReadInt();
-            NetworkManager.Instance.ChatServerIP = buffer.ReadString();
             NetworkManager.Instance.ChatServerPort = buffer.ReadInt();
-            NetworkManager.Instance.GameServerIP = buffer.ReadString();
             NetworkManager.Instance.GameServerPort = buffer.ReadInt();
-            NetworkManager.Instance.SetLocalPlayerID(buffer.ReadInt());
+            NetworkManager.Instance.PlayerID = buffer.ReadInt();
             buffer.Dispose();
             NetworkManager.Instance.LoginSuccess = true;
         }

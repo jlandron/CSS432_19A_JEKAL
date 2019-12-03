@@ -16,11 +16,7 @@ namespace NetworkGame.Client
         [SerializeField]
         private int loginServerPort = -1;
         [SerializeField]
-        private string chatServerIP;
-        [SerializeField]
         private int chatServerPort;
-        [SerializeField]
-        private string gameServerIP;
         [SerializeField]
         private int gameServerPort;
         //login connection
@@ -233,9 +229,7 @@ namespace NetworkGame.Client
             PlayerID = _playerID;
         }
 
-        public string ChatServerIP { get => ChatServerIP1; set => ChatServerIP1 = value; }
         public int ChatServerPort { get => ChatServerPort1; set => ChatServerPort1 = value; }
-        public string GameServerIP { get => GameServerIP1; set => GameServerIP1 = value; }
         public int GameServerPort { get => GameServerPort1; set => GameServerPort1 = value; }
         public bool ShouldKillLogin { get => shouldKillLogin; set => shouldKillLogin = value; }
         public bool ShouldKillChat { get => shouldKillChat; set => shouldKillChat = value; }
@@ -249,9 +243,7 @@ namespace NetworkGame.Client
         public bool GameIsReady { get => gameIsReady; set => gameIsReady = value; }
         public string LoginServerIP { get => loginServerIP; set => loginServerIP = value; }
         public int LoginServerPort { get => loginServerPort; set => loginServerPort = value; }
-        public string ChatServerIP1 { get => chatServerIP; set => chatServerIP = value; }
         public int ChatServerPort1 { get => chatServerPort; set => chatServerPort = value; }
-        public string GameServerIP1 { get => gameServerIP; set => gameServerIP = value; }
         public int GameServerPort1 { get => gameServerPort; set => gameServerPort = value; }
         public bool GameIsLaunching { get; private set; }
     }

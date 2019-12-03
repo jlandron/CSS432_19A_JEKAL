@@ -396,6 +396,35 @@ namespace Jekal
                     CloseChatConnection(p.Value);
                 }
             }
+
+            byteBuffer.Dispose();
+        }
+
+        private void TeamMessage(ChatMessage chatMessage)
+        {
+            var player = Players.GetPlayer(chatMessage.Source);
+            var team = Games.GetGame(player.GameID).GetTeam(player.TeamID);
+            var byteBuffer = new ByteBuffer();
+            byteBuffer.Write((int)ChatMessage.Messages.TMSG);
+            byteBuffer.Write(player.Name);
+            byteBuffer.Write(player.SessionID);
+            byteBuffer.Write(chatMessage.Message);
+
+            foreach (var p in team.GetPlayers())
+            {
+                if (!p.ChatEnabled)
+                {
+                    // Chat socket closed
+                    continue;
+                }
+
+                // Send Team Message
+                if (!p.SendChatMessage(byteBuffer))
+                {
+                    CloseChatConnection(player);
+                }
+            }
+
             byteBuffer.Dispose();
         }
 
@@ -415,6 +444,11 @@ namespace Jekal
 
             foreach (var p in Players.GetAllPlayers())
             {
+                if (!p.Value.ChatEnabled)
+                {
+                    continue;
+                }
+
                 if (!p.Value.SendChatMessage(byteBuffer))
                 {
                     CloseChatConnection(p.Value);
@@ -432,27 +466,20 @@ namespace Jekal
             byteBuffer.Write(chatMessage.Destination);
             byteBuffer.Write(chatMessage.Message);
 
+            // TODO: Check for player online
+            // TODO: Send source player PMSG as well
+
             var player = Players.GetPlayer(chatMessage.Destination);
+
             if (!player.SendChatMessage(byteBuffer))
             {
                 CloseChatConnection(player);
             }
+
             byteBuffer.Dispose();
         }
 
-        private void TeamMessage(ChatMessage chatMessage)
-        {
-            var player = Players.GetPlayer(chatMessage.Source);
-            var team = Games.GetGame(player.GameID).GetTeam(player.TeamID);
-            var byteBuffer = new ByteBuffer();
-            byteBuffer.Write((int)ChatMessage.Messages.TMSG);
-            byteBuffer.Write(player.Name);
-            byteBuffer.Write(player.SessionID);
-            byteBuffer.Write(chatMessage.Message);
-            team.SendChatMessage(byteBuffer);
-            byteBuffer.Dispose();
-        }
-        private void CloseChatConnection(Player player)
+        public void CloseChatConnection(Player player)
         {
             _closedChatConnections.Add(player);
         }

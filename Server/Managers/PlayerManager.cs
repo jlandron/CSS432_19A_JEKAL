@@ -6,6 +6,8 @@ namespace Jekal.Managers
 {
     public class PlayerManager
     {
+        private readonly object _playerManagerLock = new object();
+
         private readonly Dictionary<int, Player> _players;
         private int _nextSessionId = 0;
 
@@ -14,34 +16,47 @@ namespace Jekal.Managers
             _players = new Dictionary<int, Player>();
         }
 
-        public void AddPlayer(int sessionId, Player player)
-        {
-            _players.Add(sessionId, player);
-        }
-
         public Player GetPlayer(string playerName)
         {
-            if (!PlayerExists(playerName))
+            Player player = null;
+
+            lock (_playerManagerLock)
             {
-                return null;
+                if (!PlayerExists(playerName))
+                {
+                    return null;
+                }
+
+                player = _players.First(p => p.Value.Name.Equals(playerName, System.StringComparison.InvariantCultureIgnoreCase)).Value;
             }
 
-            return _players.First(p => p.Value.Name.Equals(playerName, System.StringComparison.InvariantCultureIgnoreCase)).Value;
+            return player;
         }
 
         public Player GetPlayer(int playerId)
         {
-            if (!_players.ContainsKey(playerId))
+            Player player = null;
+
+            lock (_playerManagerLock)
             {
-                return null;
+                if (_players.ContainsKey(playerId))
+                {
+                    player = _players[playerId];
+                }
             }
 
-            return _players[playerId];
+            return player;
         }
 
         public bool PlayerExists(string playerName)
         {
-            var players = _players.Where(p => p.Value.Name.Equals(playerName, System.StringComparison.InvariantCultureIgnoreCase)).ToList();
+            List<KeyValuePair<int, Player>> players;
+
+            lock (_playerManagerLock)
+            {
+                players = _players.Where(p => p.Value.Name.Equals(playerName, System.StringComparison.InvariantCultureIgnoreCase)).ToList();
+            }
+
             return players.Count != 0;
         }
 
@@ -52,13 +67,32 @@ namespace Jekal.Managers
                 return false;
             }
 
-            return _players[sessionId].Name.Equals(playerName, System.StringComparison.InvariantCultureIgnoreCase);
+            Player player = null;
+
+            lock (_playerManagerLock)
+            {
+                player = _players[sessionId];
+            }
+
+            bool valid = false;
+            if (player != null)
+            {
+                valid = player.Name.Equals(playerName, System.StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            return valid;
         }
 
         public bool SessionExists(int sessionId)
         {
-            var session = _players.Where(p => p.Value.Equals(sessionId)).ToList();
-            return session.Count != 0;
+            List<KeyValuePair<int, Player>> sessions;
+
+            lock (_playerManagerLock)
+            {
+                sessions = _players.Where(p => p.Value.Equals(sessionId)).ToList();
+            }
+
+            return sessions.Count != 0;
         }
 
         public Player CreateSession(string playerName)
@@ -83,7 +117,12 @@ namespace Jekal.Managers
                 Name = playerName,
                 SessionID = _nextSessionId++
             };
-            _players.Add(newPlayer.SessionID, newPlayer);
+
+            lock (_playerManagerLock)
+            {
+                _players.Add(newPlayer.SessionID, newPlayer);
+            }
+
             return newPlayer;
         }
 
@@ -94,9 +133,12 @@ namespace Jekal.Managers
 
         public void RemovePlayer(Player player)
         {
-            if (!player.IsChatConnected() && !player.IsGameConnected())
+            lock (_playerManagerLock)
             {
-                _players.Remove(player.SessionID);
+                if (!player.ChatEnabled && !player.GameEnabled)
+                {
+                    _players.Remove(player.SessionID);
+                }
             }
         }
     }

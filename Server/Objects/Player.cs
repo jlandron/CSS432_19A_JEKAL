@@ -5,6 +5,8 @@ namespace Jekal.Objects
 {
     public class Player
     {
+        private readonly object _playerLock = new object();
+
         const int BUFFER_SIZE = 4096;
 
         // Player Data
@@ -50,26 +52,6 @@ namespace Jekal.Objects
             Name = string.Empty;
             SessionID = -1;
             
-        }
-
-        public bool IsChatConnected()
-        {
-            if (_chatSocket == null)
-            {
-                return false;
-            }
-
-            return _chatSocket.Connected;
-        }
-
-        public bool IsGameConnected()
-        {
-            if (_gameSocket == null)
-            {
-                return false;
-            }
-
-            return _gameSocket.Connected;
         }
 
         public void AssignChatConnection(TcpClient connection, AsyncCallback callback)
@@ -181,6 +163,7 @@ namespace Jekal.Objects
             if (!success)
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending chat message, closing connection.");
+                CloseChat();
                 ChatEnabled = false;
             }
 
@@ -198,6 +181,7 @@ namespace Jekal.Objects
             if (!success)
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending game message, closing connection.");
+                CloseGame();
                 GameEnabled = false;
             }
 
@@ -206,6 +190,8 @@ namespace Jekal.Objects
 
         private bool SendMessage(TcpClient client, NetworkStream stream, ByteBuffer buffer)
         {
+            bool success = true;
+
             try
             {
                 stream.Write(buffer.ToArray(), 0, buffer.Count());
@@ -213,36 +199,51 @@ namespace Jekal.Objects
             }
             catch (Exception)
             {
-                stream.Close();
-                client.Close();
-                return false;
+                success = false;
             }
-            return true;
+
+            return success;
         }
 
         public void CloseChat(ByteBuffer buffer = null)
         {
-            if (_chatStream != null)
+            try
             {
-                _chatStream.Close();
+                if (buffer != null)
+                {
+                    _chatStream.Write(buffer.ToArray(), 0, buffer.Count());
+                    _chatStream.Flush();
+                }
             }
-
-            if (_chatSocket != null)
+            catch (Exception ex)
             {
-                _chatSocket.Close();
+                Console.WriteLine($"PLAYER {Name} : Error closing chat stream or socket on close request, ignoring...");
+            }
+            finally
+            {
+                _chatStream?.Close();
+                _chatSocket?.Close();
             }
         }
 
-        public void CloseGame()
+        public void CloseGame(ByteBuffer buffer = null)
         {
-            if (_gameStream != null)
+            try
             {
-                _gameStream.Close();
+                if (buffer != null)
+                {
+                    _gameStream.Write(buffer.ToArray(), 0, buffer.Count());
+                    _gameStream.Flush();
+                }
             }
-
-            if (_gameSocket != null)
+            catch (Exception ex)
             {
-                _gameSocket.Close();
+                Console.WriteLine($"PLAYER {Name} : Error closing game stream or socket on close request, ignoring...");
+            }
+            finally
+            {
+                _gameStream?.Close();
+                _gameSocket?.Close();
             }
         }
     }

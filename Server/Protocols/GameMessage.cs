@@ -17,7 +17,8 @@ namespace Jekal.Protocols
             SCORE,
             GAMEEND,
             GAMESTART,
-            GAMELEAVE
+            GAMELEAVE,
+            TEAMLIST
         }
 
         public ByteBuffer Buffer { get; set; }
@@ -95,8 +96,8 @@ namespace Jekal.Protocols
                     Lerp = Buffer.ReadFloat();
                     break;
                 case Messages.TAG:
-                    Source = Buffer.ReadString();
-                    Target = Buffer.ReadString();
+                    SourceId = Buffer.ReadInt();
+                    TargetId = Buffer.ReadInt();
                     break;
                 case Messages.STATUS:
                     GameTime = Buffer.ReadInt();
@@ -127,6 +128,18 @@ namespace Jekal.Protocols
                 case Messages.GAMELEAVE:
                     Source = Buffer.ReadString();
                     SourceId = Buffer.ReadInt();
+                    break;
+                case Messages.TEAMLIST:
+                    PlayerCount = Buffer.ReadInt();
+                    for (int i = 0; i < PlayerCount; i++)
+                    {
+                        var player = new Player
+                        {
+                            SessionID = Buffer.ReadInt(),
+                            TeamID = Buffer.ReadInt()
+                        };
+                        Players.Add(player);
+                    }
                     break;
                 default:
                     return false;

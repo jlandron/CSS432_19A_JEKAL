@@ -26,6 +26,13 @@ namespace Jekal.Objects
         public bool ReadyToStart { get; set; }
         public int GameId { get; set; }
 
+        public List<Player> Players
+        {
+            get
+            {
+                return _players;
+            }
+        }
 
         public Game(JekalGame jekalGame, int id)
         {

@@ -12,7 +12,7 @@ namespace NetworkGame.Client
         [Header("Servers")]
         //TODO : make these settable in game menu
         [SerializeField]
-        private string loginServerIP;
+        private string serverIP;
         [SerializeField]
         private int loginServerPort = -1;
         [SerializeField]
@@ -66,7 +66,7 @@ namespace NetworkGame.Client
                 return;
             }
             Instance = this;
-            if (LoginServerIP == null)
+            if (ServerIP == null)
             {
                 Debug.LogError("Login IP not set");
             }
@@ -241,7 +241,7 @@ namespace NetworkGame.Client
         public bool GameRequestSent { get => gameRequestSent; set => gameRequestSent = value; }
         public bool ChatIsReady { get => chatIsReady; set => chatIsReady = value; }
         public bool GameIsReady { get => gameIsReady; set => gameIsReady = value; }
-        public string LoginServerIP { get => loginServerIP; set => loginServerIP = value; }
+        public string ServerIP { get => serverIP; set => serverIP = value; }
         public int LoginServerPort { get => loginServerPort; set => loginServerPort = value; }
         public int ChatServerPort1 { get => chatServerPort; set => chatServerPort = value; }
         public int GameServerPort1 { get => gameServerPort; set => gameServerPort = value; }

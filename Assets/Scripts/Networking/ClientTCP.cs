@@ -33,13 +33,13 @@ namespace NetworkGame.Client
             switch (this.Type)
             {
                 case ClientTypes.LOGIN:
-                    InitNetworking(NetworkManager.Instance.LoginServerIP, NetworkManager.Instance.LoginServerPort);
+                    InitNetworking(NetworkManager.Instance.ServerIP, NetworkManager.Instance.LoginServerPort);
                     break;
                 case ClientTypes.CHAT:
-                    InitNetworking(NetworkManager.Instance.LoginServerIP, NetworkManager.Instance.ChatServerPort);
+                    InitNetworking(NetworkManager.Instance.ServerIP, NetworkManager.Instance.ChatServerPort);
                     break;
                 case ClientTypes.GAME:
-                    InitNetworking(NetworkManager.Instance.LoginServerIP, NetworkManager.Instance.GameServerPort);
+                    InitNetworking(NetworkManager.Instance.ServerIP, NetworkManager.Instance.GameServerPort);
                     break;
             }
         }

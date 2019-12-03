@@ -48,7 +48,7 @@ namespace NetworkGame
         void Update()
         {
             byte[] playerToSpawnData;
-            if (playersToSpawn.TryDequeue(out playerToSpawnData))
+            while (playersToSpawn.TryDequeue(out playerToSpawnData))
             {
                 ByteBuffer buffer = new ByteBuffer();
                 buffer.Write(playerToSpawnData);
@@ -95,7 +95,6 @@ namespace NetworkGame
                     localPlayer = go.GetComponent<Client.NetworkPlayer>();
                 }
                 localPlayer.Team = teamNum;
-                return;
             }
             else if (!ConnectedPlayers.ContainsKey(playerID))
             {
@@ -193,6 +192,10 @@ namespace NetworkGame
                         if (ConnectedPlayers.ContainsKey(playerID))
                         {
                             ConnectedPlayers[playerID].ReceiveMovementMessage(byteBuffer.ToArray());
+                        }
+                        else
+                        {
+                            Debug.Log("Player " + playerID + " is not instantiated!");
                         }
                     }
                 }

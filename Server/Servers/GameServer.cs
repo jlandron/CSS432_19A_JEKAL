@@ -121,6 +121,15 @@ namespace Jekal.Servers
                         buffer.Write(player.SessionID);
                         buffer.Write(player.TeamID);
                         game.SendMessageToGame(buffer);
+                        buffer.Clear();
+                        buffer.Write((int)GameMessage.Messages.TEAMLIST);
+                        buffer.Write(game.Players.Count);
+                        foreach (var p in game.Players)
+                        {
+                            buffer.Write(p.SessionID);
+                            buffer.Write(p.TeamID);
+                        }
+                        game.SendMessageToGame(buffer);
 
                         if (game.ReadyToStart)
                         {

@@ -95,6 +95,7 @@ namespace NetworkGame
                     localPlayer = go.GetComponent<Client.NetworkPlayer>();
                 }
                 localPlayer.Team = teamNum;
+                return;
             }
             else if (!ConnectedPlayers.ContainsKey(playerID))
             {
@@ -189,7 +190,10 @@ namespace NetworkGame
                         //}
                         //---------------------------
                         //Debug.Log("processing player " + playerID + "'s movement");
-                        ConnectedPlayers[playerID].ReceiveMovementMessage(byteBuffer.ToArray());
+                        if (ConnectedPlayers.ContainsKey(playerID))
+                        {
+                            ConnectedPlayers[playerID].ReceiveMovementMessage(byteBuffer.ToArray());
+                        }
                     }
                 }
             }

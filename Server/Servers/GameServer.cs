@@ -11,6 +11,8 @@ namespace Jekal.Servers
 {
     internal class GameServer : IServer
     {
+        private readonly object _gameServerLock = new object();
+
         const int BUFFER_SIZE = 4096;
         private readonly JekalGame _jekal;
         private readonly IPAddress _ipAddress;
@@ -95,8 +97,7 @@ namespace Jekal.Servers
                 }
                 else
                 {
-                    object addPlayerLock = new object();
-                    lock (addPlayerLock)
+                    lock (_gameServerLock)
                     {
                         Console.WriteLine($"GAMESERVER: JOIN {playerName}; SESSION: {sessionId}");
                         Player player = _jekal.Players.GetPlayer(playerName);
@@ -122,21 +123,21 @@ namespace Jekal.Servers
                         buffer.Write(player.TeamID);
                         game.SendMessageToGame(buffer);
                         buffer.Clear();
-                        buffer.Write((int)GameMessage.Messages.TEAMLIST);
-                        buffer.Write(game.Players.Count);
-                        foreach (var p in game.Players)
-                        {
-                            buffer.Write(p.SessionID);
-                            buffer.Write(p.TeamID);
-                        }
-                        game.SendMessageToGame(buffer);
-
+                        //buffer.Write((int)GameMessage.Messages.TEAMLIST);
+                        //buffer.Write(game.Players.Count);
+                        //foreach (var p in game.Players)
+                        //{
+                        //    buffer.Write(p.SessionID);
+                        //    buffer.Write(p.TeamID);
+                        //}
+                        //game.SendMessageToGame(buffer);
+                        buffer.Dispose();
                         if (game.ReadyToStart)
                         {
                             Task gameTask = game.Start();
                             _jekal.Games.AddGame(gameTask);
                         }
-                    }
+                    }  // End lock
                 }
             }
             else

@@ -61,7 +61,6 @@
     <Compile Include="Servers\ChatServer.cs" />
     <Compile Include="Servers\GameServer.cs" />
     <Compile Include="Servers\IServer.cs" />
-    <Compile Include="Servers\LoginServer.cs" />
     <Compile Include="Servers\TcpServer.cs" />
   </ItemGroup>
   <ItemGroup>

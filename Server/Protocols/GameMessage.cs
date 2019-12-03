@@ -114,6 +114,7 @@ namespace Jekal.Protocols
                         player.RotZ = Buffer.ReadFloat();
                         player.RotW = Buffer.ReadFloat();
                         player.Lerp = Buffer.ReadFloat();
+                        player.TeamID = Buffer.ReadInt();
                         Players.Add(player);
                     }
                     break;

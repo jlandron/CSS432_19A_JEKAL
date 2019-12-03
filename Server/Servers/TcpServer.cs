@@ -9,20 +9,25 @@ namespace Jekal.Servers
 {
     public class TcpServer
     {
-        public delegate Task ConnectionHandler(TcpClient newConnection);
-        private ConnectionHandler _connectionHandler;
+        public delegate Task ConnectionHandlerMethod(TcpClient newConnection);
+        public ConnectionHandlerMethod ConnectionHandler;
 
         public delegate void ShutDownHandler(bool error, string message = "");
         public event ShutDownHandler ShutDownEvent;
 
         private TcpListener _listener;
         private List<Task> _incomingConnections;
+        private string _name = "TcpServer";
+        private bool _error = false;
+        private string _errMsg = string.Empty;
 
-        public void Initialize(IPAddress ipAddr, int port)
+        public void Initialize(IPAddress ipAddr, int port, string name)
         {
             _incomingConnections = new List<Task>();
             _listener = new TcpListener(ipAddr, port);
-            _connectionHandler = HandleConnection;
+            ConnectionHandler = HandleConnection;
+            _name = name;
+            Console.WriteLine($"{_name}: Server initialized to: {ipAddr}:{port}");
         }
 
         public async Task StartServer(CancellationToken token)
@@ -46,6 +51,7 @@ namespace Jekal.Servers
             // Register the token and start the server
             token.Register(_listener.Stop);
             _listener.Start();
+            Console.WriteLine($"{_name}: Server started...");
 
             while (!token.IsCancellationRequested)
             {
@@ -53,23 +59,27 @@ namespace Jekal.Servers
                 {
                     // Accept new connection
                     var newConnection = await _listener.AcceptTcpClientAsync();
-                    var connTask = _connectionHandler(newConnection);
+                    var connTask = ConnectionHandler(newConnection);
                     _incomingConnections.Add(connTask);
                 }
                 catch (ObjectDisposedException)
                 {
                     // Wait for connections to finish
+                    Console.WriteLine($"{_name}: Server stopping, waiting to process connections...");
                     Task.WaitAll(_incomingConnections.ToArray());
                 }
                 catch (Exception ex)
                 {
                     // Signal shutdown with error
-                    ShutDownEvent.Invoke(true, ex.Message);
+                    _error = true;
+                    _errMsg = ex.Message;
+                    break;
                 }
             }
 
-            // Signal clean shutdown
-            ShutDownEvent.Invoke(false);
+            // Signal shutdown
+            ShutDownEvent.Invoke(_error, _errMsg);
+            Console.WriteLine($"{_name}: Server stopped.");
         }
 
         private static Task HandleConnection(TcpClient conn)

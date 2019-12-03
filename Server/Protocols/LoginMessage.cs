@@ -5,9 +5,7 @@ namespace Jekal.Protocols
     public class LoginMessage
     {
         public string Player { get; set; }
-        public string ChatIP { get; set; }
         public int ChatPort { get; set; }
-        public string GameIP { get; set; }
         public int GamePort { get; set; }
         public int SessionID { get; set; }
         public string Message { get; set; }

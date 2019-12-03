@@ -1,4 +1,5 @@
-﻿using Common.Protocols;
+﻿using System;
+using Common.Protocols;
 using NetworkGame.UI;
 using UnityEngine;
 
@@ -90,6 +91,7 @@ namespace NetworkGame.Client
             //Debug.Log("Recieved chat close signal");
             NetworkManager.Instance.ShouldKillChat = true;
         }
+
         //////// Login server messages ////////
 
         internal void HandleAuthMessage(byte[] data)
@@ -152,7 +154,12 @@ namespace NetworkGame.Client
             //Debug.Log("Handling team join messages");
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
-            PlayerManager.Instance.playersToSpawn.Enqueue(buffer.ToArray());
+            _ = buffer.ReadInt(); //eliminate message type
+            ByteBuffer playerInst = new ByteBuffer();
+            playerInst.Write(buffer.ReadInt()); //playerID
+            playerInst.Write(buffer.ReadInt()); //TeamID
+            PlayerManager.Instance.playersToSpawn.Enqueue(playerInst.ToArray());
+            playerInst.Dispose();
             buffer.Dispose();
         }
         internal void HandleTeamSwitchMessage(byte[] data)
@@ -190,6 +197,26 @@ namespace NetworkGame.Client
             PlayerManager.Instance.playersToRemove.Enqueue(buffer.ToArray());
             buffer.Dispose();
         }
+
+
+        internal void HandleTeamListMessage(byte[] data)
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
+            _ = buffer.ReadInt();
+            int numPlayersInGame = buffer.ReadInt();
+            for (int i = 0; i < numPlayersInGame; i++)
+            {
+                ByteBuffer playerInst = new ByteBuffer();
+                playerInst.Write(buffer.ReadInt());//playerID
+                playerInst.Write(buffer.ReadInt());//teamNum
+                PlayerManager.Instance.playersToSpawn.Enqueue(playerInst.ToArray());
+                playerInst.Dispose();
+            }
+            buffer.Dispose();
+
+        }
+
     }
 }
 

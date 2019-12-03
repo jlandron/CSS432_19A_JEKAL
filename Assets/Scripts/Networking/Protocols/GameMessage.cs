@@ -15,6 +15,7 @@
             GAMEEND,
             GAMESTART,
             GAMELEAVE,
+            TEAMLIST
         }
     }
 }

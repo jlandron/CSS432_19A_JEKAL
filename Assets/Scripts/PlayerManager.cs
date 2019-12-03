@@ -52,7 +52,6 @@ namespace NetworkGame
             {
                 ByteBuffer buffer = new ByteBuffer();
                 buffer.Write(playerToSpawnData);
-                _ = buffer.ReadInt();
                 int playerID = buffer.ReadInt();
                 int teamNum = buffer.ReadInt();
                 InstantiatePlayer(playerID, teamNum);
@@ -184,12 +183,12 @@ namespace NetworkGame
                     if (playerID != NetworkManager.Instance.PlayerID)
                     {
                         //------fix serverside-------
-                        if (!ConnectedPlayers.ContainsKey(playerID))
-                        {
-                            InstantiatePlayer(playerID, 1);
-                        }
+                        //if (!ConnectedPlayers.ContainsKey(playerID))
+                        //{
+                        //    InstantiatePlayer(playerID, 1);
+                        //}
                         //---------------------------
-                        Debug.Log("processing player " + playerID + "'s movement");
+                        //Debug.Log("processing player " + playerID + "'s movement");
                         ConnectedPlayers[playerID].ReceiveMovementMessage(byteBuffer.ToArray());
                     }
                 }

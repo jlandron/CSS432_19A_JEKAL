@@ -57,6 +57,7 @@ namespace NetworkGame.Client
                     packets.Add((int)GameMessage.Messages.GAMEEND, clientTCP.dataReciever.HandleGameEndMessage);
                     packets.Add((int)GameMessage.Messages.GAMESTART, clientTCP.dataReciever.HandleGameStartMessage);
                     packets.Add((int)GameMessage.Messages.GAMELEAVE, clientTCP.dataReciever.HandleRemoveMessage);
+                    packets.Add((int)GameMessage.Messages.TEAMLIST, clientTCP.dataReciever.HandleTeamListMessage);
                     //Debug.Log("Game packets setup");
                     break;
                 default:

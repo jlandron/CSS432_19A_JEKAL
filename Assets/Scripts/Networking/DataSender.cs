@@ -100,7 +100,6 @@ namespace NetworkGame.Client
             buffer.Write(playerTagged);
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
         }
-
         public void SendGameLeaveMessage()
         {
             ByteBuffer buffer = new ByteBuffer();

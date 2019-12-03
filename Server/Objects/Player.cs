@@ -5,8 +5,6 @@ namespace Jekal.Objects
 {
     public class Player
     {
-        private readonly object _playerLock = new object();
-
         const int BUFFER_SIZE = 4096;
 
         // Player Data
@@ -159,7 +157,7 @@ namespace Jekal.Objects
                 return false;
             }
 
-            var success = SendMessage(_chatSocket, _chatStream, buffer);
+            var success = SendMessage(_chatStream, buffer);
             if (!success)
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending chat message, closing connection.");
@@ -177,7 +175,7 @@ namespace Jekal.Objects
                 return false;
             }
 
-            var success = SendMessage(_gameSocket, _gameStream, buffer);
+            var success = SendMessage(_gameStream, buffer);
             if (!success)
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending game message, closing connection.");
@@ -188,7 +186,7 @@ namespace Jekal.Objects
             return success;
         }
 
-        private bool SendMessage(TcpClient client, NetworkStream stream, ByteBuffer buffer)
+        private bool SendMessage(NetworkStream stream, ByteBuffer buffer)
         {
             bool success = true;
 
@@ -215,7 +213,7 @@ namespace Jekal.Objects
                     _chatStream.Flush();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Console.WriteLine($"PLAYER {Name} : Error closing chat stream or socket on close request, ignoring...");
             }
@@ -236,7 +234,7 @@ namespace Jekal.Objects
                     _gameStream.Flush();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Console.WriteLine($"PLAYER {Name} : Error closing game stream or socket on close request, ignoring...");
             }

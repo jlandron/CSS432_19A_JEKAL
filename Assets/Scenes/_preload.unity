@@ -217,19 +217,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 604086555, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
       propertyPath: startingPositions.Array.data[0].y
-      value: 0
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 604086555, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
       propertyPath: startingPositions.Array.data[1].y
-      value: -2.118068e-39
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 604086555, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
       propertyPath: startingPositions.Array.data[1].z
-      value: 4.15e-43
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 604086555, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
       propertyPath: startingPositions.Array.data[0].x
-      value: 0
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 604086555, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
+      propertyPath: startingPositions.Array.data[0].z
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2065246878, guid: 1f9ea716571fe2b4e9c4d3b2b1662c58, type: 3}
       propertyPath: LoginServerIP

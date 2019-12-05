@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PauseMenu
   - ExtPlayer
+  - Canvas
   layers:
   - Default
   - TransparentFX
@@ -15,7 +16,7 @@ TagManager:
   - UI
   - 
   - 
-  - 
+  - Minimap
   - 
   - 
   - 

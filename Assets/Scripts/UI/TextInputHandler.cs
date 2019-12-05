@@ -1,8 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace GAME.UI {
-    public class TextInputHandler : MonoBehaviour {
+namespace NetworkGame.UI
+{
+    public class TextInputHandler : MonoBehaviour
+    {
+        public string _userName;
+        public string _serverIP;
+
+        public void ServerIP(string s)
+        {
+            _serverIP = s;
+        }
+        public void UserName(string s)
+        {
+            _userName = s;
+        }
+
     }
 }

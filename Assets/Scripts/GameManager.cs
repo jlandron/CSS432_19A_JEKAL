@@ -1,75 +1,58 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour {
-    [SerializeField]
-    private int _currentScene;
-    private bool isPaused = false;
-    public GameObject pauseMenu = null;
+namespace NetworkGame
+{
+    public class GameManager : MonoBehaviour
+    {
+        [SerializeField]
+        private int _currentScene;
 
-    public bool IsPaused { get => isPaused; set => isPaused = value; }
+        [SerializeField]
+        private GameState gameState;
+        public GameState MyGameState { get => gameState; set => gameState = value; }
 
-    private void Start( ) {
-        Screen.SetResolution( 1920, 1080, false );
-        _currentScene = SceneManager.GetActiveScene( ).buildIndex;
-    }
+        public static GameManager Instance { get; private set; }
+        public bool AllowPlayerInput { get; internal set; }
+        private bool preloaded = false;
 
-
-    private void Update( ) {
-        _currentScene = SceneManager.GetActiveScene( ).buildIndex;
-        switch( _currentScene ) {
-            case 0: //_preload scene
-            //SceneManager.LoadScene( 1 );
-            break;
-      
-            case 1: // login scene
-            HandleLogin( );
-            break;
-
-            case 2: // Create Account scene
-            HandleCreateAccount( );
-            break;
-
-            case 3: // Game scene
-            HandleGame( );
-            break;
-
-            default:
-            break;
+        //TODO: DO SOMETHING WITH THIS IN GAME
+        public enum GameState
+        {
+            WAIT = 1,
+            START,
+            PLAYING,
+            END
         }
-    }
-
-    private void HandleLogin( ) {
-        //Set flags in NetworkManager
-    }
-
-    private void HandleCreateAccount( ) {
-        //Set flags in NetworkManager
-    }
-
-    private void HandleGame( ) {
-        if(pauseMenu == null ) {
-            pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
-            pauseMenu.SetActive( false );
+        private void Awake()
+        {
+            AllowPlayerInput = true;
+            if (Instance != null)
+            {
+                return;
+            }
+            Instance = this;
         }
-        if( Input.GetKeyDown( KeyCode.Escape ) ) {
-            if( IsPaused ) {
-                Resume( );
-            } else {
-                ShowPauseMenu( );
+        private void Start()
+        {
+            Screen.SetResolution(1920, 1080, false);
+        }
+        private void Update()
+        {
+            _currentScene = SceneManager.GetActiveScene().buildIndex;
+
+            if (_currentScene == 0 && !preloaded)
+            {
+                preloaded = true;
+                SceneManager.LoadScene(1);
             }
         }
-    }
+#if UNITY_EDITOR
+        void LateUpdate()
+        {
+            Cursor.visible = true;
+        }
+#endif
 
-    private void ShowPauseMenu( ) {
-        IsPaused = true;
-        pauseMenu.SetActive( true );
     }
-
-    private void Resume( ) {
-        IsPaused = false;
-        pauseMenu.SetActive( false );
-    }
-    
 }

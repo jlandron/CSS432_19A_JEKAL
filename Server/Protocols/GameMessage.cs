@@ -1,0 +1,151 @@
+﻿using Jekal.Objects;
+using System.Collections.Generic;
+
+namespace Jekal.Protocols
+{
+    public class GameMessage
+    {
+        public enum Messages
+        {
+            GAMEJOIN = 1,
+            REJECT,
+            TEAMJOIN,
+            TEAMSWITCH,
+            UPDATE,
+            TAG,
+            STATUS,
+            SCORE,
+            GAMEEND,
+            GAMESTART,
+            GAMELEAVE,
+            TEAMLIST
+        }
+
+        public ByteBuffer Buffer { get; set; }
+        public Messages MessageType { get; set; }
+        public string Source { get; set; }
+        public int SourceId { get; set; }
+        public string Target { get; set; }
+        public int TargetId { get; set; }
+        public string Message { get; set; }
+        public int CurrentTeamId { get; set; }
+        public int NewTeamId { get; set; }
+        public int GameTime { get; set; }
+        public float PosX { get; set; }
+        public float PosY { get; set; }
+        public float PosZ { get; set; }
+        public float RotX { get; set; }
+        public float RotY { get; set; }
+        public float RotZ { get; set; }
+        public float RotW { get; set; }
+        public float Lerp { get; set; }
+        public List<Player> Players { get; set; }
+        public int PlayerCount { get; set; }
+
+
+        public GameMessage()
+        {
+            Buffer = new ByteBuffer();
+            Players = new List<Player>();
+        }
+
+        public bool Parse()
+        {
+            // Just to be safe
+            Players.Clear();
+
+            // Check to make sure we have a message
+            if (Buffer.Length() < sizeof(int))
+            {
+                return false;
+            }
+
+            // Parse the type of message
+            int msgType = Buffer.ReadInt();
+            MessageType = (Messages)msgType;
+
+            switch (MessageType)
+            {
+                case Messages.GAMEJOIN:
+                    Source = Buffer.ReadString();
+                    SourceId = Buffer.ReadInt();
+                    break;
+                case Messages.REJECT:
+                    Message = Buffer.ReadString();
+                    break;
+                case Messages.TEAMJOIN:
+                    SourceId = Buffer.ReadInt();
+                    CurrentTeamId = Buffer.ReadInt();
+                    break;
+                case Messages.TEAMSWITCH:
+                    SourceId = Buffer.ReadInt();
+                    Target = Buffer.ReadString();
+                    TargetId = Buffer.ReadInt();
+                    CurrentTeamId = Buffer.ReadInt();
+                    NewTeamId = Buffer.ReadInt();
+                    break;
+                case Messages.UPDATE:
+                    SourceId = Buffer.ReadInt();
+                    PosX = Buffer.ReadFloat();
+                    PosY = Buffer.ReadFloat();
+                    PosZ = Buffer.ReadFloat();
+                    RotX = Buffer.ReadFloat();
+                    RotY = Buffer.ReadFloat();
+                    RotZ = Buffer.ReadFloat();
+                    RotW = Buffer.ReadFloat();
+                    Lerp = Buffer.ReadFloat();
+                    break;
+                case Messages.TAG:
+                    SourceId = Buffer.ReadInt();
+                    TargetId = Buffer.ReadInt();
+                    break;
+                case Messages.STATUS:
+                    GameTime = Buffer.ReadInt();
+                    PlayerCount = Buffer.ReadInt();
+                    for (int i = 0; i < PlayerCount; i++)
+                    {
+                        var player = new Player();
+                        player.SessionID = Buffer.ReadInt();
+                        player.PosX = Buffer.ReadFloat();
+                        player.PosY = Buffer.ReadFloat();
+                        player.PosZ = Buffer.ReadFloat();
+                        player.RotX = Buffer.ReadFloat();
+                        player.RotY = Buffer.ReadFloat();
+                        player.RotZ = Buffer.ReadFloat();
+                        player.RotW = Buffer.ReadFloat();
+                        player.Lerp = Buffer.ReadFloat();
+                        player.TeamID = Buffer.ReadInt();
+                        Players.Add(player);
+                    }
+                    break;
+                case Messages.SCORE:
+                    break;
+                case Messages.GAMEEND:
+                    CurrentTeamId = Buffer.ReadInt();
+                    break;
+                case Messages.GAMESTART:
+                    GameTime = Buffer.ReadInt();
+                    break;
+                case Messages.GAMELEAVE:
+                    Source = Buffer.ReadString();
+                    SourceId = Buffer.ReadInt();
+                    break;
+                case Messages.TEAMLIST:
+                    PlayerCount = Buffer.ReadInt();
+                    for (int i = 0; i < PlayerCount; i++)
+                    {
+                        var player = new Player
+                        {
+                            SessionID = Buffer.ReadInt(),
+                            TeamID = Buffer.ReadInt()
+                        };
+                        Players.Add(player);
+                    }
+                    break;
+                default:
+                    return false;
+            }
+            return true;
+        }
+    }
+}

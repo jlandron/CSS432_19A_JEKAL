@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Jekal.Objects
 {
-    class ByteBuffer
+    public class ByteBuffer
     {
         private List<byte> _buffer;
         private byte[] _readBuffer;

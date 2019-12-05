@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: 4423804218858519094}
   - component: {fileID: 4715162495731654904}
   - component: {fileID: 2065246878}
-  - component: {fileID: 835538435}
+  - component: {fileID: 604086555}
   m_Layer: 0
   m_Name: __app
-  m_TagString: Untagged
+  m_TagString: Canvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _currentScene: 0
-  pauseMenu: {fileID: 0}
+  gameState: 0
 --- !u!114 &4715162495731654904
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72,13 +72,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fc61904758544c41af1c1f7649aaae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  serverIP: 127.0.0.1
-  serverPort: 51092
-  loginServerPort: 51092
-  chatServerPort: 51092
-  gameServerPort: 51092
-  startingPositions: []
---- !u!114 &835538435
+  loginServerIP: 10.15.10.10
+  loginServerPort: 4444
+  chatServerIP: 
+  chatServerPort: 0
+  gameServerIP: 
+  gameServerPort: 0
+  loginClientTCP: {fileID: 0}
+  gameClientTCP: {fileID: 0}
+  chatClientTCP: {fileID: 0}
+  shouldKillLogin: 0
+  shouldKillChat: 0
+  shouldKillGame: 0
+  loginSuccess: 0
+  loginRequestSent: 0
+  gameIsLaunched: 0
+  chatRequestSent: 0
+  gameRequestSent: 0
+  chatIsReady: 0
+  gameIsReady: 0
+  errorMessageToPrint: 
+--- !u!114 &604086555
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -87,8 +101,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 4423804218858519095}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b5e4595ea2199f41b6d3b2d69906e8d, type: 3}
+  m_Script: {fileID: 11500000, guid: 242260f01bb78404e81e8e24728cdc5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPrefab: {fileID: 1324539822312374523, guid: 198aad17cd0ebc94f927f7459b1fa542,
+  startingPositions:
+  - {x: 10, y: 20, z: 10}
+  - {x: 80, y: 20, z: 80}
+  playerPrefab: {fileID: 5058931375636001928, guid: 49387678b0fdca7429e9428376e6ab4b,
     type: 3}
+  localPlayer: {fileID: 0}

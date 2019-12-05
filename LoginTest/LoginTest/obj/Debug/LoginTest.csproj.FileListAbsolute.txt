@@ -1,0 +1,6 @@
+C:\Users\joshl\source\repos\CSS432_19A_JEKAL\LoginTest\LoginTest\bin\Debug\LoginTest.exe.config
+C:\Users\joshl\source\repos\CSS432_19A_JEKAL\LoginTest\LoginTest\bin\Debug\LoginTest.exe
+C:\Users\joshl\source\repos\CSS432_19A_JEKAL\LoginTest\LoginTest\bin\Debug\LoginTest.pdb
+C:\Users\joshl\source\repos\CSS432_19A_JEKAL\LoginTest\LoginTest\obj\Debug\LoginTest.csprojAssemblyReference.cache
+C:\Users\joshl\source\repos\CSS432_19A_JEKAL\LoginTest\LoginTest\obj\Debug\LoginTest.exe
+C:\Users\joshl\source\repos\CSS432_19A_JEKAL\LoginTest\LoginTest\obj\Debug\LoginTest.pdb

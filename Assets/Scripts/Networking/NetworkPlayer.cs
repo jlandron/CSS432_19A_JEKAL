@@ -1,24 +1,25 @@
-﻿using System;
+﻿using Common.Protocols;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace GameClient {
+namespace NetworkGame.Client
+{
 
-    public class NetworkPlayer : MonoBehaviour {
+    public class NetworkPlayer : MonoBehaviour
+    {
 
-        [Header( "Player Properties" )]
+        [Header("Player Properties")]
         public int playerID;
         public bool isLocalPlayer;
 
-        [ Header( "Player Movement Properties" )]
+        [Header("Player Movement Properties")]
         public bool canSendNetworkMovement;
         public float speed;
-        public float networkSendRate = 5;
+        public float networkSendRate = 10;
         public float timeBetweenMovementStart;
         public float timeBetweenMovementEnd;
 
-        [Header( "Lerping Properties" )]
+        [Header("Lerping Properties")]
         public bool isLerpingPosition;
         public bool isLerpingRotation;
         public Vector3 realPosition;
@@ -28,14 +29,28 @@ namespace GameClient {
         public float timeStartedLerping;
         public float timeToLerp;
 
-        
-        private void Start( ) {
-            
-            if( isLocalPlayer ) {
-                NetworkManager.Instance.SetLocalPlayerID( playerID );
+
+        [Header("Team information")]
+        [SerializeField]
+        private int team;
+
+        [SerializeField]
+        MeshRenderer[] meshRenderers;
+        [SerializeField]
+        Material[] materials;
+
+        public int Team { get => team; set => team = value; }
+
+        private void Start()
+        {
+
+            if (isLocalPlayer)
+            {
+                playerID = NetworkManager.Instance.PlayerID;
                 canSendNetworkMovement = false;
-            } else {
-                
+            }
+            else
+            {
                 isLerpingPosition = false;
                 isLerpingRotation = false;
 
@@ -44,65 +59,92 @@ namespace GameClient {
             }
         }
 
-        private void Update( ) {
-            if( isLocalPlayer ) {
-                UpdatePlayerMovement( );
-            } else {
-                return;
+        private void Update()
+        {
+
+            //process networtk stuff
+            if (isLocalPlayer)
+            {
+                UpdatePlayerMovement();
+            }
+
+            foreach (MeshRenderer item in meshRenderers)
+            {
+                item.material = materials[Team % materials.Length];
+            }
+        }
+        private void OnTriggerStay(Collider other)
+        {
+            if (GameManager.Instance.AllowPlayerInput && Input.GetKeyDown(KeyCode.E))
+            {
+                //TODO: add actual tag message with distance/collision checking
+                if (other.CompareTag("ExtPlayer"))
+                {
+                    int playerTagged = other.gameObject.GetComponent<NetworkPlayer>().playerID;
+                    Debug.Log("Tagged player " + playerTagged + "!");
+                    NetworkManager.Instance.gameClientTCP.dataSender.SendTagMessage(playerTagged);
+                }
             }
         }
 
-        private void UpdatePlayerMovement( ) {
-            if( !canSendNetworkMovement ) {
+
+        private void UpdatePlayerMovement()
+        {
+            if (!canSendNetworkMovement)
+            {
                 canSendNetworkMovement = true;
-                StartCoroutine( StartNetworkSendCooldown( ) );
+                StartCoroutine(StartNetworkSendCooldown());
             }
         }
 
-        private IEnumerator StartNetworkSendCooldown( ) {
+        private IEnumerator StartNetworkSendCooldown()
+        {
             timeBetweenMovementStart = Time.time;
-            yield return new WaitForSeconds( ( 1 / networkSendRate ) );
-            SendNetworkMovement( );
+            yield return new WaitForSeconds((1 / networkSendRate));
+            SendNetworkMovement();
         }
 
-        private void SendNetworkMovement( ) {
+        private void SendNetworkMovement()
+        {
             timeBetweenMovementEnd = Time.time;
-            SendMovementMessage( playerID, transform.position, transform.rotation, ( timeBetweenMovementEnd - timeBetweenMovementStart ) );
+            SendUpdateMessage(playerID, transform.position, transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart));
             canSendNetworkMovement = false;
         }
 
-        public void SendMovementMessage( int _playerID, Vector3 _position, Quaternion _rotation, float _timeTolerp ) {
-            
-            ByteBuffer buffer = new ByteBuffer( );
-            buffer.Write( _playerID );
+
+        public void SendUpdateMessage(int _playerID, Vector3 _position, Quaternion _rotation, float _timeTolerp)
+        {
+
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(_playerID);
             //player location
-            buffer.Write( _position.x );
-            buffer.Write( _position.y );
-            buffer.Write( _position.z );
+            buffer.Write(_position.x);
+            buffer.Write(_position.y);
+            buffer.Write(_position.z);
 
-            buffer.Write( _rotation.x );
-            buffer.Write( _rotation.y );
-            buffer.Write( _rotation.z );
-            buffer.Write( _rotation.w );
+            buffer.Write(_rotation.x);
+            buffer.Write(_rotation.y);
+            buffer.Write(_rotation.z);
+            buffer.Write(_rotation.w);
             //time information
-            buffer.Write( _timeTolerp );
-
-            DataSender.SendTransformMessage( buffer.ToArray( ) );
-
-            buffer.Dispose( );
+            buffer.Write(_timeTolerp);
+            buffer.Write(Team);
+            NetworkManager.Instance.gameClientTCP.dataSender.SendTransformMessage(buffer.ToArray());
+            buffer.Dispose();
         }
 
-        public void ReceiveMovementMessage( byte[] data) {
-            ByteBuffer buffer = new ByteBuffer( );
-            buffer.Write( data );
-            buffer.ReadInt( );  //message type code
-            buffer.ReadInt( ); //this character id
+
+        public void ReceiveStatusMessage(byte[] data)
+        {
+            ByteBuffer buffer = new ByteBuffer();
+            buffer.Write(data);
             //read position and rotation
-            Vector3 _position = new Vector3( buffer.ReadFloat( ), buffer.ReadFloat( ), buffer.ReadFloat( ) );
-            Quaternion _rotation = new Quaternion( buffer.ReadFloat( ), buffer.ReadFloat( ), buffer.ReadFloat( ), buffer.ReadFloat( ) );
+            Vector3 _position = new Vector3(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
+            Quaternion _rotation = new Quaternion(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
             //read lerp time
-            float _timeToLerp = buffer.ReadFloat( );
-            buffer.Dispose( );
+            float _timeToLerp = buffer.ReadFloat();
+            Team = buffer.ReadInt();
+            buffer.Dispose();
 
             lastRealPosition = realPosition;
             lastRealRotation = realRotation;
@@ -110,35 +152,42 @@ namespace GameClient {
             realRotation = _rotation;
             timeToLerp = _timeToLerp;
 
-            if( realPosition != transform.position ) {
+            if (realPosition != transform.position)
+            {
                 isLerpingPosition = true;
             }
 
-            if( realRotation.eulerAngles != transform.rotation.eulerAngles ) {
+            if (realRotation.eulerAngles != transform.rotation.eulerAngles)
+            {
                 isLerpingRotation = true;
             }
             timeStartedLerping = Time.time;
         }
 
 
-        private void FixedUpdate( ) {
-            if( !isLocalPlayer ) {
-                NetworkLerp( );
+        private void FixedUpdate()
+        {
+            if (!isLocalPlayer)
+            {
+                NetworkLerp();
             }
         }
 
-        private void NetworkLerp( ) {
-            if( isLerpingPosition ) {
-                float lerpPercentage = ( Time.time - timeStartedLerping ) / timeToLerp;
-                Vector3 newPos = Vector3.Lerp( lastRealPosition, realPosition, lerpPercentage );
+        private void NetworkLerp()
+        {
+            if (isLerpingPosition)
+            {
+                float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
+                Vector3 newPos = Vector3.Lerp(lastRealPosition, realPosition, lerpPercentage);
 
                 transform.position = newPos;
             }
 
-            if( isLerpingRotation ) {
-                float lerpPercentage = ( Time.time - timeStartedLerping ) / timeToLerp;
+            if (isLerpingRotation)
+            {
+                float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
 
-                transform.rotation = Quaternion.Lerp( lastRealRotation, realRotation, lerpPercentage );
+                transform.rotation = Quaternion.Lerp(lastRealRotation, realRotation, lerpPercentage);
             }
         }
     }

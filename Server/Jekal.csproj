@@ -48,36 +48,25 @@
     <Compile Include="JekalGame.cs" />
     <Compile Include="Managers\GameManager.cs" />
     <Compile Include="Managers\PlayerManager.cs" />
-    <Compile Include="Managers\SessionManager.cs" />
     <Compile Include="Objects\ByteBuffer.cs" />
     <Compile Include="Objects\Game.cs" />
-    <Compile Include="Objects\NetworkMessage.cs" />
     <Compile Include="Objects\Player.cs" />
     <Compile Include="Objects\Team.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Objects\ScoreBoard.cs" />
-    <Compile Include="Servers\ChatServer.cs" />
+    <Compile Include="Protocols\ChatMessage.cs" />
+    <Compile Include="Protocols\GameMessage.cs" />
+    <Compile Include="Protocols\LoginMessage.cs" />
     <Compile Include="Servers\GameServer.cs" />
-    <Compile Include="Servers\GameServerClasses\DataReciever.cs" />
-    <Compile Include="Servers\GameServerClasses\DataSender.cs" />
-    <Compile Include="Servers\GameServerClasses\GameClient.cs" />
-    <Compile Include="Servers\GameServerClasses\GameClientManager.cs" />
-    <Compile Include="Servers\GameServerClasses\HandleGameData.cs" />
     <Compile Include="Servers\IServer.cs" />
-    <Compile Include="Servers\LoginServer.cs" />
+    <Compile Include="Servers\TcpServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj">
-      <Project>{4c6b0a33-3e8e-495b-b4e6-394da2cc9c81}</Project>
-      <Name>Common</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

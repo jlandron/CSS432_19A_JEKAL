@@ -1,6 +1,7 @@
 ﻿using Common.Protocols;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NetworkGame.Client
 {
@@ -37,6 +38,8 @@ namespace NetworkGame.Client
         [SerializeField]
         MeshRenderer[] meshRenderers;
         [SerializeField]
+        Image colorBar;
+        [SerializeField]
         Material[] materials;
 
         public int Team { get => team; set => team = value; }
@@ -72,6 +75,7 @@ namespace NetworkGame.Client
             {
                 item.material = materials[Team % materials.Length];
             }
+            colorBar.color = materials[Team % materials.Length].color;
         }
         private void OnTriggerStay(Collider other)
         {

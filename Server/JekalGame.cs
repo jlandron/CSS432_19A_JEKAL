@@ -31,7 +31,7 @@ namespace Jekal
         // Game Settings
         private int _maxPlayers;
         private int _maxTeams;
-        private int _maxPlayersPerTeam;
+        private int _maxPlayersPerGame;
         private int _maxGames;
         private int _gameTime;  // in minutes
 
@@ -58,10 +58,10 @@ namespace Jekal
             _chatPort = Convert.ToInt32(Settings["chatServerPort"]);
             _gamePort = Convert.ToInt32(Settings["gameServerPort"]);
             _maxTeams = Convert.ToInt32(Settings["maxTeamsPerGame"]);
-            _maxPlayersPerTeam = Convert.ToInt32(Settings["maxPlayersPerGame"]);
+            _maxPlayersPerGame = Convert.ToInt32(Settings["maxPlayersPerGame"]);
             _maxGames = Convert.ToInt32(Settings["maxGameCount"]);
             _gameTime = Convert.ToInt32(Settings["gameTime"]);
-            _maxPlayers = _maxPlayersPerTeam * _maxTeams * _maxGames;
+            _maxPlayers = _maxPlayersPerGame * _maxGames;
 
             // Init IP Address
             string serverName = Dns.GetHostName();
@@ -463,17 +463,30 @@ namespace Jekal
             byteBuffer.Write((int)ChatMessage.Messages.PMSG);
             byteBuffer.Write(chatMessage.Source);
             byteBuffer.Write(chatMessage.SourceId);
-            byteBuffer.Write(chatMessage.Destination);
-            byteBuffer.Write(chatMessage.Message);
+            //byteBuffer.Write(chatMessage.Destination);
+            //byteBuffer.Write(chatMessage.Message);
 
-            // TODO: Check for player online
-            // TODO: Send source player PMSG as well
+            var srcPlayer = Players.GetPlayer(chatMessage.SourceId);
+            var destPlayer = Players.GetPlayer(chatMessage.Destination);
 
-            var player = Players.GetPlayer(chatMessage.Destination);
-
-            if (!player.SendChatMessage(byteBuffer))
+            if (destPlayer == null)
             {
-                CloseChatConnection(player);
+                byteBuffer.Write("Server");
+                byteBuffer.Write($"Player [{chatMessage.Destination}] does not exist.");
+            }
+            else
+            {
+                byteBuffer.Write(chatMessage.Destination);
+                byteBuffer.Write(chatMessage.Message);
+                if (!destPlayer.SendChatMessage(byteBuffer))
+                {
+                    CloseChatConnection(destPlayer);
+                }
+            }
+
+            if (!srcPlayer.SendChatMessage(byteBuffer))
+            {
+                CloseChatConnection(srcPlayer);
             }
 
             byteBuffer.Dispose();

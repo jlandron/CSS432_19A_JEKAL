@@ -1,7 +1,6 @@
 ﻿using Jekal.Protocols;
 using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -178,6 +177,8 @@ namespace Jekal.Objects
                     buffer.Write(p.RotW);
                     buffer.Write(p.Lerp);
                     buffer.Write(p.TeamID);
+                    buffer.Write(p.Tags);
+                    buffer.Write(p.Tagged);
                 }
 
                 foreach (var p in _players)
@@ -323,6 +324,8 @@ namespace Jekal.Objects
 
             lock (_gameLock)
             {
+                player.Tags++;
+                target.Tagged++;
                 oldTeam.RemovePlayer(target);
                 target.TeamID = player.TeamID;
                 newTeam.AddPlayer(target);

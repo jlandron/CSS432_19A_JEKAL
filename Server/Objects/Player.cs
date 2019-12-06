@@ -20,6 +20,8 @@ namespace Jekal.Objects
         public float RotZ { get; set; }
         public float RotW { get; set; }
         public float Lerp { get; set; }
+        public int Tags { get; set; }
+        public int Tagged { get; set; }
 
 
         // Chat Networking
@@ -49,7 +51,8 @@ namespace Jekal.Objects
             // Init Player
             Name = string.Empty;
             SessionID = -1;
-            
+            Tags = 0;
+            Tagged = 0;
         }
 
         public void AssignChatConnection(TcpClient connection, AsyncCallback callback)

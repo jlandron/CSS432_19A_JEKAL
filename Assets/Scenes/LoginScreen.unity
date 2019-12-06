@@ -703,6 +703,31 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1302313249 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8777192733350474157, guid: dbff4aac42308364a85e70064961256f,
+    type: 3}
+  m_PrefabInstance: {fileID: 8777192734010116423}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &1302313253
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1302313249}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 723df3e1f5364e843bb0589b3db1b672, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &1350516490
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1232,6 +1257,7 @@ GameObject:
   - component: {fileID: 1880185784}
   - component: {fileID: 1880185783}
   - component: {fileID: 1880185782}
+  - component: {fileID: 1880185785}
   m_Layer: 0
   m_Name: LoginButton
   m_TagString: Untagged
@@ -1276,7 +1302,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 3
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.4056604, g: 0, b: 0, a: 1}
@@ -1348,6 +1374,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1880185780}
   m_CullTransparentMesh: 0
+--- !u!95 &1880185785
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1880185780}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 076df4889941ac84a94af30d0aea4093, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &1977989849
 GameObject:
   m_ObjectHideFlags: 0
@@ -1508,6 +1553,16 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1646058461}
+    - target: {fileID: 8777192733350474155, guid: dbff4aac42308364a85e70064961256f,
+        type: 3}
+      propertyPath: m_Transition
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8777192733350474155, guid: dbff4aac42308364a85e70064961256f,
+        type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 8777192733350474156, guid: dbff4aac42308364a85e70064961256f,
         type: 3}
       propertyPath: m_LocalPosition.x

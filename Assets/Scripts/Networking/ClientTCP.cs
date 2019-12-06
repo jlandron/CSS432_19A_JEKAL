@@ -30,7 +30,7 @@ namespace NetworkGame.Client
             clientHandleData = new ClientHandleData(this);
             clientHandleData.InitPackets();
             dataToSend = new ConcurrentQueue<byte[]>();
-            switch (this.Type)
+            switch (Type)
             {
                 case ClientTypes.LOGIN:
                     InitNetworking(NetworkManager.Instance.ServerIP, NetworkManager.Instance.LoginServerPort);
@@ -64,7 +64,7 @@ namespace NetworkGame.Client
         }
         public void SetReadyFlag()
         {
-            switch (this.Type)
+            switch (Type)
             {
                 case ClientTypes.LOGIN:
                     break;
@@ -114,23 +114,14 @@ namespace NetworkGame.Client
                 {
                     return;
                 }
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e.Message);
-            }
-            byte[] newBytes = new byte[length];
-            Array.Copy(_recieveBuffer, newBytes, length);
-            try
-            {
+
+
+                byte[] newBytes = new byte[length];
+                Array.Copy(_recieveBuffer, newBytes, length);
+
                 clientHandleData.HandleData(newBytes);
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e.Message);
-            }
-            try
-            {
+
+
                 //Debug.Log("Client: " + Type + " recieved callback and sending to handle data");
                 _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE, RecieveCallback, null);
             }

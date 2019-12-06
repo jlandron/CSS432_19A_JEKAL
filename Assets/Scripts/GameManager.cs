@@ -26,12 +26,13 @@ namespace NetworkGame
         }
         private void Awake()
         {
-            AllowPlayerInput = true;
+            
             if (Instance != null)
             {
                 return;
             }
             Instance = this;
+            AllowPlayerInput = true;
         }
         private void Start()
         {

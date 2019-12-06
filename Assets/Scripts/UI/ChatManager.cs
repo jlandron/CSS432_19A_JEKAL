@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityStandardAssets.Characters.FirstPerson;
 
 namespace NetworkGame.UI
 {
@@ -22,8 +21,7 @@ namespace NetworkGame.UI
         GameObject textObject;
         [SerializeField]
         InputField chatBox;
-        [SerializeField]
-        GameObject localPlayer;
+
 
         [Header("Chat colors")]
         [SerializeField]
@@ -34,6 +32,8 @@ namespace NetworkGame.UI
         private Color privateMessageColor = Color.red;
         [SerializeField]
         private Color teamMessageColor = Color.yellow;
+
+        private bool chatInputEnabled = false;
 
         public static ChatManager Instance { get; private set; }
         private void Awake()
@@ -49,19 +49,23 @@ namespace NetworkGame.UI
 
         private void Update()
         {
-            if (chatBox.text != "")
+            //if you are typing in chat and press enter, parse and send
+            if (chatBox.text.Trim() != "")
             {
                 if (Input.GetKeyDown(KeyCode.Return))
                 {
+                    GameManager.Instance.AllowPlayerInput = true;
                     string text = chatBox.text;
                     chatBox.text = "";
-                    if(text.StartsWith("/"))
+                    chatBox.enabled = false;
+                    chatInputEnabled = false;
+                    if (text.StartsWith("/"))
                     {
                         Debug.Log("Parsing special message");
                         string[] tokens = text.Split(' ');
                         string newText = "";
-                        
-                        switch (tokens[0])  
+
+                        switch (tokens[0])
                         {
                             case "/t":
                             case "/T":
@@ -89,18 +93,27 @@ namespace NetworkGame.UI
                     {
                         NetworkManager.Instance.chatClientTCP.dataSender.SendChatMessage(text);
                     }
-                   
-                    //SendMessageToChat(chatBox.text);
-                    
                 }
             }
-            else
+            if (Input.GetKeyDown(KeyCode.Return))
             {
-                //if (!chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))
-                //{
-                //    chatBox.ActivateInputField();
-                //}
+                //if you press enter, and the chatbox is empty and you had pressed enter before leave the chatbox alone and go back to the game
+                if (chatInputEnabled && chatBox.text.Trim() == "")
+                {
+                    chatInputEnabled = false;
+                    chatBox.enabled = false;
+                    GameManager.Instance.AllowPlayerInput = true;
+                }
+                else//if you press enter, and the chatbox is empty, and your not typing, enable the chatbox
+                {
+                    chatInputEnabled = true;
+                    chatBox.enabled = true;
+                    chatBox.ActivateInputField();
+                    GameManager.Instance.AllowPlayerInput = false;
+                }
             }
+
+            //parse messages in queue
             QueuedMessage msg;
             if (chatMessages.TryDequeue(out msg))
             {
@@ -123,16 +136,6 @@ namespace NetworkGame.UI
                         break;
                 }
             }
-            if (chatBox.isFocused)
-            {
-                GameManager.Instance.AllowPlayerInput = false;
-            }
-            else
-            {
-                GameManager.Instance.AllowPlayerInput = true;
-            }
-            localPlayer.GetComponent<FirstPersonController>().enabled = GameManager.Instance.AllowPlayerInput;
-            localPlayer.GetComponent<CharacterController>().enabled = GameManager.Instance.AllowPlayerInput;
         }
 
         public void SendMessageToChat(string text)

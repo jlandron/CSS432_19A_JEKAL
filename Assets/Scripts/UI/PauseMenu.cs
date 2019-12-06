@@ -1,12 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+﻿using UnityEngine;
 
-namespace NetworkGame.UI {
-    public class PauseMenu : MonoBehaviour {
+namespace NetworkGame.UI
+{
+    public class PauseMenu : MonoBehaviour
+    {
         [SerializeField]
         RectTransform[] children;
         [SerializeField]
@@ -34,7 +31,7 @@ namespace NetworkGame.UI {
         }
         internal void ActivateObjects(bool active)
         {
-            foreach (var child in children)
+            foreach (RectTransform child in children)
             {
                 child.gameObject.SetActive(active);
             }
@@ -45,7 +42,6 @@ namespace NetworkGame.UI {
         public void ResumeOnClick()
         {
             ActivateObjects(false);
-            _isPaused = false;
         }
     }
 }

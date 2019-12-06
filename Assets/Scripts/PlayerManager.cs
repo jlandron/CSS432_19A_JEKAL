@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityStandardAssets.Characters.FirstPerson;
 
 namespace NetworkGame
 {
@@ -80,6 +81,15 @@ namespace NetworkGame
                 buffer.Write(playerSwitchingTeamData);
                 HandleSwitchTeam(buffer.ToArray());
                 buffer.Dispose();
+            }
+            if(localPlayer != null)
+            {
+                if(localPlayer.GetComponent<FirstPersonController>().enabled != GameManager.Instance.AllowPlayerInput)
+                {
+                    Debug.Log("Setting player controls to: " + GameManager.Instance.AllowPlayerInput);
+                    localPlayer.GetComponent<FirstPersonController>().enabled = GameManager.Instance.AllowPlayerInput;
+                    localPlayer.GetComponent<CharacterController>().enabled = GameManager.Instance.AllowPlayerInput;
+                }
             }
         }
 

@@ -25,7 +25,6 @@ namespace NetworkGame.UI
         }
         public void GoToLoginOnPress()
         {
-            //check if in create account and process that before moving back to login
             SceneManager.LoadScene("LoginScreen");
         }
         public void GoToMainMenuOnPress()

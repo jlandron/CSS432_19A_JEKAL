@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 459420}
   - component: {fileID: 3379262}
   - component: {fileID: 2394354}
+  - component: {fileID: 7997617561997412260}
   m_Layer: 0
   m_Name: Birch_10
   m_TagString: Untagged
@@ -83,3 +84,17 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!64 &7997617561997412260
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 139582}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: b6b4e60cef9d4504895d18b15cb55773, type: 3}

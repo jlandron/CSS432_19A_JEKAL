@@ -13,8 +13,6 @@ namespace Jekal.Objects
 
         private Timer _gameTimer = null;
         private Timer _updateTimer = null;
-        private ScoreBoard _scoreBoard;
-        private List<Player> _players;
         private List<Team> _teams;
         private JekalGame _jekal;
         private readonly int _maxPlayers;
@@ -25,21 +23,14 @@ namespace Jekal.Objects
         public bool ReadyToStart { get; set; }
         public int GameId { get; set; }
 
-        public List<Player> Players
-        {
-            get
-            {
-                return _players;
-            }
-        }
+        public List<Player> Players { get; }
 
         public Game(JekalGame jekalGame, int id)
         {
             _jekal = jekalGame;
-            _players = new List<Player>();
+            Players = new List<Player>();
             _teams = new List<Team>();
             _closedConnections = new List<Player>();
-            _scoreBoard = new ScoreBoard();
             _maxPlayers = Convert.ToInt32(_jekal.Settings["maxPlayersPerGame"]);
             ReadyToStart = false;
             GameId = id;
@@ -62,7 +53,6 @@ namespace Jekal.Objects
             _gameTime = Convert.ToInt32(_jekal.Settings["gameTime"]) * 60;  // Game time in seconds
             _gameTimer = new Timer(GameTimeCheck, null, 0, 1000);
             _gameStarted = true;
-            //_updateTimer = new Timer(SendUpdate, null, 0, 100); // Update 10 times a second
 
             byteBuffer.Write((int)GameMessage.Messages.GAMESTART);
             byteBuffer.Write(_gameTime);
@@ -74,7 +64,8 @@ namespace Jekal.Objects
                 lock (_gameLock)
                 {
                     // If one team is max or 0, someone has won
-                    if (GetTeam(0).Count() == 0 || GetTeam(0).Count() == _maxPlayers)
+                    var team = _teams.Where(t => t.Count() == _maxPlayers);
+                    if (team.Count() != 0)
                     {
                         _gameTime = 0;
                     }
@@ -96,7 +87,7 @@ namespace Jekal.Objects
         {
             lock (_gameLock)
             {
-                foreach (var p in _players)
+                foreach (var p in Players)
                 {
                     Console.WriteLine($" *** Sending to {p.Name} : {buffer.ReadInt(false)}");
                     try
@@ -116,7 +107,7 @@ namespace Jekal.Objects
 
         public bool HasPlayerSpace()
         {
-            return _players.Count < _maxPlayers;
+            return Players.Count < _maxPlayers;
         }
 
         public bool AddPlayer(Player player)
@@ -124,7 +115,7 @@ namespace Jekal.Objects
             lock (_gameLock)
             {
                 // If game full, return false
-                if (_players.Count >= _maxPlayers)
+                if (Players.Count >= _maxPlayers)
                 {
                     return false;
                 }
@@ -145,10 +136,10 @@ namespace Jekal.Objects
 
                 // Add player to team and game
                 team.AddPlayer(player);
-                _players.Add(player);
+                Players.Add(player);
 
                 // Check if game is ready to start
-                if (_players.Count == _maxPlayers)
+                if (Players.Count == _maxPlayers)
                 {
                     ReadyToStart = true;
                 }
@@ -163,9 +154,9 @@ namespace Jekal.Objects
                 var buffer = new ByteBuffer();
                 buffer.Write((int)GameMessage.Messages.STATUS);
                 buffer.Write(_gameTime);
-                buffer.Write(_players.Count);
+                buffer.Write(Players.Count);
 
-                foreach (var p in _players)
+                foreach (var p in Players)
                 {
                     buffer.Write(p.SessionID);
                     buffer.Write(p.PosX);
@@ -181,7 +172,7 @@ namespace Jekal.Objects
                     buffer.Write(p.Tagged);
                 }
 
-                foreach (var p in _players)
+                foreach (var p in Players)
                 {
                     if (!p.SendGameMessage(buffer))
                     {
@@ -270,9 +261,6 @@ namespace Jekal.Objects
                     Console.WriteLine($"GAME ERROR: {ex.Message}");
                     CloseConnection(player);
                 }
-
-                CleanUpConnections();
-
             } // End Lock
         }
 
@@ -283,7 +271,7 @@ namespace Jekal.Objects
                 foreach (var p in _closedConnections)
                 {
                     _jekal.Players.RemovePlayer(p);
-                    _players.Remove(p);
+                    Players.Remove(p);
                 }
 
                 var byteBuffer = new ByteBuffer();
@@ -351,7 +339,7 @@ namespace Jekal.Objects
             Console.WriteLine($"GAME: Error communicating to {player.Name}.  Closing game connection.");
             lock (_gameLock)
             {
-                _closedConnections.Add(player);
+               _closedConnections.Add(player);
             }
         }
 

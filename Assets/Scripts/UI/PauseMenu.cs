@@ -35,7 +35,10 @@ namespace NetworkGame.UI
             {
                 child.gameObject.SetActive(active);
             }
-            GameManager.Instance.AllowPlayerInput = !active;
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.AllowPlayerInput = !active;
+            }
             _isPaused = active;
         }
 

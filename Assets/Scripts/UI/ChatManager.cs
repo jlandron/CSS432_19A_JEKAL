@@ -54,7 +54,8 @@ namespace NetworkGame.UI
             {
                 if (Input.GetKeyDown(KeyCode.Return))
                 {
-                    GameManager.Instance.AllowPlayerInput = true;
+                    if (GameManager.Instance != null)
+                        GameManager.Instance.AllowPlayerInput = true;
                     string text = chatBox.text;
                     chatBox.text = "";
                     chatBox.enabled = false;
@@ -74,7 +75,11 @@ namespace NetworkGame.UI
                                     newText += tokens[i] + " ";
                                 }
                                 Debug.Log(newText);
-                                NetworkManager.Instance.chatClientTCP.dataSender.SendTeamChatMessage(newText);
+                                if (NetworkManager.Instance != null)
+                                {
+                                    NetworkManager.Instance.chatClientTCP.dataSender.SendTeamChatMessage(newText);
+                                }
+
                                 break;
                             case "/p":
                             case "/P":
@@ -83,7 +88,11 @@ namespace NetworkGame.UI
                                 {
                                     newText += tokens[i] + " ";
                                 }
-                                NetworkManager.Instance.chatClientTCP.dataSender.SendPrivateChatMessage(newText, player);
+                                if (NetworkManager.Instance != null)
+                                {
+                                    NetworkManager.Instance.chatClientTCP.dataSender.SendPrivateChatMessage(newText, player);
+                                }
+
                                 break;
                             default:
                                 break;
@@ -91,7 +100,10 @@ namespace NetworkGame.UI
                     }
                     else
                     {
-                        NetworkManager.Instance.chatClientTCP.dataSender.SendChatMessage(text);
+                        if (NetworkManager.Instance != null)
+                        {
+                            NetworkManager.Instance.chatClientTCP.dataSender.SendChatMessage(text);
+                        }
                     }
                 }
             }
@@ -102,14 +114,18 @@ namespace NetworkGame.UI
                 {
                     chatInputEnabled = false;
                     chatBox.enabled = false;
-                    GameManager.Instance.AllowPlayerInput = true;
+                    if (GameManager.Instance != null)
+                        GameManager.Instance.AllowPlayerInput = true;
                 }
                 else//if you press enter, and the chatbox is empty, and your not typing, enable the chatbox
                 {
                     chatInputEnabled = true;
                     chatBox.enabled = true;
                     chatBox.ActivateInputField();
-                    GameManager.Instance.AllowPlayerInput = false;
+                    if (GameManager.Instance != null)
+                    {
+                        GameManager.Instance.AllowPlayerInput = false;
+                    }
                 }
             }
 

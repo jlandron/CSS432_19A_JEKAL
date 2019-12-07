@@ -19,7 +19,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4423804218858519097
 Transform:
   m_ObjectHideFlags: 0
@@ -72,11 +72,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fc61904758544c41af1c1f7649aaae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  loginServerIP: 10.15.10.10
+  serverIP: 
   loginServerPort: 4444
-  chatServerIP: 
   chatServerPort: 0
-  gameServerIP: 
   gameServerPort: 0
   loginClientTCP: {fileID: 0}
   gameClientTCP: {fileID: 0}

@@ -366,6 +366,7 @@ GameObject:
   - component: {fileID: 899482986}
   - component: {fileID: 899482985}
   - component: {fileID: 899482984}
+  - component: {fileID: 899482987}
   m_Layer: 0
   m_Name: ServerIPInput
   m_TagString: Untagged
@@ -504,6 +505,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 899482982}
   m_CullTransparentMesh: 0
+--- !u!114 &899482987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 899482982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.34509805}
+  m_EffectDistance: {x: -1.5, y: 1.5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1249615368
 GameObject:
   m_ObjectHideFlags: 0
@@ -1001,6 +1017,7 @@ GameObject:
   - component: {fileID: 1704661831}
   - component: {fileID: 1704661830}
   - component: {fileID: 1704661829}
+  - component: {fileID: 1704661832}
   m_Layer: 0
   m_Name: LoginInput
   m_TagString: Untagged
@@ -1071,13 +1088,13 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1704661830}
   m_TextComponent: {fileID: 2128221289}
   m_Placeholder: {fileID: 28375193}
-  m_ContentType: 0
+  m_ContentType: 4
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 0
+  m_KeyboardType: 1
   m_LineType: 0
   m_HideMobileInput: 0
-  m_CharacterValidation: 0
+  m_CharacterValidation: 3
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
@@ -1139,6 +1156,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1704661827}
   m_CullTransparentMesh: 0
+--- !u!114 &1704661832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1704661827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.34509805}
+  m_EffectDistance: {x: -1.5, y: 1.5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1782825651
 GameObject:
   m_ObjectHideFlags: 0

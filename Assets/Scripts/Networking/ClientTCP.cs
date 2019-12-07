@@ -102,6 +102,7 @@ namespace NetworkGame.Client
             if (_clientSocket.Connected == false)
             {
                 Debug.Log("Client Connection failed");
+                NetworkManager.Instance.errorMessageToPrint = "Failed to connect to server. Check IP and try again.";
                 IsConnected = false;
                 return;
             }

@@ -40,6 +40,8 @@ namespace Jekal
 
         private CancellationTokenSource source;
 
+        private Timer _playerCleanupTimer;
+
         public NameValueCollection Settings { get; }
 
         public JekalGame(NameValueCollection settings)
@@ -92,6 +94,7 @@ namespace Jekal
 
             Players = new PlayerManager();
             Games = new GameManager(this);
+            _playerCleanupTimer = new Timer(Players.CleanupPlayers, null, 0, 250);
         }
 
         #region Jekal Game Methods

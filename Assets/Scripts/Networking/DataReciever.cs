@@ -112,7 +112,7 @@ namespace NetworkGame.Client
             _ = buffer.ReadInt();
             string msg = buffer.ReadString();
             buffer.Dispose();
-            NetworkManager.Instance.errorMessageToPrint = msg;
+            NetworkManager.Instance.errorMessageToPrint = ("Login rejected: " + msg);
             //give player prompt to retry
             NetworkManager.Instance.ShouldKillLogin = true;
         }

@@ -1,6 +1,7 @@
 ﻿using Common.Protocols;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NetworkGame.Client
 {
@@ -37,6 +38,8 @@ namespace NetworkGame.Client
         [SerializeField]
         MeshRenderer[] meshRenderers;
         [SerializeField]
+        Image colorBar;
+        [SerializeField]
         Material[] materials;
 
         public int Team { get => team; set => team = value; }
@@ -46,7 +49,11 @@ namespace NetworkGame.Client
 
             if (isLocalPlayer)
             {
-                playerID = NetworkManager.Instance.PlayerID;
+                if (NetworkManager.Instance != null)
+                {
+                    playerID = NetworkManager.Instance.PlayerID;
+                }
+
                 canSendNetworkMovement = false;
             }
             else
@@ -72,17 +79,27 @@ namespace NetworkGame.Client
             {
                 item.material = materials[Team % materials.Length];
             }
+            if (colorBar != null)
+            {
+                colorBar.color = materials[Team % materials.Length].color;
+            }
         }
         private void OnTriggerStay(Collider other)
         {
-            if (GameManager.Instance.AllowPlayerInput && Input.GetKeyDown(KeyCode.E))
+            if (GameManager.Instance != null)
             {
-                //TODO: add actual tag message with distance/collision checking
-                if (other.CompareTag("ExtPlayer"))
+                if (GameManager.Instance.AllowPlayerInput && Input.GetKeyDown(KeyCode.E))
                 {
-                    int playerTagged = other.gameObject.GetComponent<NetworkPlayer>().playerID;
-                    Debug.Log("Tagged player " + playerTagged + "!");
-                    NetworkManager.Instance.gameClientTCP.dataSender.SendTagMessage(playerTagged);
+                    //TODO: add actual tag message with distance/collision checking
+                    if (other.CompareTag("ExtPlayer"))
+                    {
+                        int playerTagged = other.gameObject.GetComponent<NetworkPlayer>().playerID;
+                        Debug.Log("Tagged player " + playerTagged + "!");
+                        if (NetworkManager.Instance != null)
+                        {
+                            NetworkManager.Instance.gameClientTCP.dataSender.SendTagMessage(playerTagged);
+                        }
+                    }
                 }
             }
         }
@@ -129,7 +146,11 @@ namespace NetworkGame.Client
             //time information
             buffer.Write(_timeTolerp);
             buffer.Write(Team);
-            NetworkManager.Instance.gameClientTCP.dataSender.SendTransformMessage(buffer.ToArray());
+            if (NetworkManager.Instance != null)
+            {
+                NetworkManager.Instance.gameClientTCP.dataSender.SendTransformMessage(buffer.ToArray());
+            }
+
             buffer.Dispose();
         }
 

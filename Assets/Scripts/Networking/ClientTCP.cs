@@ -54,7 +54,15 @@ namespace NetworkGame.Client
             _recieveBuffer = new byte[BUFFER_SIZE];
             _serverIP = serverIP;
             _serverPort = serverPort;
-            _clientSocket.BeginConnect(serverIP, serverPort, new System.AsyncCallback(ClientConnectCallback), _clientSocket);
+            try
+            {
+                _clientSocket.BeginConnect(serverIP, serverPort, new System.AsyncCallback(ClientConnectCallback), _clientSocket);
+            }
+            catch (Exception e)
+            {
+                NetworkManager.Instance.errorMessageToPrint = "Failed to login: " + e.Message;
+            }
+            
             //Debug.Log("Client " + Type + " started");
         }
 
@@ -85,13 +93,16 @@ namespace NetworkGame.Client
             }
             catch (Exception e)
             {
-                Debug.LogError(e.Message);
+                NetworkManager.Instance.ShouldKillLogin = true;
+                NetworkManager.Instance.errorMessageToPrint = e.Message;
+                //Debug.Log(e.Message);
             }
 
             //Debug.Log("Client " + Type + " connected");
             if (_clientSocket.Connected == false)
             {
                 Debug.Log("Client Connection failed");
+                NetworkManager.Instance.errorMessageToPrint = "Failed to connect to server. Check IP and try again.";
                 IsConnected = false;
                 return;
             }

@@ -153,9 +153,11 @@ namespace NetworkGame.Client
             buffer.Write(data);
             _ = buffer.ReadInt(); //eliminate message type
             int playerID = buffer.ReadInt();
+            string playerName = buffer.ReadString();
             int teamNum = buffer.ReadInt();
             ByteBuffer playerInst = new ByteBuffer();
             playerInst.Write(playerID); //playerID
+            playerInst.Write(playerName); //playername
             playerInst.Write(teamNum); //TeamID
             PlayerManager.Instance.playersToSpawn.Enqueue(playerInst.ToArray());
             playerInst.Dispose();
@@ -194,27 +196,6 @@ namespace NetworkGame.Client
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             PlayerManager.Instance.playersToRemove.Enqueue(buffer.ToArray());
-            buffer.Dispose();
-        }
-
-
-        internal void HandleTeamListMessage(byte[] data)
-        {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            _ = buffer.ReadInt();
-            int numPlayersInGame = buffer.ReadInt();
-            for (int i = 0; i < numPlayersInGame; i++)
-            {
-                Debug.Log("Handle teamList");
-                int playerID = buffer.ReadInt();
-                int teamNum = buffer.ReadInt();
-                ByteBuffer playerInst = new ByteBuffer();
-                playerInst.Write(playerID);
-                playerInst.Write(teamNum);
-                PlayerManager.Instance.playersToSpawn.Enqueue(playerInst.ToArray());
-                playerInst.Dispose();
-            }
             buffer.Dispose();
         }
 

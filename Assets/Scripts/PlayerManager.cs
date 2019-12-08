@@ -54,8 +54,9 @@ namespace NetworkGame
                 ByteBuffer buffer = new ByteBuffer();
                 buffer.Write(playerToSpawnData);
                 int playerID = buffer.ReadInt();
+                string playerName = buffer.ReadString();
                 int teamNum = buffer.ReadInt();
-                InstantiatePlayer(playerID, teamNum);
+                InstantiatePlayer(playerID, playerName , teamNum);
                 buffer.Dispose();
             }
             byte[] playerToRemoveData;
@@ -93,7 +94,7 @@ namespace NetworkGame
             }
         }
 
-        private void InstantiatePlayer(int playerID, int teamNum)
+        private void InstantiatePlayer(int playerID, string playerName, int teamNum)
         {
             if (playerID == NetworkManager.Instance.PlayerID)
             {
@@ -127,7 +128,7 @@ namespace NetworkGame
                     playerObject = Instantiate(playerPrefab);
                 }
                 //set player atributes
-                playerObject.name = "Player: " + playerID;
+                playerObject.name = playerName;
                 playerObject.tag = "ExtPlayer";
                 Client.NetworkPlayer networkPlayer = playerObject.GetComponent<Client.NetworkPlayer>();
                 networkPlayer.playerID = playerID;
@@ -182,6 +183,7 @@ namespace NetworkGame
                 {
                     ByteBuffer byteBuffer = new ByteBuffer();
                     int playerID = buffer.ReadInt();
+                    string playerName = buffer.ReadString();
                     byteBuffer.Write(buffer.ReadFloat()); //x
                     byteBuffer.Write(buffer.ReadFloat()); //y
                     byteBuffer.Write(buffer.ReadFloat()); //z
@@ -199,7 +201,7 @@ namespace NetworkGame
                         if (!ConnectedPlayers.ContainsKey(playerID))
                         {
                             Debug.Log("Player " + playerID + " not in game, Instantiating.");
-                            InstantiatePlayer(playerID, teamNum);
+                            InstantiatePlayer(playerID, playerName, teamNum);
                         }
                         Debug.Log("processing player " + playerID + "'s movement");
                         if (ConnectedPlayers.ContainsKey(playerID))

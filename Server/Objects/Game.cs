@@ -45,7 +45,7 @@ namespace Jekal.Objects
             _updateTimer = new Timer(SendUpdate, null, 0, 100); // Update 10 times a second
         }
 
-        public Task Start()
+        public async Task Start()
         {
             var byteBuffer = new ByteBuffer();
 
@@ -61,6 +61,7 @@ namespace Jekal.Objects
             // While game has time on it.
             while (_gameStarted)
             {
+                await Task.Delay(50);
                 lock (_gameLock)
                 {
                     // If one team is max or 0, someone has won
@@ -87,7 +88,7 @@ namespace Jekal.Objects
             }
             SendMessageToGame(byteBuffer);
 
-            return Task.FromResult(0);
+            return;
         }
 
         public void SendMessageToGame(ByteBuffer buffer)

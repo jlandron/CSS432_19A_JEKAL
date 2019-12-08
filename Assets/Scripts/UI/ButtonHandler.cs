@@ -16,7 +16,7 @@ namespace NetworkGame.UI
         {
             string userName = GetComponent<TextInputHandler>()._userName;
             string serverIP = GetComponent<TextInputHandler>()._serverIP;
-            //Debug.Log("Logging on as: " + userName);
+            Debug.Log("Logging on as: " + userName);
             if (NetworkManager.Instance != null)
             {
                 NetworkManager.Instance.StartLoginClient(userName, serverIP);

@@ -37,6 +37,7 @@ namespace NetworkGame
         private void Start()
         {
             Screen.SetResolution(1920, 1080, false);
+            MyGameState = GameState.WAIT;
         }
         private void Update()
         {
@@ -47,6 +48,7 @@ namespace NetworkGame
                 preloaded = true;
                 SceneManager.LoadScene(1);
             }
+
         }
 #if UNITY_EDITOR
         void LateUpdate()

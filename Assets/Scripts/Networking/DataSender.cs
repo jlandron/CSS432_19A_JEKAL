@@ -62,6 +62,7 @@ namespace NetworkGame.Client
             buffer.Write(NetworkManager.Instance.PlayerName);
             buffer.Write(NetworkManager.Instance.PlayerID);
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
+            buffer.Dispose();
         }
 
         /////// Login //////
@@ -99,6 +100,7 @@ namespace NetworkGame.Client
             buffer.Write(NetworkManager.Instance.PlayerID);
             buffer.Write(playerTagged);
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
+            buffer.Dispose();
         }
         public void SendGameLeaveMessage()
         {
@@ -107,6 +109,7 @@ namespace NetworkGame.Client
             buffer.Write(NetworkManager.Instance.PlayerName);
             buffer.Write(NetworkManager.Instance.PlayerID);
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
+            buffer.Dispose();
         }
     }
 }

@@ -12,6 +12,8 @@ namespace NetworkGame.Client
         [Header("Player Properties")]
         public int playerID;
         public bool isLocalPlayer;
+        private float _timeSinceTagPressed = 0f;
+        public float timeBetweenTag = 2f;
 
         [Header("Player Movement Properties")]
         public bool canSendNetworkMovement;
@@ -83,26 +85,35 @@ namespace NetworkGame.Client
             {
                 colorBar.color = materials[Team % materials.Length].color;
             }
+            _timeSinceTagPressed += Time.deltaTime;
         }
         private void OnTriggerStay(Collider other)
         {
-            if (GameManager.Instance != null)
+            //Debug.Log("Colliding with " + other.gameObject.name);
+            if (other.gameObject.CompareTag("ExtPlayer"))
             {
-                if (GameManager.Instance.AllowPlayerInput && Input.GetKeyDown(KeyCode.E))
+                //Debug.Log("touching " + other.gameObject.GetComponent<NetworkPlayer>().playerID);
+                if (GameManager.Instance != null)
                 {
-                    //TODO: add actual tag message with distance/collision checking
-                    if (other.CompareTag("ExtPlayer"))
+                    if (GameManager.Instance.AllowPlayerInput && Input.GetKeyDown(KeyCode.E))
                     {
-                        int playerTagged = other.gameObject.GetComponent<NetworkPlayer>().playerID;
-                        Debug.Log("Tagged player " + playerTagged + "!");
-                        if (NetworkManager.Instance != null)
+                        if (_timeSinceTagPressed > timeBetweenTag)
                         {
-                            NetworkManager.Instance.gameClientTCP.dataSender.SendTagMessage(playerTagged);
+                            //TODO: add actual tag message with distance/collision checking
+
+                            int playerTagged = other.gameObject.GetComponent<NetworkPlayer>().playerID;
+                            Debug.Log("Tagged player " + playerTagged + "!");
+                            if (NetworkManager.Instance != null)
+                            {
+                                NetworkManager.Instance.gameClientTCP.dataSender.SendTagMessage(playerTagged);
+                            }
+                            _timeSinceTagPressed = 0f;
                         }
                     }
                 }
             }
         }
+
 
 
         private void UpdatePlayerMovement()
@@ -165,6 +176,8 @@ namespace NetworkGame.Client
             //read lerp time
             float _timeToLerp = buffer.ReadFloat();
             Team = buffer.ReadInt();
+            int numTags = buffer.ReadInt();
+            int numTimesTagged = buffer.ReadInt();
             buffer.Dispose();
 
             lastRealPosition = realPosition;

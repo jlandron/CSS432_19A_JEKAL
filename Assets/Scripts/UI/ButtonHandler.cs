@@ -34,6 +34,11 @@ namespace NetworkGame.UI
         {
             SceneManager.LoadScene("MainMenu");
         }
+        public void ExitGameOnPress()
+        {
+            NetworkManager.Instance.chatClientTCP.dataSender.SendLeaveMessage();
+            NetworkManager.Instance.gameClientTCP.dataSender.SendGameLeaveMessage();
+        }
         public void QuitApplication()
         {
 #if UNITY_EDITOR

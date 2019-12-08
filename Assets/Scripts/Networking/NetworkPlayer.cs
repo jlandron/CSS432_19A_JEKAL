@@ -174,7 +174,8 @@ namespace NetworkGame.Client
             Quaternion _rotation = new Quaternion(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
             //read lerp time
             float _timeToLerp = buffer.ReadFloat();
-            Team = buffer.ReadInt();
+            int teamNum = buffer.ReadInt();
+            Team = teamNum;
             int numTags = buffer.ReadInt();
             int numTimesTagged = buffer.ReadInt();
             buffer.Dispose();

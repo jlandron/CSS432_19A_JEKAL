@@ -193,9 +193,10 @@ namespace NetworkGame
                     byteBuffer.Write(buffer.ReadFloat()); //w
                     byteBuffer.Write(buffer.ReadFloat()); //time
                     int teamNum = buffer.ReadInt();
+                    byteBuffer.Write(teamNum);
                     byteBuffer.Write(buffer.ReadInt()); //tagged
                     byteBuffer.Write(buffer.ReadInt()); //tags
-                    byteBuffer.Write(teamNum);
+                    
                     if (playerID != NetworkManager.Instance.PlayerID)
                     {
                         if (!ConnectedPlayers.ContainsKey(playerID))

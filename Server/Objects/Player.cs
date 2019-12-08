@@ -178,7 +178,6 @@ namespace Jekal.Objects
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending chat message, closing connection.");
                 CloseChat();
-                ChatEnabled = false;
                 _pingTimer.Dispose();
             }
 
@@ -197,7 +196,6 @@ namespace Jekal.Objects
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending game message, closing connection.");
                 CloseGame();
-                GameEnabled = false;
             }
 
             return success;
@@ -239,6 +237,7 @@ namespace Jekal.Objects
                 _chatStream?.Close();
                 _chatSocket?.Close();
                 PlayerCheck = true;
+                ChatEnabled = false;
             }
         }
 
@@ -261,6 +260,7 @@ namespace Jekal.Objects
                 _gameStream?.Close();
                 _gameSocket?.Close();
                 PlayerCheck = true;
+                GameEnabled = false;
             }
         }
     }

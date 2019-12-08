@@ -16,12 +16,12 @@ namespace Jekal.Objects
         private List<Team> _teams;
         private JekalGame _jekal;
         private readonly int _maxPlayers;
-        private int _gameTime;
         private bool _gameStarted = false;
         private List<Player> _closedConnections;
 
         public bool ReadyToStart { get; set; }
         public int GameId { get; set; }
+        public int GameTime { get; set; }
 
         public List<Player> Players { get; }
 
@@ -50,12 +50,12 @@ namespace Jekal.Objects
             var byteBuffer = new ByteBuffer();
 
             // Sart Game Timers
-            _gameTime = Convert.ToInt32(_jekal.Settings["gameTime"]) * 60;  // Game time in seconds
+            GameTime = Convert.ToInt32(_jekal.Settings["gameTime"]) * 60;  // Game time in seconds
             _gameTimer = new Timer(GameTimeCheck, null, 0, 1000);
             _gameStarted = true;
 
             byteBuffer.Write((int)GameMessage.Messages.GAMESTART);
-            byteBuffer.Write(_gameTime);
+            byteBuffer.Write(GameTime);
             SendMessageToGame(byteBuffer);
 
             // While game has time on it.
@@ -67,7 +67,7 @@ namespace Jekal.Objects
                     var team = _teams.Where(t => t.Count() == _maxPlayers);
                     if (team.Count() != 0)
                     {
-                        _gameTime = 0;
+                        GameTime = 0;
                     }
                 } // End lock
 
@@ -76,8 +76,15 @@ namespace Jekal.Objects
             // Send Game Over message
             byteBuffer.Clear();
             byteBuffer.Write((int)GameMessage.Messages.GAMEEND);
-            byteBuffer.Write((GetTeam(0).Count() == 0) ? 0 : 1);
-            // TODO: What else in GAMEEND?
+            var winningTeam = _teams.Aggregate((t1, t2) => t1.Count() > t2.Count() ? t1 : t2);
+            byteBuffer.Write(winningTeam.TeamId);
+            foreach (var p in Players)
+            {
+                byteBuffer.Write(p.SessionID);
+                byteBuffer.Write(p.Name);
+                byteBuffer.Write(p.Tags);
+                byteBuffer.Write(p.Tagged);
+            }
             SendMessageToGame(byteBuffer);
 
             return Task.FromResult(0);
@@ -153,7 +160,7 @@ namespace Jekal.Objects
             {
                 var buffer = new ByteBuffer();
                 buffer.Write((int)GameMessage.Messages.STATUS);
-                buffer.Write(_gameTime);
+                buffer.Write(GameTime);
                 buffer.Write(Players.Count);
 
                 foreach (var p in Players)
@@ -188,9 +195,9 @@ namespace Jekal.Objects
         private void GameTimeCheck(object stateInfo)
         {
             // Check game time
-            if (_gameTime > 0)
+            if (GameTime > 0)
             {
-                _gameTime -= 1;
+                GameTime -= 1;
                 return;
             }
 
@@ -206,7 +213,7 @@ namespace Jekal.Objects
 
         public void StopGame()
         {
-            _gameTime = 0;
+            GameTime = 0;
             GameTimeCheck(null);
         }
 
@@ -300,6 +307,11 @@ namespace Jekal.Objects
         {
             var player = _jekal.Players.GetPlayer(msg.SourceId);
             var target = _jekal.Players.GetPlayer(msg.TargetId);
+
+            if (player.TeamID == target.TeamID)
+            {
+                return;
+            }
 
             var buffer = new ByteBuffer();
             buffer.Write((int)GameMessage.Messages.TEAMSWITCH);

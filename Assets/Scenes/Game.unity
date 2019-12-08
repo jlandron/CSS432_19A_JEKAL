@@ -2989,6 +2989,11 @@ PrefabInstance:
       propertyPath: m_LineType
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2354205691146095115, guid: 96d17625c46fbd148b582e262bd528fd,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0.21960784
+      objectReference: {fileID: 0}
     - target: {fileID: 2354205691226837088, guid: 96d17625c46fbd148b582e262bd528fd,
         type: 3}
       propertyPath: m_AnchorMax.x

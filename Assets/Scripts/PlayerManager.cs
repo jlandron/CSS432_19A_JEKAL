@@ -82,9 +82,9 @@ namespace NetworkGame
                 HandleSwitchTeam(buffer.ToArray());
                 buffer.Dispose();
             }
-            if(localPlayer != null)
+            if (localPlayer != null)
             {
-                if(localPlayer.GetComponent<FirstPersonController>().enabled != GameManager.Instance.AllowPlayerInput)
+                if (localPlayer.GetComponent<FirstPersonController>().enabled != GameManager.Instance.AllowPlayerInput)
                 {
                     Debug.Log("Setting player controls to: " + GameManager.Instance.AllowPlayerInput);
                     localPlayer.GetComponent<FirstPersonController>().enabled = GameManager.Instance.AllowPlayerInput;
@@ -191,10 +191,11 @@ namespace NetworkGame
                     byteBuffer.Write(buffer.ReadFloat()); //w
                     byteBuffer.Write(buffer.ReadFloat()); //time
                     int teamNum = buffer.ReadInt();
+                    byteBuffer.Write(buffer.ReadInt()); //tagged
+                    byteBuffer.Write(buffer.ReadInt()); //tags
                     byteBuffer.Write(teamNum);
                     if (playerID != NetworkManager.Instance.PlayerID)
                     {
-
                         if (!ConnectedPlayers.ContainsKey(playerID))
                         {
                             Debug.Log("Player " + playerID + " not in game, Instantiating.");

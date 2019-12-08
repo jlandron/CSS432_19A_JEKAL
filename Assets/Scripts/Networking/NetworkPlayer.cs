@@ -156,7 +156,6 @@ namespace NetworkGame.Client
             buffer.Write(_rotation.w);
             //time information
             buffer.Write(_timeTolerp);
-            buffer.Write(Team);
             if (NetworkManager.Instance != null)
             {
                 NetworkManager.Instance.gameClientTCP.dataSender.SendTransformMessage(buffer.ToArray());

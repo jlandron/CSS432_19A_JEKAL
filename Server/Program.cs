@@ -31,14 +31,6 @@ namespace Jekal
                         default:
                             break;
                     }
-                    //if (key.Key == ConsoleKey.Escape)
-                    //{
-                    //    endGame = true;
-                    //}
-                    //else if (key.Key == ConsoleKey.P)
-                    //{
-                    //    game.ShowPlayers();
-                    //}
                 }
             }
 

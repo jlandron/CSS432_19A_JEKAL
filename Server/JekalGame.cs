@@ -153,7 +153,7 @@ namespace Jekal
                 Console.WriteLine("-----------------------------------------------------");
                 foreach (var g in Games.GetAllGames())
                 {
-                    Console.WriteLine($"GAME : {g.GameId}, PC: {g.Players.Count}, RTS : {g.ReadyToStart}, PS: {g.HasPlayerSpace()}");
+                    Console.WriteLine($"GAME : {g.GameId}, PC: {g.Players.Count}, RTS: {g.ReadyToStart}, PS: {g.HasPlayerSpace()}, Time: {g.GameTime}");
                     Console.WriteLine("-----------------------------------------------------");
                     foreach (var p in g.Players)
                     {

@@ -14,6 +14,8 @@ namespace NetworkGame.UI
 
         [SerializeField]
         private int maxMessages = 50;
+        [SerializeField]
+        public Text timer;
 
         [SerializeField]
         GameObject chatPanel;

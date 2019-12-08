@@ -1,4 +1,6 @@
 ﻿using Common.Protocols;
+using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace NetworkGame.Client
@@ -64,7 +66,6 @@ namespace NetworkGame.Client
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
             buffer.Dispose();
         }
-
         /////// Login //////
         public void RequestLogin()
         {
@@ -74,7 +75,6 @@ namespace NetworkGame.Client
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
             buffer.Dispose();
         }
-
         /////// Game ////////
         public void SendGameJoinRequest()
         {
@@ -110,6 +110,13 @@ namespace NetworkGame.Client
             buffer.Write(NetworkManager.Instance.PlayerID);
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
             buffer.Dispose();
+            EndGame();
+        }
+        private IEnumerator EndGame()
+        {
+            yield return new WaitForSeconds(1f);
+            NetworkManager.Instance.ShouldKillGame = true;
+            NetworkManager.Instance.ShouldKillChat = true;
         }
     }
 }

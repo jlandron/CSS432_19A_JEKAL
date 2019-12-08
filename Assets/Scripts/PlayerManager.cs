@@ -1,5 +1,6 @@
 ﻿using Common.Protocols;
 using NetworkGame.Client;
+using NetworkGame.UI;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -154,6 +155,7 @@ namespace NetworkGame
             _ = buffer.ReadInt();
             int playerID = buffer.ReadInt();
             string taggerName = buffer.ReadString();
+            //TODO: flash taggerName on screen
             int taggerID = buffer.ReadInt();
             int oldTeamID = buffer.ReadInt();
             int teamNum = buffer.ReadInt();
@@ -222,8 +224,7 @@ namespace NetworkGame
 
         private void UpdateGameTime(float v)
         {
-            //TODO: update game UI
-            //Debug.Log("Time left: " + v);
+            ChatManager.Instance.timer.text = ("Time left: " + v);
         }
 
 

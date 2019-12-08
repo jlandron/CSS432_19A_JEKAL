@@ -224,6 +224,7 @@ namespace NetworkGame
 
         private void UpdateGameTime(float v)
         {
+            //if(GameManager.Instance.MyGameState == GameManager.GameState.WAIT) { return; }
             ChatManager.Instance.timer.text = ("Time left: " + v);
         }
 

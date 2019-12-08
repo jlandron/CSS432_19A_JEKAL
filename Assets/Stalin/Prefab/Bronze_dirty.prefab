@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4000013541284546}
   - component: {fileID: 33000011545275042}
   - component: {fileID: 23000010595207166}
+  - component: {fileID: -3918184102702756305}
   m_Layer: 0
   m_Name: Bronze_dirty
   m_TagString: Untagged
@@ -79,3 +80,17 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!64 &-3918184102702756305
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000014226139336}
+  m_Material: {fileID: 13400000, guid: 01571ba68fb2dad46aa03094ab219579, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: b549b8076fe63524e80249248765b516, type: 3}

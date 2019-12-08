@@ -601,6 +601,7 @@ namespace Jekal
                         buffer.Clear();
                         buffer.Write((int)GameMessage.Messages.TEAMJOIN);
                         buffer.Write(player.SessionID);
+                        buffer.Write(player.Name);
                         buffer.Write(player.TeamID);
                         game.SendMessageToGame(buffer);
                         buffer.Clear();

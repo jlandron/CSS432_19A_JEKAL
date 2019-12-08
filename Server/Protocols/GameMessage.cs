@@ -17,8 +17,7 @@ namespace Jekal.Protocols
             SCORE,
             GAMEEND,
             GAMESTART,
-            GAMELEAVE,
-            TEAMLIST
+            GAMELEAVE
         }
 
         public ByteBuffer Buffer { get; set; }
@@ -75,6 +74,7 @@ namespace Jekal.Protocols
                     break;
                 case Messages.TEAMJOIN:
                     SourceId = Buffer.ReadInt();
+                    Source = Buffer.ReadString();
                     CurrentTeamId = Buffer.ReadInt();
                     break;
                 case Messages.TEAMSWITCH:
@@ -132,18 +132,6 @@ namespace Jekal.Protocols
                 case Messages.GAMELEAVE:
                     Source = Buffer.ReadString();
                     SourceId = Buffer.ReadInt();
-                    break;
-                case Messages.TEAMLIST:
-                    PlayerCount = Buffer.ReadInt();
-                    for (int i = 0; i < PlayerCount; i++)
-                    {
-                        var player = new Player
-                        {
-                            SessionID = Buffer.ReadInt(),
-                            TeamID = Buffer.ReadInt()
-                        };
-                        Players.Add(player);
-                    }
                     break;
                 default:
                     return false;

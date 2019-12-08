@@ -129,6 +129,41 @@ namespace Jekal
         {
             source.Cancel();
         }
+
+        public void ShowPlayers()
+        {
+            lock (_jekalLock)
+            {
+                Console.WriteLine("Player List");
+                Console.WriteLine("-----------------------------------------------------");
+                foreach (var p in Players.GetAllPlayers())
+                {
+                    Console.WriteLine($"{p.Value.Name} : S - {p.Value.SessionID}, G - {p.Value.GameID}, T - {p.Value.TeamID}, CE - {p.Value.ChatEnabled}, GE - {p.Value.GameEnabled}, Cleanup - {p.Value.PlayerCheck}");
+                }
+                Console.WriteLine("-----------------------------------------------------");
+                Console.WriteLine("");
+            }
+        }
+
+        public void ShowGames()
+        {
+            lock (_jekalLock)
+            {
+                Console.WriteLine("Game List");
+                Console.WriteLine("-----------------------------------------------------");
+                foreach (var g in Games.GetAllGames())
+                {
+                    Console.WriteLine($"GAME : {g.GameId}, PC: {g.Players.Count}, RTS : {g.ReadyToStart}, PS: {g.HasPlayerSpace()}");
+                    Console.WriteLine("-----------------------------------------------------");
+                    foreach (var p in g.Players)
+                    {
+                        Console.WriteLine($"\t{p.Name} : S - {p.SessionID}, G - {p.GameID}, T - {p.TeamID}, Tags: {p.Tags}, Tagged: {p.Tagged}");
+                    }
+                }
+                Console.WriteLine("-----------------------------------------------------");
+                Console.WriteLine("");
+            }
+        }
         #endregion
 
         #region LoginServer Methods

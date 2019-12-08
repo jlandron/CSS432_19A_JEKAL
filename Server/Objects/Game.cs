@@ -159,6 +159,7 @@ namespace Jekal.Objects
                 foreach (var p in Players)
                 {
                     buffer.Write(p.SessionID);
+                    buffer.Write(p.Name);
                     buffer.Write(p.PosX);
                     buffer.Write(p.PosY);
                     buffer.Write(p.PosZ);

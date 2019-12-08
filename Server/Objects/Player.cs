@@ -66,7 +66,7 @@ namespace Jekal.Objects
             _chatStream = connection.GetStream();
             _chatStream.BeginRead(_chatBuffer, 0, BUFFER_SIZE, callback, this);
             ChatEnabled = true;
-            _pingTimer = new Timer(SendPing, null, 0, 2500); // Ping every 2.5 seconds
+            _pingTimer = new Timer(SendPing, null, 0, 250); // Ping every 250ms
         }
 
         public void AssignGameConnection(TcpClient connection, AsyncCallback callback)

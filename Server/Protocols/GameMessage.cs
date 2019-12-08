@@ -106,6 +106,7 @@ namespace Jekal.Protocols
                     {
                         var player = new Player();
                         player.SessionID = Buffer.ReadInt();
+                        player.Name = Buffer.ReadString();
                         player.PosX = Buffer.ReadFloat();
                         player.PosY = Buffer.ReadFloat();
                         player.PosZ = Buffer.ReadFloat();

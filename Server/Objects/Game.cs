@@ -272,6 +272,7 @@ namespace Jekal.Objects
                 {
                     _jekal.Players.RemovePlayer(p);
                     Players.Remove(p);
+                    _teams[p.TeamID].RemovePlayer(p);
                 }
 
                 var byteBuffer = new ByteBuffer();

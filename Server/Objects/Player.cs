@@ -23,6 +23,7 @@ namespace Jekal.Objects
         public float Lerp { get; set; }
         public int Tags { get; set; }
         public int Tagged { get; set; }
+        public bool PlayerCheck { get; set; }
 
 
         // Chat Networking
@@ -31,6 +32,7 @@ namespace Jekal.Objects
         private byte[] _chatBuffer;
         public bool ChatEnabled = false;
         private Timer _pingTimer = null;
+
 
         // Game Networking
         private TcpClient _gameSocket;
@@ -55,6 +57,7 @@ namespace Jekal.Objects
             SessionID = -1;
             Tags = 0;
             Tagged = 0;
+            PlayerCheck = false;
         }
 
         public void AssignChatConnection(TcpClient connection, AsyncCallback callback)
@@ -235,6 +238,7 @@ namespace Jekal.Objects
             {
                 _chatStream?.Close();
                 _chatSocket?.Close();
+                PlayerCheck = true;
             }
         }
 
@@ -256,6 +260,7 @@ namespace Jekal.Objects
             {
                 _gameStream?.Close();
                 _gameSocket?.Close();
+                PlayerCheck = true;
             }
         }
     }

@@ -150,7 +150,7 @@ namespace Jekal.Managers
             {
                 foreach (var p in _players)
                 {
-                    if (!p.Value.ChatEnabled && !p.Value.GameEnabled)
+                    if (p.Value.PlayerCheck && !p.Value.ChatEnabled && !p.Value.GameEnabled)
                     {
                         _closedConnections.Add(p.Value);
                     }

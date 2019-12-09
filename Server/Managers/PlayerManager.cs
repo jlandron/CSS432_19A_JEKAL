@@ -137,7 +137,7 @@ namespace Jekal.Managers
         {
             lock (_playerManagerLock)
             {
-                if (!player.ChatEnabled && !player.GameEnabled)
+                if (!player.ChatEnabled || !player.GameEnabled)
                 {
                     _players.Remove(player.SessionID);
                 }
@@ -150,8 +150,10 @@ namespace Jekal.Managers
             {
                 foreach (var p in _players)
                 {
-                    if (p.Value.PlayerCheck && !p.Value.ChatEnabled && !p.Value.GameEnabled)
+                    if (p.Value.PlayerCheck && (!p.Value.ChatEnabled || !p.Value.GameEnabled))
                     {
+                        p.Value.CloseChat();
+                        p.Value.CloseGame();
                         _closedConnections.Add(p.Value);
                     }
                 }

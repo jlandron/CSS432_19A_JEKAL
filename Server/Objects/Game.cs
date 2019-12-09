@@ -9,6 +9,8 @@ namespace Jekal.Objects
 {
     public class Game
     {
+        public delegate Task GameEndMethodHandler(int gameId);
+        public GameEndMethodHandler GameEndMethod;
         private readonly object _gameLock = new object();
 
         private Timer _gameTimer = null;
@@ -65,7 +67,7 @@ namespace Jekal.Objects
                 lock (_gameLock)
                 {
                     // If one team is max or 0, someone has won
-                    var team = _teams.Where(t => t.Count() == _maxPlayers);
+                    var team = _teams.Where(t => t.Count() == Players.Count);
                     if (team.Count() != 0)
                     {
                         GameTime = 0;
@@ -88,6 +90,12 @@ namespace Jekal.Objects
             }
             SendMessageToGame(byteBuffer);
 
+            foreach (var p in Players)
+            {
+                p.CloseGame();
+            }
+
+            await GameEndMethod.Invoke(GameId);
             return;
         }
 

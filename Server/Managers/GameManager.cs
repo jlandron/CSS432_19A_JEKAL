@@ -8,6 +8,7 @@ namespace Jekal.Managers
 {
     public class GameManager
     {
+        private readonly object _gameManagerLock = new object();
         private readonly List<Game> _games;
         private readonly List<Task> _gameTasks;
         private readonly JekalGame _jekal;
@@ -26,9 +27,20 @@ namespace Jekal.Managers
             if (_game == null || _game.ReadyToStart)
             {
                 _game = new Game(_jekal, _gameId++);
+                _game.GameEndMethod = EndGame;
                 _games.Add(_game);
             }
             return _game;
+        }
+
+        private Task EndGame(int gameId)
+        {
+            lock (_gameManagerLock)
+            {
+                var game = GetGame(gameId);
+                _games.Remove(game);
+            }
+            return Task.FromResult(0);
         }
 
         public Game GetGame(int id)

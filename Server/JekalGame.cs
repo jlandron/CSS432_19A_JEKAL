@@ -159,6 +159,8 @@ namespace Jekal
                     {
                         Console.WriteLine($"\t{p.Name} : S - {p.SessionID}, G - {p.GameID}, T - {p.TeamID}, Tags: {p.Tags}, Tagged: {p.Tagged}");
                     }
+                    Console.WriteLine("-----------------------------------------------------");
+                    Console.WriteLine("");
                 }
                 Console.WriteLine("-----------------------------------------------------");
                 Console.WriteLine("");

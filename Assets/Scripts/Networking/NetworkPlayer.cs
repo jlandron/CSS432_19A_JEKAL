@@ -89,6 +89,7 @@ namespace NetworkGame.Client
         }
         private void OnTriggerStay(Collider other)
         {
+            if(GameManager.Instance.MyGameState != GameManager.GameState.PLAYING) { return; }
             //Debug.Log("Colliding with " + other.gameObject.name);
             if (other.gameObject.CompareTag("ExtPlayer"))
             {

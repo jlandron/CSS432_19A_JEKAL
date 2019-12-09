@@ -72,7 +72,7 @@ LightmapSettings:
     m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
-    m_BakeBackend: 1
+    m_BakeBackend: 2
     m_PVRSampling: 1
     m_PVRDirectSampleCount: 32
     m_PVRSampleCount: 500
@@ -1380,6 +1380,7 @@ GameObject:
   m_Component:
   - component: {fileID: 705507995}
   - component: {fileID: 705507994}
+  - component: {fileID: 705507996}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -1444,8 +1445,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 2.7345046e+20, y: 1.1239316e+24, z: 1.817742e+31,
-    w: 4.156079e+21}
+  m_BoundingSphereOverride: {x: 8.196e-42, y: 1.04e-43, z: 7.5e-43, w: 0}
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
@@ -1456,13 +1456,29 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705507993}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalRotation: {x: 0.18498088, y: -0.8148796, z: 0.3799847, w: 0.3966927}
+  m_LocalPosition: {x: 1050, y: 218, z: 643}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 50.000004, y: -128.085, z: 0}
+--- !u!123 &705507996
+LensFlare:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 705507993}
+  m_Enabled: 1
+  m_Flare: {fileID: 12100000, guid: 09ebe82dbd1113c3d000dc0b8d76c639, type: 2}
+  m_Color: {r: 1, g: 0.7804238, b: 0.3773585, a: 0}
+  m_Brightness: 1
+  m_FadeSpeed: 3
+  m_IgnoreLayers:
+    serializedVersion: 2
+    m_Bits: 6
+  m_Directional: 0
 --- !u!1 &817326772
 GameObject:
   m_ObjectHideFlags: 0
@@ -2077,9 +2093,9 @@ MonoBehaviour:
   - {fileID: 416511165}
   textObject: {fileID: 6574905930300427648, guid: eeaae365f471ea64eb408104df56c537,
     type: 3}
-  namePanel: {fileID: 480745071974623334}
-  tagsPanel: {fileID: 817326772}
-  taggedPanel: {fileID: 165673504}
+  namePanel: {fileID: 480745073920287517}
+  tagsPanel: {fileID: 955742120}
+  taggedPanel: {fileID: 693924364}
 --- !u!1001 &1021591800
 PrefabInstance:
   m_ObjectHideFlags: 0

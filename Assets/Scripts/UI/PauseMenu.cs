@@ -16,17 +16,24 @@ namespace NetworkGame.UI
 
         void Update()
         {
-
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (GameManager.Instance != null && (GameManager.Instance.MyGameState == GameManager.GameState.WAIT ||
+                GameManager.Instance.MyGameState == GameManager.GameState.PLAYING))
             {
-                if (!_isPaused)
+                if (Input.GetKeyDown(KeyCode.Escape))
                 {
-                    ActivateObjects(true);
+                    if (!_isPaused)
+                    {
+                        ActivateObjects(true);
+                    }
+                    else
+                    {
+                        ActivateObjects(false);
+                    }
                 }
-                else
-                {
-                    ActivateObjects(false);
-                }
+            }
+            if(GameManager.Instance.MyGameState == GameManager.GameState.END)
+            {
+                ActivateObjects(false);
             }
         }
         internal void ActivateObjects(bool active)

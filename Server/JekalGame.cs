@@ -169,7 +169,7 @@ namespace Jekal
         #endregion
 
         #region LoginServer Methods
-        private Task LoginConnection(TcpClient loginConnection)
+        private Task<int> LoginConnection(TcpClient loginConnection)
         {
             Console.WriteLine("LOGINSERVER: Incoming Connection");
 
@@ -263,7 +263,7 @@ namespace Jekal
         #endregion
 
         #region ChatServer Methods
-        private Task ChatConnection(TcpClient chatConnection)
+        private Task<int> ChatConnection(TcpClient chatConnection)
         {
             Console.WriteLine("CHATSERVER: Incoming Connection");
 
@@ -542,7 +542,7 @@ namespace Jekal
         #endregion
 
         #region GameServer Methods
-        private Task GameConnection(TcpClient incomingConnection)
+        private async Task<int> GameConnection(TcpClient incomingConnection)
         {
             Console.WriteLine("GAMESERVER: Incoming Connection");
             NetworkStream netStream = incomingConnection.GetStream();
@@ -579,17 +579,18 @@ namespace Jekal
                 }
                 else
                 {
+                    Game game;
                     lock (_jekalLock)
                     {
                         Console.WriteLine($"GAMESERVER: JOIN {playerName}; SESSION: {sessionId}");
                         Player player = Players.GetPlayer(playerName);
-                        Game game = Games.GetWaitingGame();
+                        game = Games.GetWaitingGame();
                         player.AssignGameConnection(incomingConnection, new AsyncCallback(game.HandleMessage));
                         player.GameID = game.GameId;
                         if (!game.AddPlayer(player))
                         {
                             Console.WriteLine("GAMESERVER: Unable to add player to game.");
-                            return Task.FromResult(0);
+                            return 0;
                         }
 
                         Console.WriteLine($"GAMESERVER: GAME: {player.GameID}; TEAMJOIN {playerName}; TEAM: {player.TeamID}");
@@ -606,12 +607,14 @@ namespace Jekal
                         game.SendMessageToGame(buffer);
                         buffer.Clear();
                         buffer.Dispose();
-                        if (game.ReadyToStart)
-                        {
-                            Task gameTask = game.Start();
-                            Games.AddGame(gameTask);
-                        }
                     }  // End lock
+
+                    if (game.ReadyToStart)
+                    {
+                        await Task.Delay(5000);
+                        Task gameTask = game.Start();
+                        Games.AddGame(gameTask);
+                    }
                 }
             }
             else
@@ -621,7 +624,7 @@ namespace Jekal
                 incomingConnection.Close();
             }
 
-            return Task.FromResult(0);
+            return 0;
         }
 
         public void GameShutDown(bool error, string msg = "")

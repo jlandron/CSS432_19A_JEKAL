@@ -356,7 +356,6 @@ namespace Jekal.Objects
             player.RotW = msg.RotW;
             player.Lerp = msg.Lerp;
         }
-
         private void CloseConnection(Player player)
         {
             Console.WriteLine($"GAME: Error communicating to {player.Name}.  Closing game connection.");

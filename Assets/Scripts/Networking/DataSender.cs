@@ -110,14 +110,9 @@ namespace NetworkGame.Client
             buffer.Write(NetworkManager.Instance.PlayerID);
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
             buffer.Dispose();
-            EndGame();
+            NetworkManager.Instance.EndConnections(0.5f);
         }
-        private IEnumerator EndGame()
-        {
-            yield return new WaitForSeconds(1f);
-            NetworkManager.Instance.ShouldKillGame = true;
-            NetworkManager.Instance.ShouldKillChat = true;
-        }
+
     }
 }
 

@@ -88,8 +88,7 @@ namespace NetworkGame.Client
         }
         internal void HandleCloseMessage(byte[] data)
         {
-            //Debug.Log("Recieved chat close signal");
-            NetworkManager.Instance.ShouldKillChat = true;
+
         }
 
         //////// Login server messages ////////
@@ -186,10 +185,11 @@ namespace NetworkGame.Client
         internal void HandleGameEndMessage(byte[] data)
         {
             GameManager.Instance.MyGameState = GameManager.GameState.END;
+            EndOfGameManager.Instance.scores.Enqueue(data);
         }
         internal void HandleGameStartMessage(byte[] data)
         {
-            GameManager.Instance.MyGameState = GameManager.GameState.START;
+            GameManager.Instance.MyGameState = GameManager.GameState.PLAYING;
         }
         internal void HandleRemoveMessage(byte[] data)
         {

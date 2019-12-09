@@ -89,6 +89,7 @@ namespace NetworkGame.Client
         }
         private void OnTriggerStay(Collider other)
         {
+            if(GameManager.Instance.MyGameState != GameManager.GameState.PLAYING) { return; }
             //Debug.Log("Colliding with " + other.gameObject.name);
             if (other.gameObject.CompareTag("ExtPlayer"))
             {
@@ -142,7 +143,9 @@ namespace NetworkGame.Client
 
         public void SendUpdateMessage(int _playerID, Vector3 _position, Quaternion _rotation, float _timeTolerp)
         {
-
+            //do not send messages after game is marked as over
+            if (GameManager.Instance != null && 
+                GameManager.Instance.MyGameState == GameManager.GameState.END) { return; }
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(_playerID);
             //player location

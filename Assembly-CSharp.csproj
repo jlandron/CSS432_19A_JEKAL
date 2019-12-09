@@ -88,6 +88,7 @@
     <Compile Include="Assets\Scripts\PlayerManager.cs" />
     <Compile Include="Assets\Scripts\UI\ButtonHandler.cs" />
     <Compile Include="Assets\Scripts\UI\ChatManager.cs" />
+    <Compile Include="Assets\Scripts\UI\EndOfGameManager.cs" />
     <Compile Include="Assets\Scripts\UI\PauseMenu.cs" />
     <Compile Include="Assets\Scripts\UI\PrintMessageToTextbox.cs" />
     <Compile Include="Assets\Scripts\UI\QueuedMessage.cs" />

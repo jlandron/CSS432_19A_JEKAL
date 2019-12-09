@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-6165094012646498641
+--- !u!114 &-4364566540538345051
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -21,10 +21,10 @@ MonoBehaviour:
     value: 1
   intensity:
     overrideState: 1
-    value: 0.017
+    value: 0.051
   size:
     overrideState: 1
-    value: 0.99
+    value: 1
   lumContrib:
     overrideState: 0
     value: 0.8
@@ -44,7 +44,7 @@ MonoBehaviour:
   - {fileID: 8454143144165340512}
   - {fileID: 5875446521698277257}
   - {fileID: 2206794469318238950}
-  - {fileID: -6165094012646498641}
+  - {fileID: -4364566540538345051}
 --- !u!114 &2206794469318238950
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -1374,12 +1374,12 @@ MonoBehaviour:
     value: 1
   intensity:
     overrideState: 1
-    value: 1.67
+    value: 2
   threshold:
-    overrideState: 0
+    overrideState: 1
     value: 1
   softKnee:
-    overrideState: 0
+    overrideState: 1
     value: 0.5
   clamp:
     overrideState: 0
@@ -1394,8 +1394,8 @@ MonoBehaviour:
     overrideState: 0
     value: {r: 1, g: 1, b: 1, a: 1}
   fastMode:
-    overrideState: 0
-    value: 0
+    overrideState: 1
+    value: 1
   dirtTexture:
     overrideState: 0
     value: {fileID: 0}

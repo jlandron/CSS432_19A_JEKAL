@@ -172,6 +172,7 @@ GameObject:
   - component: {fileID: 5058931375636001934}
   - component: {fileID: 5058931375636001929}
   - component: {fileID: 361268238414257694}
+  - component: {fileID: 382081146972844539}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: ExtPlayer
@@ -311,6 +312,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerName: {fileID: 8671943335612727679}
+--- !u!136 &382081146972844539
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5058931375636001928}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.49
+  m_Height: 1.95
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7944194331657934138
 GameObject:
   m_ObjectHideFlags: 0

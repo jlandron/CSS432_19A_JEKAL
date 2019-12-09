@@ -1,4 +1,5 @@
 ﻿using NetworkGame.Client;
+using System.Collections;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -32,12 +33,19 @@ namespace NetworkGame.UI
         }
         public void GoToMainMenuOnPress()
         {
-            SceneManager.LoadScene("MainMenu");
+            SceneManager.LoadScene(1);
         }
         public void ExitGameOnPress()
         {
             NetworkManager.Instance.chatClientTCP.dataSender.SendLeaveMessage();
             NetworkManager.Instance.gameClientTCP.dataSender.SendGameLeaveMessage();
+            NetworkManager.Instance.EndConnections(1);
+            Load();
+        }
+        private IEnumerator Load()
+        {
+            yield return new WaitForSeconds(1.1f);
+            SceneManager.LoadScene(1);
         }
         public void QuitApplication()
         {

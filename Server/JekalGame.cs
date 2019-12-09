@@ -508,8 +508,6 @@ namespace Jekal
             byteBuffer.Write((int)ChatMessage.Messages.PMSG);
             byteBuffer.Write(chatMessage.Source);
             byteBuffer.Write(chatMessage.SourceId);
-            //byteBuffer.Write(chatMessage.Destination);
-            //byteBuffer.Write(chatMessage.Message);
 
             var srcPlayer = Players.GetPlayer(chatMessage.SourceId);
             var destPlayer = Players.GetPlayer(chatMessage.Destination);

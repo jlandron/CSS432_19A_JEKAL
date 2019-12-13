@@ -9,7 +9,7 @@ namespace Jekal.Servers
 {
     public class TcpServer
     {
-        public delegate Task ConnectionHandlerMethod(TcpClient newConnection);
+        public delegate Task<int> ConnectionHandlerMethod(TcpClient newConnection);
         public ConnectionHandlerMethod ConnectionHandler;
 
         public delegate void ShutDownHandler(bool error, string message = "");
@@ -82,7 +82,7 @@ namespace Jekal.Servers
             Console.WriteLine($"{_name}: Server stopped.");
         }
 
-        private static Task HandleConnection(TcpClient conn)
+        private static Task<int> HandleConnection(TcpClient conn)
         {
             // Default handler
             throw new ArgumentNullException(

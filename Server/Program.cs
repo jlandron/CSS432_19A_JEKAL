@@ -7,6 +7,7 @@ namespace Jekal
     class Program
     {
         private static bool gameRunning = false;
+        private static JekalGame game; 
 
         static void ConsoleThread()
         {
@@ -16,9 +17,19 @@ namespace Jekal
                 if (Console.KeyAvailable)
                 {
                     ConsoleKeyInfo key = Console.ReadKey(true);
-                    if (key.Key == ConsoleKey.Escape)
+                    switch (key.Key)
                     {
-                        endGame = true;
+                        case ConsoleKey.Escape:
+                            endGame = true;
+                            break;
+                        case ConsoleKey.P:
+                            game.ShowPlayers();
+                            break;
+                        case ConsoleKey.G:
+                            game.ShowGames();
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
@@ -30,7 +41,7 @@ namespace Jekal
         {
             // Load configuration
             var settings = ConfigurationManager.AppSettings;
-            var game = new JekalGame(settings);
+            game = new JekalGame(settings);
             game.Initialize();
 
             var gameThread = new Thread(new ThreadStart(game.StartGame));

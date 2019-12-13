@@ -25,13 +25,13 @@ namespace Jekal
         private int _loginPort;
         private TcpServer chatServer;
         private int _chatPort;
-        private GameServer gameServer;
+        private TcpServer gameServer;
         private int _gamePort;
 
         // Game Settings
         private int _maxPlayers;
         private int _maxTeams;
-        private int _maxPlayersPerTeam;
+        private int _maxPlayersPerGame;
         private int _maxGames;
         private int _gameTime;  // in minutes
 
@@ -39,6 +39,8 @@ namespace Jekal
         private List<Player> _closedGameConnections = null;
 
         private CancellationTokenSource source;
+
+        private Timer _playerCleanupTimer;
 
         public NameValueCollection Settings { get; }
 
@@ -58,10 +60,10 @@ namespace Jekal
             _chatPort = Convert.ToInt32(Settings["chatServerPort"]);
             _gamePort = Convert.ToInt32(Settings["gameServerPort"]);
             _maxTeams = Convert.ToInt32(Settings["maxTeamsPerGame"]);
-            _maxPlayersPerTeam = Convert.ToInt32(Settings["maxPlayersPerGame"]);
+            _maxPlayersPerGame = Convert.ToInt32(Settings["maxPlayersPerGame"]);
             _maxGames = Convert.ToInt32(Settings["maxGameCount"]);
             _gameTime = Convert.ToInt32(Settings["gameTime"]);
-            _maxPlayers = _maxPlayersPerTeam * _maxTeams * _maxGames;
+            _maxPlayers = _maxPlayersPerGame * _maxGames;
 
             // Init IP Address
             string serverName = Dns.GetHostName();
@@ -74,19 +76,25 @@ namespace Jekal
             loginServer.ConnectionHandler = LoginConnection;
             loginServer.ShutDownEvent += LoginShutDown;
 
-            //chatServer = new ChatServer(this);
+            // Init Chat Server
             chatServer = new TcpServer();
             chatServer.Initialize(ipAddress, _chatPort, "CHATSERVER");
             chatServer.ConnectionHandler = ChatConnection;
             chatServer.ShutDownEvent += ChatShutDown;
 
+            // Init Game Server
+            gameServer = new TcpServer();
+            gameServer.Initialize(ipAddress, _gamePort, "GAMESERVER");
+            gameServer.ConnectionHandler = GameConnection;
+            gameServer.ShutDownEvent += GameShutDown;
+
             // Lists to handle players with connection errors or disconnects
             _closedChatConnections = new List<Player>();
             _closedGameConnections = new List<Player>();
 
-            gameServer = new GameServer(this);
             Players = new PlayerManager();
             Games = new GameManager(this);
+            _playerCleanupTimer = new Timer(Players.CleanupPlayers, null, 0, 250);
         }
 
         #region Jekal Game Methods
@@ -121,10 +129,47 @@ namespace Jekal
         {
             source.Cancel();
         }
+
+        public void ShowPlayers()
+        {
+            lock (_jekalLock)
+            {
+                Console.WriteLine("Player List");
+                Console.WriteLine("-----------------------------------------------------");
+                foreach (var p in Players.GetAllPlayers())
+                {
+                    Console.WriteLine($"{p.Value.Name} : S - {p.Value.SessionID}, G - {p.Value.GameID}, T - {p.Value.TeamID}, CE - {p.Value.ChatEnabled}, GE - {p.Value.GameEnabled}, Cleanup - {p.Value.PlayerCheck}");
+                }
+                Console.WriteLine("-----------------------------------------------------");
+                Console.WriteLine("");
+            }
+        }
+
+        public void ShowGames()
+        {
+            lock (_jekalLock)
+            {
+                Console.WriteLine("Game List");
+                Console.WriteLine("-----------------------------------------------------");
+                foreach (var g in Games.GetAllGames())
+                {
+                    Console.WriteLine($"GAME : {g.GameId}, PC: {g.Players.Count}, RTS: {g.ReadyToStart}, PS: {g.HasPlayerSpace()}, Time: {g.GameTime}");
+                    Console.WriteLine("-----------------------------------------------------");
+                    foreach (var p in g.Players)
+                    {
+                        Console.WriteLine($"\t{p.Name} : S - {p.SessionID}, G - {p.GameID}, T - {p.TeamID}, Tags: {p.Tags}, Tagged: {p.Tagged}");
+                    }
+                    Console.WriteLine("-----------------------------------------------------");
+                    Console.WriteLine("");
+                }
+                Console.WriteLine("-----------------------------------------------------");
+                Console.WriteLine("");
+            }
+        }
         #endregion
 
         #region LoginServer Methods
-        private Task LoginConnection(TcpClient loginConnection)
+        private Task<int> LoginConnection(TcpClient loginConnection)
         {
             Console.WriteLine("LOGINSERVER: Incoming Connection");
 
@@ -218,7 +263,7 @@ namespace Jekal
         #endregion
 
         #region ChatServer Methods
-        private Task ChatConnection(TcpClient chatConnection)
+        private Task<int> ChatConnection(TcpClient chatConnection)
         {
             Console.WriteLine("CHATSERVER: Incoming Connection");
 
@@ -463,17 +508,28 @@ namespace Jekal
             byteBuffer.Write((int)ChatMessage.Messages.PMSG);
             byteBuffer.Write(chatMessage.Source);
             byteBuffer.Write(chatMessage.SourceId);
-            byteBuffer.Write(chatMessage.Destination);
-            byteBuffer.Write(chatMessage.Message);
 
-            // TODO: Check for player online
-            // TODO: Send source player PMSG as well
+            var srcPlayer = Players.GetPlayer(chatMessage.SourceId);
+            var destPlayer = Players.GetPlayer(chatMessage.Destination);
 
-            var player = Players.GetPlayer(chatMessage.Destination);
-
-            if (!player.SendChatMessage(byteBuffer))
+            if (destPlayer == null)
             {
-                CloseChatConnection(player);
+                byteBuffer.Write("Server");
+                byteBuffer.Write($"Player [{chatMessage.Destination}] does not exist.");
+            }
+            else
+            {
+                byteBuffer.Write(chatMessage.Destination);
+                byteBuffer.Write(chatMessage.Message);
+                if (!destPlayer.SendChatMessage(byteBuffer))
+                {
+                    CloseChatConnection(destPlayer);
+                }
+            }
+
+            if (!srcPlayer.SendChatMessage(byteBuffer))
+            {
+                CloseChatConnection(srcPlayer);
             }
 
             byteBuffer.Dispose();
@@ -482,6 +538,101 @@ namespace Jekal
         public void CloseChatConnection(Player player)
         {
             _closedChatConnections.Add(player);
+        }
+        #endregion
+
+        #region GameServer Methods
+        private async Task<int> GameConnection(TcpClient incomingConnection)
+        {
+            Console.WriteLine("GAMESERVER: Incoming Connection");
+            NetworkStream netStream = incomingConnection.GetStream();
+
+            GameMessage gameMsg = new GameMessage();
+            byte[] inBuffer;
+            inBuffer = new byte[BUFFER_SIZE];
+
+            do
+            {
+                int bytesRead = netStream.Read(inBuffer, 0, inBuffer.Length);
+                byte[] temp = new byte[bytesRead];
+                Array.Copy(inBuffer, temp, bytesRead);
+                gameMsg.Buffer.Write(temp);
+            }
+            while (netStream.DataAvailable);
+
+            if (gameMsg.Parse() && (gameMsg.MessageType == GameMessage.Messages.GAMEJOIN))
+            {
+                string playerName = gameMsg.Source;
+                int sessionId = gameMsg.SourceId;
+
+                // Clear for reuse
+                gameMsg.Buffer.Clear();
+
+                if (!Players.ValidateSession(playerName, sessionId))
+                {
+                    Console.WriteLine($"GAMESERVER: Reject {playerName} - No Session");
+                    gameMsg.Buffer.Write((int)GameMessage.Messages.REJECT);
+                    gameMsg.Buffer.Write("No session ID.");
+                    netStream.Write(gameMsg.Buffer.ToArray(), 0, gameMsg.Buffer.Count());
+                    netStream.Close();
+                    incomingConnection.Close();
+                }
+                else
+                {
+                    Game game;
+                    lock (_jekalLock)
+                    {
+                        Console.WriteLine($"GAMESERVER: JOIN {playerName}; SESSION: {sessionId}");
+                        Player player = Players.GetPlayer(playerName);
+                        game = Games.GetWaitingGame();
+                        player.AssignGameConnection(incomingConnection, new AsyncCallback(game.HandleMessage));
+                        player.GameID = game.GameId;
+                        if (!game.AddPlayer(player))
+                        {
+                            Console.WriteLine("GAMESERVER: Unable to add player to game.");
+                            return 0;
+                        }
+
+                        Console.WriteLine($"GAMESERVER: GAME: {player.GameID}; TEAMJOIN {playerName}; TEAM: {player.TeamID}");
+                        ByteBuffer buffer = new ByteBuffer();
+                        buffer.Write((int)GameMessage.Messages.GAMEJOIN);
+                        buffer.Write(player.Name);
+                        buffer.Write(player.SessionID);
+                        player.SendGameMessage(buffer);
+                        buffer.Clear();
+                        buffer.Write((int)GameMessage.Messages.TEAMJOIN);
+                        buffer.Write(player.SessionID);
+                        buffer.Write(player.Name);
+                        buffer.Write(player.TeamID);
+                        game.SendMessageToGame(buffer);
+                        buffer.Clear();
+                        buffer.Dispose();
+                    }  // End lock
+
+                    if (game.ReadyToStart)
+                    {
+                        await Task.Delay(5000);
+                        Task gameTask = game.Start();
+                        Games.AddGame(gameTask);
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("GAMESERVER: Expecting GAMEJOIN message. Closing connection.");
+                netStream.Close();
+                incomingConnection.Close();
+            }
+
+            return 0;
+        }
+
+        public void GameShutDown(bool error, string msg = "")
+        {
+            if (error)
+            {
+                Console.WriteLine($"GAMESERVER: Error - {msg}");
+            }
         }
         #endregion
     }

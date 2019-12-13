@@ -9,11 +9,13 @@ namespace Jekal.Managers
         private readonly object _playerManagerLock = new object();
 
         private readonly Dictionary<int, Player> _players;
+        private readonly List<Player> _closedConnections;
         private int _nextSessionId = 0;
 
         public PlayerManager()
         {
             _players = new Dictionary<int, Player>();
+            _closedConnections = new List<Player>();
         }
 
         public Player GetPlayer(string playerName)
@@ -135,10 +137,33 @@ namespace Jekal.Managers
         {
             lock (_playerManagerLock)
             {
-                if (!player.ChatEnabled && !player.GameEnabled)
+                if (!player.ChatEnabled || !player.GameEnabled)
                 {
                     _players.Remove(player.SessionID);
                 }
+            }
+        }
+
+        public void CleanupPlayers(object stateinfo)
+        {
+            lock (_playerManagerLock)
+            {
+                foreach (var p in _players)
+                {
+                    if (p.Value.PlayerCheck && (!p.Value.ChatEnabled || !p.Value.GameEnabled))
+                    {
+                        p.Value.CloseChat();
+                        p.Value.CloseGame();
+                        _closedConnections.Add(p.Value);
+                    }
+                }
+
+                foreach (var p in _closedConnections)
+                {
+                    _players.Remove(p.SessionID);
+                }
+
+                _closedConnections.Clear();
             }
         }
     }

@@ -20,23 +20,26 @@ namespace NetworkGame
         public enum GameState
         {
             WAIT = 1,
-            START,
             PLAYING,
             END
         }
+
         private void Awake()
         {
-            AllowPlayerInput = true;
             if (Instance != null)
             {
                 return;
             }
             Instance = this;
+            AllowPlayerInput = true;
         }
+
         private void Start()
         {
             Screen.SetResolution(1920, 1080, false);
+            MyGameState = GameState.WAIT;
         }
+
         private void Update()
         {
             _currentScene = SceneManager.GetActiveScene().buildIndex;
@@ -46,7 +49,9 @@ namespace NetworkGame
                 preloaded = true;
                 SceneManager.LoadScene(1);
             }
+            
         }
+
 #if UNITY_EDITOR
         void LateUpdate()
         {

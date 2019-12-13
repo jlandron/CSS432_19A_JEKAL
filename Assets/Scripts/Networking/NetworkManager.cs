@@ -41,6 +41,7 @@ namespace NetworkGame.Client
         private bool gameIsLaunched = false;
         [SerializeField]
         private bool chatRequestSent = false;
+
         [SerializeField]
         private bool gameRequestSent = false;
         [SerializeField]
@@ -138,6 +139,13 @@ namespace NetworkGame.Client
             }
 
         }
+
+        internal IEnumerator EndConnections(float timeToWait)
+        {
+            yield return new WaitForSeconds(timeToWait);
+            ShouldKillChat = true;
+            ShouldKillGame = true;
+        }
         private void LaunchGame()
         {
             ShouldKillLogin = true;
@@ -146,25 +154,6 @@ namespace NetworkGame.Client
             StartChatClient();
         }
 
-        private void OnApplicationQuit()
-        {
-            if (loginClientTCP != null)
-            {
-                loginClientTCP.Disconnect();
-            }
-
-            if (gameClientTCP != null)
-            {
-                gameClientTCP.dataSender.SendGameLeaveMessage();
-                gameClientTCP.Disconnect();
-            }
-
-            if (chatClientTCP != null)
-            {
-                chatClientTCP.dataSender.SendLeaveMessage();
-                chatClientTCP.Disconnect();
-            }
-        }
         public void StartLoginClient(string playerName, string serverIP)
         {
             ServerIP = serverIP;

@@ -1,4 +1,6 @@
 ﻿using Common.Protocols;
+using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace NetworkGame.Client
@@ -62,8 +64,8 @@ namespace NetworkGame.Client
             buffer.Write(NetworkManager.Instance.PlayerName);
             buffer.Write(NetworkManager.Instance.PlayerID);
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
+            buffer.Dispose();
         }
-
         /////// Login //////
         public void RequestLogin()
         {
@@ -73,7 +75,6 @@ namespace NetworkGame.Client
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
             buffer.Dispose();
         }
-
         /////// Game ////////
         public void SendGameJoinRequest()
         {
@@ -99,6 +100,7 @@ namespace NetworkGame.Client
             buffer.Write(NetworkManager.Instance.PlayerID);
             buffer.Write(playerTagged);
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
+            buffer.Dispose();
         }
         public void SendGameLeaveMessage()
         {
@@ -107,7 +109,10 @@ namespace NetworkGame.Client
             buffer.Write(NetworkManager.Instance.PlayerName);
             buffer.Write(NetworkManager.Instance.PlayerID);
             clientTCP.dataToSend.Enqueue(buffer.ToArray());
+            buffer.Dispose();
+            NetworkManager.Instance.EndConnections(0.5f);
         }
+
     }
 }
 

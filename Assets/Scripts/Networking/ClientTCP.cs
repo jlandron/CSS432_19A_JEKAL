@@ -30,7 +30,7 @@ namespace NetworkGame.Client
             clientHandleData = new ClientHandleData(this);
             clientHandleData.InitPackets();
             dataToSend = new ConcurrentQueue<byte[]>();
-            switch (this.Type)
+            switch (Type)
             {
                 case ClientTypes.LOGIN:
                     InitNetworking(NetworkManager.Instance.ServerIP, NetworkManager.Instance.LoginServerPort);
@@ -54,7 +54,15 @@ namespace NetworkGame.Client
             _recieveBuffer = new byte[BUFFER_SIZE];
             _serverIP = serverIP;
             _serverPort = serverPort;
-            _clientSocket.BeginConnect(serverIP, serverPort, new System.AsyncCallback(ClientConnectCallback), _clientSocket);
+            try
+            {
+                _clientSocket.BeginConnect(serverIP, serverPort, new System.AsyncCallback(ClientConnectCallback), _clientSocket);
+            }
+            catch (Exception e)
+            {
+                NetworkManager.Instance.errorMessageToPrint = "Failed to login: " + e.Message;
+            }
+            
             //Debug.Log("Client " + Type + " started");
         }
 
@@ -64,7 +72,7 @@ namespace NetworkGame.Client
         }
         public void SetReadyFlag()
         {
-            switch (this.Type)
+            switch (Type)
             {
                 case ClientTypes.LOGIN:
                     break;
@@ -85,13 +93,16 @@ namespace NetworkGame.Client
             }
             catch (Exception e)
             {
-                Debug.LogError(e.Message);
+                NetworkManager.Instance.ShouldKillLogin = true;
+                NetworkManager.Instance.errorMessageToPrint = e.Message;
+                //Debug.Log(e.Message);
             }
 
             //Debug.Log("Client " + Type + " connected");
             if (_clientSocket.Connected == false)
             {
                 Debug.Log("Client Connection failed");
+                NetworkManager.Instance.errorMessageToPrint = "Failed to connect to server. Check IP and try again.";
                 IsConnected = false;
                 return;
             }
@@ -114,23 +125,14 @@ namespace NetworkGame.Client
                 {
                     return;
                 }
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e.Message);
-            }
-            byte[] newBytes = new byte[length];
-            Array.Copy(_recieveBuffer, newBytes, length);
-            try
-            {
+
+
+                byte[] newBytes = new byte[length];
+                Array.Copy(_recieveBuffer, newBytes, length);
+
                 clientHandleData.HandleData(newBytes);
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e.Message);
-            }
-            try
-            {
+
+
                 //Debug.Log("Client: " + Type + " recieved callback and sending to handle data");
                 _myStream.BeginRead(_recieveBuffer, 0, BUFFER_SIZE, RecieveCallback, null);
             }

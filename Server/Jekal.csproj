@@ -58,7 +58,6 @@
     <Compile Include="Protocols\ChatMessage.cs" />
     <Compile Include="Protocols\GameMessage.cs" />
     <Compile Include="Protocols\LoginMessage.cs" />
-    <Compile Include="Servers\GameServer.cs" />
     <Compile Include="Servers\IServer.cs" />
     <Compile Include="Servers\TcpServer.cs" />
   </ItemGroup>

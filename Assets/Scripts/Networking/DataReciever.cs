@@ -88,8 +88,7 @@ namespace NetworkGame.Client
         }
         internal void HandleCloseMessage(byte[] data)
         {
-            //Debug.Log("Recieved chat close signal");
-            NetworkManager.Instance.ShouldKillChat = true;
+
         }
 
         //////// Login server messages ////////
@@ -112,7 +111,7 @@ namespace NetworkGame.Client
             _ = buffer.ReadInt();
             string msg = buffer.ReadString();
             buffer.Dispose();
-            NetworkManager.Instance.errorMessageToPrint = msg;
+            NetworkManager.Instance.errorMessageToPrint = ("Login rejected: " + msg);
             //give player prompt to retry
             NetworkManager.Instance.ShouldKillLogin = true;
         }
@@ -153,9 +152,11 @@ namespace NetworkGame.Client
             buffer.Write(data);
             _ = buffer.ReadInt(); //eliminate message type
             int playerID = buffer.ReadInt();
+            string playerName = buffer.ReadString();
             int teamNum = buffer.ReadInt();
             ByteBuffer playerInst = new ByteBuffer();
             playerInst.Write(playerID); //playerID
+            playerInst.Write(playerName); //playername
             playerInst.Write(teamNum); //TeamID
             PlayerManager.Instance.playersToSpawn.Enqueue(playerInst.ToArray());
             playerInst.Dispose();
@@ -184,37 +185,17 @@ namespace NetworkGame.Client
         internal void HandleGameEndMessage(byte[] data)
         {
             GameManager.Instance.MyGameState = GameManager.GameState.END;
+            EndOfGameManager.Instance.scores.Enqueue(data);
         }
         internal void HandleGameStartMessage(byte[] data)
         {
-            GameManager.Instance.MyGameState = GameManager.GameState.START;
+            GameManager.Instance.MyGameState = GameManager.GameState.PLAYING;
         }
         internal void HandleRemoveMessage(byte[] data)
         {
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(data);
             PlayerManager.Instance.playersToRemove.Enqueue(buffer.ToArray());
-            buffer.Dispose();
-        }
-
-
-        internal void HandleTeamListMessage(byte[] data)
-        {
-            ByteBuffer buffer = new ByteBuffer();
-            buffer.Write(data);
-            _ = buffer.ReadInt();
-            int numPlayersInGame = buffer.ReadInt();
-            for (int i = 0; i < numPlayersInGame; i++)
-            {
-                Debug.Log("Handle teamList");
-                int playerID = buffer.ReadInt();
-                int teamNum = buffer.ReadInt();
-                ByteBuffer playerInst = new ByteBuffer();
-                playerInst.Write(playerID);
-                playerInst.Write(teamNum);
-                PlayerManager.Instance.playersToSpawn.Enqueue(playerInst.ToArray());
-                playerInst.Dispose();
-            }
             buffer.Dispose();
         }
 

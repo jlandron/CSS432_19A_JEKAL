@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Jekal.Objects
 {
@@ -20,6 +21,9 @@ namespace Jekal.Objects
         public float RotZ { get; set; }
         public float RotW { get; set; }
         public float Lerp { get; set; }
+        public int Tags { get; set; }
+        public int Tagged { get; set; }
+        public bool PlayerCheck { get; set; }
 
 
         // Chat Networking
@@ -27,6 +31,8 @@ namespace Jekal.Objects
         private NetworkStream _chatStream;
         private byte[] _chatBuffer;
         public bool ChatEnabled = false;
+        private Timer _pingTimer = null;
+
 
         // Game Networking
         private TcpClient _gameSocket;
@@ -49,7 +55,9 @@ namespace Jekal.Objects
             // Init Player
             Name = string.Empty;
             SessionID = -1;
-            
+            Tags = 0;
+            Tagged = 0;
+            PlayerCheck = false;
         }
 
         public void AssignChatConnection(TcpClient connection, AsyncCallback callback)
@@ -58,6 +66,7 @@ namespace Jekal.Objects
             _chatStream = connection.GetStream();
             _chatStream.BeginRead(_chatBuffer, 0, BUFFER_SIZE, callback, this);
             ChatEnabled = true;
+            _pingTimer = new Timer(SendPing, null, 0, 250); // Ping every 250ms
         }
 
         public void AssignGameConnection(TcpClient connection, AsyncCallback callback)
@@ -66,6 +75,13 @@ namespace Jekal.Objects
             _gameStream = connection.GetStream();
             _gameStream.BeginRead(_gameBuffer, 0, BUFFER_SIZE, callback, this);
             GameEnabled = true;
+        }
+
+        private void SendPing(object stateinfo)
+        {
+            var buffer = new ByteBuffer();
+            buffer.Write(255);
+            SendChatMessage(buffer);
         }
 
         public int EndReadChat(IAsyncResult ar)
@@ -162,7 +178,7 @@ namespace Jekal.Objects
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending chat message, closing connection.");
                 CloseChat();
-                ChatEnabled = false;
+                _pingTimer.Dispose();
             }
 
             return success;
@@ -180,7 +196,6 @@ namespace Jekal.Objects
             {
                 Console.WriteLine($"PLAYER {Name}: Error sending game message, closing connection.");
                 CloseGame();
-                GameEnabled = false;
             }
 
             return success;
@@ -221,6 +236,8 @@ namespace Jekal.Objects
             {
                 _chatStream?.Close();
                 _chatSocket?.Close();
+                PlayerCheck = true;
+                ChatEnabled = false;
             }
         }
 
@@ -242,6 +259,8 @@ namespace Jekal.Objects
             {
                 _gameStream?.Close();
                 _gameSocket?.Close();
+                PlayerCheck = true;
+                GameEnabled = false;
             }
         }
     }

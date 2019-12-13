@@ -1,12 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+﻿using UnityEngine;
 
-namespace NetworkGame.UI {
-    public class PauseMenu : MonoBehaviour {
+namespace NetworkGame.UI
+{
+    public class PauseMenu : MonoBehaviour
+    {
         [SerializeField]
         RectTransform[] children;
         [SerializeField]
@@ -19,33 +16,42 @@ namespace NetworkGame.UI {
 
         void Update()
         {
-
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (GameManager.Instance != null && (GameManager.Instance.MyGameState == GameManager.GameState.WAIT ||
+                GameManager.Instance.MyGameState == GameManager.GameState.PLAYING))
             {
-                if (!_isPaused)
+                if (Input.GetKeyDown(KeyCode.Escape))
                 {
-                    ActivateObjects(true);
+                    if (!_isPaused)
+                    {
+                        ActivateObjects(true);
+                    }
+                    else
+                    {
+                        ActivateObjects(false);
+                    }
                 }
-                else
-                {
-                    ActivateObjects(false);
-                }
+            }
+            if(GameManager.Instance.MyGameState == GameManager.GameState.END)
+            {
+                ActivateObjects(false);
             }
         }
         internal void ActivateObjects(bool active)
         {
-            foreach (var child in children)
+            foreach (RectTransform child in children)
             {
                 child.gameObject.SetActive(active);
             }
-            GameManager.Instance.AllowPlayerInput = !active;
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.AllowPlayerInput = !active;
+            }
             _isPaused = active;
         }
 
         public void ResumeOnClick()
         {
             ActivateObjects(false);
-            _isPaused = false;
         }
     }
 }

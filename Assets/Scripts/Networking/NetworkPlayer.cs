@@ -1,6 +1,7 @@
 ﻿using Common.Protocols;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NetworkGame.Client
 {
@@ -11,6 +12,8 @@ namespace NetworkGame.Client
         [Header("Player Properties")]
         public int playerID;
         public bool isLocalPlayer;
+        private float _timeSinceTagPressed = 0f;
+        public float timeBetweenTag = 2f;
 
         [Header("Player Movement Properties")]
         public bool canSendNetworkMovement;
@@ -37,6 +40,8 @@ namespace NetworkGame.Client
         [SerializeField]
         MeshRenderer[] meshRenderers;
         [SerializeField]
+        Image colorBar;
+        [SerializeField]
         Material[] materials;
 
         public int Team { get => team; set => team = value; }
@@ -46,7 +51,11 @@ namespace NetworkGame.Client
 
             if (isLocalPlayer)
             {
-                playerID = NetworkManager.Instance.PlayerID;
+                if (NetworkManager.Instance != null)
+                {
+                    playerID = NetworkManager.Instance.PlayerID;
+                }
+
                 canSendNetworkMovement = false;
             }
             else
@@ -72,20 +81,40 @@ namespace NetworkGame.Client
             {
                 item.material = materials[Team % materials.Length];
             }
+            if (colorBar != null)
+            {
+                colorBar.color = materials[Team % materials.Length].color;
+            }
+            _timeSinceTagPressed += Time.deltaTime;
         }
         private void OnTriggerStay(Collider other)
         {
-            if (GameManager.Instance.AllowPlayerInput && Input.GetKeyDown(KeyCode.E))
+            if(GameManager.Instance.MyGameState != GameManager.GameState.PLAYING) { return; }
+            //Debug.Log("Colliding with " + other.gameObject.name);
+            if (other.gameObject.CompareTag("ExtPlayer"))
             {
-                //TODO: add actual tag message with distance/collision checking
-                if (other.CompareTag("ExtPlayer"))
+                //Debug.Log("touching " + other.gameObject.GetComponent<NetworkPlayer>().playerID);
+                if (GameManager.Instance != null)
                 {
-                    int playerTagged = other.gameObject.GetComponent<NetworkPlayer>().playerID;
-                    Debug.Log("Tagged player " + playerTagged + "!");
-                    NetworkManager.Instance.gameClientTCP.dataSender.SendTagMessage(playerTagged);
+                    if (GameManager.Instance.AllowPlayerInput && Input.GetKeyDown(KeyCode.E))
+                    {
+                        if (_timeSinceTagPressed > timeBetweenTag)
+                        {
+                            //TODO: add actual tag message with distance/collision checking
+
+                            int playerTagged = other.gameObject.GetComponent<NetworkPlayer>().playerID;
+                            Debug.Log("Tagged player " + playerTagged + "!");
+                            if (NetworkManager.Instance != null)
+                            {
+                                NetworkManager.Instance.gameClientTCP.dataSender.SendTagMessage(playerTagged);
+                            }
+                            _timeSinceTagPressed = 0f;
+                        }
+                    }
                 }
             }
         }
+
 
 
         private void UpdatePlayerMovement()
@@ -114,7 +143,9 @@ namespace NetworkGame.Client
 
         public void SendUpdateMessage(int _playerID, Vector3 _position, Quaternion _rotation, float _timeTolerp)
         {
-
+            //do not send messages after game is marked as over
+            if (GameManager.Instance != null && 
+                GameManager.Instance.MyGameState == GameManager.GameState.END) { return; }
             ByteBuffer buffer = new ByteBuffer();
             buffer.Write(_playerID);
             //player location
@@ -128,8 +159,11 @@ namespace NetworkGame.Client
             buffer.Write(_rotation.w);
             //time information
             buffer.Write(_timeTolerp);
-            buffer.Write(Team);
-            NetworkManager.Instance.gameClientTCP.dataSender.SendTransformMessage(buffer.ToArray());
+            if (NetworkManager.Instance != null)
+            {
+                NetworkManager.Instance.gameClientTCP.dataSender.SendTransformMessage(buffer.ToArray());
+            }
+
             buffer.Dispose();
         }
 
@@ -143,7 +177,10 @@ namespace NetworkGame.Client
             Quaternion _rotation = new Quaternion(buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat());
             //read lerp time
             float _timeToLerp = buffer.ReadFloat();
-            Team = buffer.ReadInt();
+            int teamNum = buffer.ReadInt();
+            Team = teamNum;
+            int numTags = buffer.ReadInt();
+            int numTimesTagged = buffer.ReadInt();
             buffer.Dispose();
 
             lastRealPosition = realPosition;

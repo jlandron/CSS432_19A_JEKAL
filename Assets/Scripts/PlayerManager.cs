@@ -1,9 +1,11 @@
 ﻿using Common.Protocols;
 using NetworkGame.Client;
+using NetworkGame.UI;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityStandardAssets.Characters.FirstPerson;
 
 namespace NetworkGame
 {
@@ -53,8 +55,9 @@ namespace NetworkGame
                 ByteBuffer buffer = new ByteBuffer();
                 buffer.Write(playerToSpawnData);
                 int playerID = buffer.ReadInt();
+                string playerName = buffer.ReadString();
                 int teamNum = buffer.ReadInt();
-                InstantiatePlayer(playerID, teamNum);
+                InstantiatePlayer(playerID, playerName , teamNum);
                 buffer.Dispose();
             }
             byte[] playerToRemoveData;
@@ -81,9 +84,18 @@ namespace NetworkGame
                 HandleSwitchTeam(buffer.ToArray());
                 buffer.Dispose();
             }
+            if (localPlayer != null)
+            {
+                if (localPlayer.GetComponent<FirstPersonController>().enabled != GameManager.Instance.AllowPlayerInput)
+                {
+                    Debug.Log("Setting player controls to: " + GameManager.Instance.AllowPlayerInput);
+                    localPlayer.GetComponent<FirstPersonController>().enabled = GameManager.Instance.AllowPlayerInput;
+                    localPlayer.GetComponent<CharacterController>().enabled = GameManager.Instance.AllowPlayerInput;
+                }
+            }
         }
 
-        private void InstantiatePlayer(int playerID, int teamNum)
+        private void InstantiatePlayer(int playerID, string playerName, int teamNum)
         {
             if (playerID == NetworkManager.Instance.PlayerID)
             {
@@ -117,7 +129,7 @@ namespace NetworkGame
                     playerObject = Instantiate(playerPrefab);
                 }
                 //set player atributes
-                playerObject.name = "Player: " + playerID;
+                playerObject.name = playerName;
                 playerObject.tag = "ExtPlayer";
                 Client.NetworkPlayer networkPlayer = playerObject.GetComponent<Client.NetworkPlayer>();
                 networkPlayer.playerID = playerID;
@@ -143,6 +155,7 @@ namespace NetworkGame
             _ = buffer.ReadInt();
             int playerID = buffer.ReadInt();
             string taggerName = buffer.ReadString();
+            //TODO: flash taggerName on screen
             int taggerID = buffer.ReadInt();
             int oldTeamID = buffer.ReadInt();
             int teamNum = buffer.ReadInt();
@@ -172,6 +185,7 @@ namespace NetworkGame
                 {
                     ByteBuffer byteBuffer = new ByteBuffer();
                     int playerID = buffer.ReadInt();
+                    string playerName = buffer.ReadString();
                     byteBuffer.Write(buffer.ReadFloat()); //x
                     byteBuffer.Write(buffer.ReadFloat()); //y
                     byteBuffer.Write(buffer.ReadFloat()); //z
@@ -182,13 +196,15 @@ namespace NetworkGame
                     byteBuffer.Write(buffer.ReadFloat()); //time
                     int teamNum = buffer.ReadInt();
                     byteBuffer.Write(teamNum);
+                    byteBuffer.Write(buffer.ReadInt()); //tagged
+                    byteBuffer.Write(buffer.ReadInt()); //tags
+                    
                     if (playerID != NetworkManager.Instance.PlayerID)
                     {
-
                         if (!ConnectedPlayers.ContainsKey(playerID))
                         {
                             Debug.Log("Player " + playerID + " not in game, Instantiating.");
-                            InstantiatePlayer(playerID, teamNum);
+                            InstantiatePlayer(playerID, playerName, teamNum);
                         }
                         Debug.Log("processing player " + playerID + "'s movement");
                         if (ConnectedPlayers.ContainsKey(playerID))
@@ -208,8 +224,8 @@ namespace NetworkGame
 
         private void UpdateGameTime(float v)
         {
-            //TODO: update game UI
-            //Debug.Log("Time left: " + v);
+            if(GameManager.Instance.MyGameState == GameManager.GameState.WAIT) { return; }
+            ChatManager.Instance.timer.text = ("Time left: " + v);
         }
 
 
